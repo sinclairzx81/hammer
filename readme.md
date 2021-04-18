@@ -4,7 +4,7 @@
 
 <p>Build Tool for Single Page HTML Applications</p>
 
-[![npm version](https://badge.fury.io/js/%40sinclair%2Ftypebox.svg)](https://badge.fury.io/js/%40sinclair%2Ftypebox)
+[![npm version](https://badge.fury.io/js/%40sinclair%2Fhammer.svg)](https://badge.fury.io/js/%40sinclair%2Fhammer)
 
 <img src="doc/hammer.png" />
 
