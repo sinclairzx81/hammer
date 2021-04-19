@@ -26,38 +26,9 @@ SOFTWARE.
 
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { build, BuildResult } from 'esbuild'
+import { Cache } from '../cache/index'
 import { Html, Asset } from './html'
 import { dirname } from 'path'
-
-// ---------------------------------------------------------------
-// Cache
-// ---------------------------------------------------------------
-
-class Cache {
-  private readonly cache = new Map<string, Asset>()
-  private *added(html: Html) {
-    for (const asset of html.assets) {
-      if (!this.cache.has(asset.sourcePath)) {
-        this.cache.set(asset.sourcePath, asset)
-        yield { type: 'added', asset }
-      }
-    }
-  }
-  private *removed(next: Html) {
-    for (const key of this.cache.keys()) {
-      const exists = next.assets.find((asset) => asset.sourcePath === key)
-      if (exists === undefined) {
-        const asset = this.cache.get(key)!
-        this.cache.delete(key)
-        yield { type: 'removed', asset }
-      }
-    }
-  }
-  public *next(next: Html) {
-    yield* this.removed(next)
-    yield* this.added(next)
-  }
-}
 
 // ---------------------------------------------------------------
 // Compiler
@@ -73,7 +44,10 @@ export interface CompilerOptions {
 
 export class Compiler {
   private readonly handles = new Map<string, BuildResult>()
-  private readonly cache = new Cache()
+  private readonly cache = new Cache<Asset>({
+    key: 'sourcePath',
+    hash: 'sourcePath'
+  })
   constructor(private readonly options: CompilerOptions) {}
   private async start(asset: Asset) {
     try {
@@ -105,13 +79,13 @@ export class Compiler {
 
   public async run(html: Html) {
     this.writeHtml(html)
-    for (const action of this.cache.next(html)) {
+    for (const action of this.cache.next(html.assets)) {
       switch (action.type) {
-        case 'added':
-          await this.start(action.asset)
+        case 'insert':
+          await this.start(action.value)
           break
-        case 'removed':
-          await this.stop(action.asset)
+        case 'delete':
+          await this.stop(action.value)
           break
       }
     }
