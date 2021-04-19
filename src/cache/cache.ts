@@ -41,12 +41,12 @@ export class Cache<T> {
     private readonly cache = new Map<string, T>()
     constructor(private readonly options: CacheOptions<T>) { }
 
-    private keyOf(values: T): string {
-        return values[this.options.key] as any as string
+    private keyOf(value: T): string {
+        return value[this.options.key] as any as string
     }
     
-    private hashOf(values: T): string {
-        return values[this.options.hash] as any as string
+    private hashOf(value: T): string {
+        return value[this.options.hash] as any as string
     }
     
     private *inserts(values: T[]): Generator<Insert<T>> {
