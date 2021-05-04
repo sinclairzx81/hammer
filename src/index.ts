@@ -52,6 +52,7 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
     into(async () => {
         for await(const _ of watcher) {
             const assets = resolve(options.sourcePaths, options.dist)
+            watcher.update(assets)
             const actions = cache.update(assets)
             await builder.update(actions)
         }

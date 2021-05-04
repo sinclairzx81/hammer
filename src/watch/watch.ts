@@ -40,18 +40,29 @@ export class Watcher {
         this.watchers = new Map<string, fs.FSWatcher>()
         this.sender   = sender
         this.receiver = receiver
-        for(const sourcePath of [...sourcePaths, ...assets.map(asset => asset.sourcePath)]) {
+        for(const sourcePath of sourcePaths) {
             if(this.watchers.has(sourcePath)) continue
             if(!fs.existsSync(sourcePath)) continue
             const options = { recursive: true }
             const watcher = fs.watch(sourcePath, options, event => this.onChange(sourcePath))
             this.watchers.set(sourcePath, watcher)
         }
+        this.update(assets)
     }
 
     public async * [Symbol.asyncIterator]() {
         for await(const path of this.receiver) {
             yield path
+        }
+    }
+
+    public update(assets: Asset[]) {
+        for(const sourcePath of assets.map(asset => asset.sourcePath)) {
+            if(this.watchers.has(sourcePath)) continue
+            if(!fs.existsSync(sourcePath)) continue
+            const options = { recursive: true }
+            const watcher = fs.watch(sourcePath, options, event => this.onChange(sourcePath))
+            this.watchers.set(sourcePath, watcher)
         }
     }
 
