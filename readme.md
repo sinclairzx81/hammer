@@ -34,12 +34,12 @@ Create an `index.html` file.
 ```
 Run Hammer
 ```shell
-$ hammer index.html --dist dist
+$ hammer index.html
 ```
 Done
 ## Overview
 
-Hammer is a build tool that creates asset bundles by reading HTML files. It operates similar to bundlers like Parcel where referenced page assets are read and processed. Hammer uses `esbuild` to bundle for performance and provides a simple development server that supports automatic save and refresh workflows.
+Hammer is a build tool for HTML applications. It works by scanning an HTML file for asset references and processes each discovered asset along with the HTML file into a `dist` directory. Hammer uses `esbuild` for performance and provides a simple development server that supports automatic save and refresh workflows.
 
 This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead simple automatic bundling with significantly reduced dependency overhead.
 
