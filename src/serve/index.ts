@@ -24,30 +24,4 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { createServer, Server } from 'http'
-import { reloadHandler, signalHandler, signalReload } from './reload'
-import { staticHandler } from './static'
-
-export interface ReloadServerOptions {
-  target: string
-  port: number
-}
-
-export function createReloadServer(options: ReloadServerOptions): Function {
-  createServer((request, response) => {
-    const origin = request.headers['origin'] || '*'
-    response.setHeader('Vary', 'Origin')
-    response.setHeader('Access-Control-Allow-Origin', origin)
-    response.setHeader('Access-Control-Allow-Methods', 'GET')
-    switch (request.url) {
-      case '/hammer/reload':
-        return reloadHandler(request, response)
-      case '/hammer/signal':
-        return signalHandler(request, response)
-      default:
-        return staticHandler(request, response, options.target)
-    }
-  }).listen(options.port)
-
-  return () => signalReload()
-}
+export * from './server'

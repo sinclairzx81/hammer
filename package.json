@@ -1,7 +1,7 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.8.0",
-  "description": "Build Tool for Single Page HTML Applications.",
+  "version": "0.8.1",
+  "description": "Build Tool for HTML Applications.",
   "author": "sinclairzx81",
   "license": "MIT",
   "repository": {

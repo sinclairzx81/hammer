@@ -24,37 +24,51 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { channel, Receiver, Debounce } from '../async/index'
-import { mkdirSync, readdirSync, statSync, existsSync, watch } from 'fs'
-import { join } from 'path'
+import { channel, Sender, Receiver, Debounce } from '../async/index'
+import { Asset } from '../resolve/index'
+import * as fs from 'fs'
 
-function* findFolders(sourceDirectory: string): Generator<string> {
-  const stat = statSync(sourceDirectory)
-  if (!stat.isDirectory()) return
-  yield sourceDirectory
-  for (const entry of readdirSync(sourceDirectory)) {
-    const next = join(sourceDirectory, entry)
-    yield* findFolders(next)
-  }
+export class Watcher {
+    private readonly watchers: Map<string, fs.FSWatcher>
+    private readonly debounce: Debounce
+    private readonly sender:   Sender<string>
+    private readonly receiver: Receiver<string>
+
+    constructor(sourcePaths: string[], assets: Asset[]) {
+        const [sender, receiver] = channel<string>()
+        this.debounce = new Debounce(100)
+        this.watchers = new Map<string, fs.FSWatcher>()
+        this.sender   = sender
+        this.receiver = receiver
+        for(const sourcePath of [...sourcePaths, ...assets.map(asset => asset.sourcePath)]) {
+            if(this.watchers.has(sourcePath)) continue
+            if(!fs.existsSync(sourcePath)) continue
+            const options = { recursive: true }
+            const watcher = fs.watch(sourcePath, options, event => this.onChange(sourcePath))
+            this.watchers.set(sourcePath, watcher)
+        }
+    }
+
+    public async * [Symbol.asyncIterator]() {
+        for await(const path of this.receiver) {
+            yield path
+        }
+    }
+
+    private onChange(sourcePath: string) {
+        this.debounce.run(() => this.sender.send(sourcePath))
+    }
+
+    public dispose(): void {
+        this.sender.end()
+        for(const [sourcePath, watcher] of this.watchers) {
+            this.watchers.delete(sourcePath)
+            watcher.close()
+        }
+    }
 }
 
-export function watchFolder(sourceDirectory: string): Receiver<string> {
-  if (!existsSync(sourceDirectory)) mkdirSync(sourceDirectory, { recursive: true })
-  const [sender, receiver] = channel<string>()
-  const debounce = new Debounce(100)
-  for (const folder of findFolders(sourceDirectory)) {
-    watch(folder, () => debounce.run(() => sender.send(folder)))
-  }
-  return receiver
+
+export function watch(sourcePaths: string[], assets: Asset[]): Watcher {
+    return new Watcher(sourcePaths, assets)
 }
-
-export function watchFile(sourcePath: string): Receiver<string> {
-  const [sender, receiver] = channel<string>()
-  const debounce = new Debounce(100)
-  const emit = () => debounce.run(() => sender.send(sourcePath))
-  watch(sourcePath, () => emit())
-  emit()
-  return receiver
-}
-
-

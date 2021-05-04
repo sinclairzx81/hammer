@@ -24,79 +24,64 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { readHtml, watchHtml, Compiler } from './build/index'
-import { watchFolder } from './watch/index'
-import { createReloadServer } from './server/index'
-import { resolve } from 'path'
+import { into }           from './async/index'
+import { Cache }          from './cache/index'
+import { Build }          from './build/index'
+import { resolve, Asset } from './resolve/index'
+import { watch }          from './watch/index'
+import { serve }          from './serve/index'
+import { Options }        from './options/index'
 
-// -------------------------------------------------------------------------
-// Options
-// -------------------------------------------------------------------------
+export type DisposeFunction = () => void
 
-export interface Options {
-  htmlPath: string
-  outDir: string
-  port: number
-  minify: boolean
-  sourcemap: boolean
-  target: string
-  watch: boolean
-}
-
-// -------------------------------------------------------------------------
-// Watch
-// -------------------------------------------------------------------------
-
-function into(func: Function) {
-  return func()
-}
-
-async function watch(options: Options) {
-  const compiler = new Compiler({
-    minify: options.minify,
-    sourcemap: options.sourcemap,
-    target: options.target,
-    bundle: true,
-    watch: true,
-  })
-  const reload = createReloadServer({
-    target: options.outDir,
-    port: options.port,
-  })
-  await Promise.all([
-    into(async () => {
-      for await (const _ of watchFolder(options.outDir)) {
-        reload()
-      }
-    }),
-    into(async () => {
-      for await (const html of watchHtml(options.htmlPath, options.outDir)) {
-        compiler.run(html)
-      }
+async function buildAndWatch(options: Options): Promise<DisposeFunction> {
+    const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
+    const builder = new Build({
+        bundle:    options.bundle,
+        minify:    options.minify,
+        sourcemap: options.sourcemap,
+        target:    options.target,
+        watch:     options.watch,
     })
-  ])
+    const assets  = resolve(options.sourcePaths, options.dist)
+    const actions = cache.update(assets)
+    await builder.update(actions)
+    
+    const server = serve(options.dist, 5000)
+    const watcher = watch(options.sourcePaths, assets)
+    into(async () => {
+        for await(const _ of watcher) {
+            const assets = resolve(options.sourcePaths, options.dist)
+            const actions = cache.update(assets)
+            await builder.update(actions)
+        }
+    })
+    return () => {
+        builder.dispose()
+        watcher.dispose()
+        server.dispose()
+    }
 }
 
-// -------------------------------------------------------------------------
-// Build
-// -------------------------------------------------------------------------
-
-async function build(options: Options) {
-  const compiler = new Compiler({
-    minify: options.minify,
-    sourcemap: options.sourcemap,
-    target: options.target,
-    bundle: true,
-    watch: false,
-  })
-  const html = readHtml(options.htmlPath, options.outDir)
-  await compiler.run(html)
+async function build(options: Options): Promise<DisposeFunction> {
+    const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
+    const builder = new Build({
+        bundle:    options.bundle,
+        minify:    options.minify,
+        sourcemap: options.sourcemap,
+        target:    options.target,
+        watch:     options.watch,
+    })
+    const assets  = resolve(options.sourcePaths, options.dist)
+    const actions = cache.update(assets)
+    await builder.update(actions)
+    return () => builder.dispose()
 }
 
-// -------------------------------------------------------------------------
-// Start
-// -------------------------------------------------------------------------
-
-export async function start(options: Options) {
-  return options.watch ? await watch(options) : await build(options)
+export async function start(options: Options): Promise<DisposeFunction> {
+    if(options.watch) {
+        return await buildAndWatch(options)
+    } else {
+        return await build(options)
+    }
 }

@@ -1,8 +1,9 @@
 {
-  "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "target": "ESNext",
-  },
-  "files": ["cli.ts"]
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "target": "ESNext",
+        "module": "CommonJS",
+        "strict": true,
+
+    }, "files": ["cli.ts"]
 }

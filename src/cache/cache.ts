@@ -24,68 +24,71 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-// --------------------------------------------------------------------------
-// Cache
-// --------------------------------------------------------------------------
-
+export type Action<T> = Insert<T> | Update<T> | Delete<T>
 export type Insert<T> = { type: 'insert', value: T }
 export type Update<T> = { type: 'update', value: T }
 export type Delete<T> = { type: 'delete', value: T }
 
-export interface CacheOptions<T> {
-    key: keyof T
-    hash: keyof T
-}
+type CacheOptions<T> = { key: keyof T, timestamp: keyof T }
 
 export class Cache<T> {
-    private readonly cache = new Map<string, T>()
+    private readonly data = new Map<string, T>()
     constructor(private readonly options: CacheOptions<T>) { }
 
-    private keyOf(value: T): string {
-        return value[this.options.key] as any as string
+    private keyOf(values: T): string {
+        return values[this.options.key] as any as string
     }
     
-    private hashOf(value: T): string {
-        return value[this.options.hash] as any as string
+    private timestampOf(values: T): number {
+        return values[this.options.timestamp] as any as number
     }
     
-    private *inserts(values: T[]): Generator<Insert<T>> {
+    private inserts(values: T[]): Insert<T>[] {
+        const actions: Insert<T>[] = []
         for (const value of values) {
             const key = this.keyOf(value)
-            if (!this.cache.has(key)) {
-                this.cache.set(key, value)
-                yield { type: 'insert', value }
+            if (!this.data.has(key)) {
+                this.data.set(key, value)
+                actions.push({ type: 'insert', value })
             }
         }
+        return actions
     }
-    private *updates(values: T[]): Generator<Update<T>> {
+
+    private updates(values: T[]): Update<T>[] {
+        const actions: Update<T>[] = []
         for (const value of values) {
             const key = this.keyOf(value)
-            if (this.cache.has(key)) {
-                const stored = this.cache.get(key)!
-                const hash0 = this.hashOf(stored)
-                const hash1 = this.hashOf(value)
+            if (this.data.has(key)) {
+                const stored = this.data.get(key)!
+                const hash0 = this.timestampOf(stored)
+                const hash1 = this.timestampOf(value)
                 if (hash0 !== hash1) {
-                    this.cache.set(key, value)
-                    yield { type: 'update', value }
+                    this.data.set(key, value)
+                    actions.push({ type: 'update', value })
                 }
             }
         }
+        return actions
     }
 
-    private *deletes(values: T[]): Generator<Delete<T>> {
-        for (const [key, value] of this.cache) {
+    private deletes(values: T[]): Delete<T>[] {
+        const actions: Delete<T>[] = []
+        for (const [key, value] of this.data) {
             const existing = values.find(value => this.keyOf(value) === key)
             if (!existing) {
-                this.cache.delete(key)
-                yield { type: 'delete', value }
+                this.data.delete(key)
+                actions.push({ type: 'delete', value })
             }
         }
+        return actions
     }
-
-    public *next(values: T[]) {
-        yield* this.inserts(values)
-        yield* this.updates(values)
-        yield* this.deletes(values)
+    
+    public update(values: T[]): Action<T>[] {
+        return [
+            ...this.deletes(values),
+            ...this.inserts(values),
+            ...this.updates(values),
+        ]
     }
 }

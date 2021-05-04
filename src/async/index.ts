@@ -24,5 +24,7 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export { Sender, Receiver, channel } from './channel'
-export { Debounce } from './debounce'
+export * from './into'
+export * from './channel'
+export * from './debounce'
+

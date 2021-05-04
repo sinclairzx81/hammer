@@ -24,4 +24,4 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export { createReloadServer } from './server'
+export * from './options'

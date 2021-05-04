@@ -24,9 +24,9 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Defer
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 export type Resolve<T> = (value: T) => void
 export type Reject = (error: Error) => void
@@ -41,9 +41,9 @@ export function defer<T>(): [Promise<T>, Resolve<T>, Reject] {
   return [promise, resolver!, rejector!]
 }
 
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Queue
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 export class Queue<T> {
   private readonly promises: Promise<T>[] = []
@@ -71,17 +71,17 @@ export class Queue<T> {
   }
 }
 
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Protocol
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 export type Protocol<T> = Data<T> | End
 export type Data<T> = { type: 'data'; value: T }
 export type End = { type: 'end' }
 
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Sender
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 export class Sender<T> {
   constructor(private readonly queue: Queue<Protocol<T>>) {}
@@ -94,9 +94,9 @@ export class Sender<T> {
   }
 }
 
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 // Receiver
-// ---------------------------------------------------------------
+// --------------------------------------------------------------------------
 
 export class Receiver<T> {
   constructor(private readonly queue: Queue<Protocol<T>>) {}
@@ -119,4 +119,22 @@ export function channel<T>(): [Sender<T>, Receiver<T>] {
   const sender = new Sender(queue)
   const receiver = new Receiver(queue)
   return [sender, receiver]
+}
+
+
+type SelectInner<T extends Receiver<any>[]> = { 
+  [K in keyof T]: T[K] extends Receiver<infer U> ? U : never
+}[number]
+
+export function select<R extends Receiver<any>[]>(receivers: [...R]): Receiver<SelectInner<R>> {
+  async function receive(sender: Sender<any>, receiver: Receiver<any>) {
+      for await(const value of receiver) {
+          await sender.send(value)
+      }
+      await sender.end()
+  }
+  const [sender, receiver] = channel<any>()
+  const promises = receivers.map(source => receive(sender, source))
+  Promise.all(promises).then(() => sender.end())
+  return receiver
 }

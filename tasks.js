@@ -3,7 +3,7 @@ export async function clean() {
 }
 
 export async function start(target = 'target/watch') {
-    const options = 'reference/index.html --outDir target/reference --watch'
+    const options = 'reference/index.html --dist target/reference --watch'
     await file(`${target}/cli.js`).create().exec()
     await Promise.all([
         shell(`tsc --project src/tsconfig.json --outDir ${target} --watch`).exec(),

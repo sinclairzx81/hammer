@@ -24,11 +24,4 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export class Debounce {
-    private timeout: NodeJS.Timeout | undefined
-    constructor(private readonly delay: number) { }
-    public run<T>(func: () => T) {
-        if (this.timeout !== undefined) clearTimeout(this.timeout)
-        this.timeout = setTimeout(() => func(), this.delay)
-    }
-}
+export function into(func: Function) { return func() }

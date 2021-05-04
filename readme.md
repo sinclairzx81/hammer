@@ -2,7 +2,7 @@
 
 <h1>Hammer</h1>
 
-<p>Build Tool for Single Page HTML Applications</p>
+<p>Build Tool for HTML Applications</p>
 
 [![npm version](https://badge.fury.io/js/%40sinclair%2Fhammer.svg)](https://badge.fury.io/js/%40sinclair%2Fhammer)
 
@@ -18,7 +18,7 @@ $ npm install -g @sinclair/hammer
 
 ## Usage
 
-Create an `index.html` file with some `<script>` and `<link>` tags.
+Create an `index.html` file.
 
 ```html
 <!DOCTYPE html>
@@ -27,50 +27,56 @@ Create an `index.html` file with some `<script>` and `<link>` tags.
     <link href="index.css" rel="stylesheet" />
     <script src="index.tsx"></script>
   </head>
-  <body>hello world</body>
+  <body>
+    <img src="banner.png" />
+  </body>
 </html>
 ```
 Run Hammer
 ```shell
-$ hammer index.html --outDir dist
+$ hammer index.html --dist dist
 ```
 Done
 ## Overview
 
-Hammer is a tool for automatically bundling `<script>` and `<link>` tags found within HTML files. It operates similar to bundlers like Parcel where required script and css assets can be derived directly from HTML. Hammer uses `esbuild` to provide enhanced build performance as well as to significantly reduce development dependencies. Hammer also provides a development server for basic automatic save and refresh workflows.
+Hammer is a build tool that creates asset bundles by reading HTML files. It operates similar to bundlers like Parcel where referenced page assets are read and processed. Hammer uses `esbuild` to bundle for performance and provides a simple development server that supports automatic save and refresh workflows.
 
-Hammer was created to be an ultra lightweight alternative to bundlers like Parcel. It trades flexiblity in configuration with automatic bundling functionality that is quick and easy to use.
+This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead simple automatic bundling with significantly reduced dependency overhead.
 
 License MIT
 
 ## Cli
 
-The following command line parameters are supported.
+The following command line parameters are supported. The `[...paths]` can be any file or directory. If a directory Hammer will copy the directory into the `dist` location.
 
 ```
-Examples: hammer index.html
-          hammer index.html --outDir target/app
-          hammer index.html --outDir target/app --watch 5000
-          hammer index.html --outDir target/app --watch 5000 --target safari11
+Examples: $ hammer [..paths] <...options>
+          $ hammer index.html about.html
+          $ hammer index.html images --dist dist
+          $ hammer index.html --dist dist
+          $ hammer index.html --dist dist --watch --port 5000
+          $ hammer index.html --dist dist --watch --target safari11
 
 Options:
-  --outDir    The output directory (default: dist)
+  --dist      The output directory (default: dist)
   --target    Sets the ES target (default: esnext)
   --minify    Minifies the bundle (default: false)
-  --sourcemap Generate sourcemaps (default: false)
+  --sourcemap Generate sourcemap (default: false)
   --watch     Starts the compiler in watch mode (default: false)
-  --port      Sets the watch server port (default: 5000)
+  --port      Sets the dev server port (default: 5000)
 ```
+
+
 
 ## Api
 
-Hammer provides the following API which analogs the Cli interface. All parameters are required.
+Hammer provides the following API which analogs the Cli interface. All parameters are required. The `start` function returns a `dispose` function that can be used to stop watch and server processes.
 
 ```typescript
 import { start } from '@sinclair/hammer'
 
-await start({
-  htmlPath: 'index.html', 
+const dispose = await start({
+  sourcePaths: ['index.html'], 
   outDir: './dist', 
   target: 'esnext',
   minify: false,
@@ -78,4 +84,6 @@ await start({
   watch: false,
   port: 5000
 })
+
+dispose() // optionally stop
 ```

@@ -24,5 +24,4 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export { watchFolder, watchFile } from './watch'
-
+export * from './watch'
