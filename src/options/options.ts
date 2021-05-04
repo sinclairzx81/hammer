@@ -60,9 +60,9 @@ export class OptionsReader {
     }
 
     private bundle() {
-        const index = this.parameters.indexOf('--bundle')
-        return (index === -1) ? false : true
+        return true
     }
+
     private watch() {
         const index = this.parameters.indexOf('--watch')
         return (index === -1) ? false : true
