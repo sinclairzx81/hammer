@@ -18,8 +18,7 @@ $ npm install -g @sinclair/hammer
 
 ## Usage
 
-Create an `index.html` file.
-
+Create an `index.html` file
 ```html
 <!DOCTYPE html>
 <html>
