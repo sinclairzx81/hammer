@@ -107,13 +107,13 @@ export class Resolver {
     // -------------------------------------------------------------------------------------
     
     private * getHtmlTags(content: string, basePath: string, targetDirectory: string): Generator<{sourceContent: string, sourcePath: string, targetPath: string}> {
-        const regex = /<.*[src|href]\s*=['"]([a-zA-Z0-9\.-_]*)['"].*?>/gi
+        const regex = /<.*(src|href)\s*=\s*['"]([a-zA-Z0-9\.-_]*)['"].*>/gi
         while (true) {
             const match = regex.exec(content)
             if (match === null) break
             const sourceContent = match[0]
-            const sourcePath = this.getSourcePathFromRelative(match[1], basePath)
-            const targetPath = this.getTargetPathFromRelative(match[1], targetDirectory)
+            const sourcePath = this.getSourcePathFromRelative(match[2], basePath)
+            const targetPath = this.getTargetPathFromRelative(match[2], targetDirectory)
             yield { sourceContent, sourcePath, targetPath }
         }
     }
