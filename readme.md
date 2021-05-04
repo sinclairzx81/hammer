@@ -41,7 +41,7 @@ Done
 
 Hammer is a build tool for HTML applications. It works by scanning an HTML file for asset references and will process each discovered asset along with the HTML file into a `dist` directory. Hammer uses `esbuild` for performance and provides a simple development server that supports automatic save and refresh workflows.
 
-This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead extremely fast automatic bundling and  significantly reduced dependency overhead. It only supports TypeScript, JavaScript and CSS asset bundles and is geared towards small to medium sized browser projects.
+This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead extremely fast automatic bundling and  significantly reduced dependency overhead. It only supports TypeScript, JavaScript and CSS asset bundles and is primarily geared towards small to medium sized browser projects.
 
 License MIT
 
