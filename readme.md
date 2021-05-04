@@ -85,5 +85,7 @@ const dispose = await start({
   port: 5000
 })
 
-dispose() // optionally stop
+// ...
+
+dispose() 
 ```
