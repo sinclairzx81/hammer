@@ -39,15 +39,15 @@ $ hammer index.html
 Done
 ## Overview
 
-Hammer is a build tool for HTML applications. It works by scanning an HTML file for asset references and processes each discovered asset along with the HTML file into a `dist` directory. Hammer uses `esbuild` for performance and provides a simple development server that supports automatic save and refresh workflows.
+Hammer is a build tool for HTML applications. It works by scanning an HTML file for asset references and will process each discovered asset along with the HTML file into a `dist` directory. Hammer uses `esbuild` for performance and provides a simple development server that supports automatic save and refresh workflows.
 
-This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead simple automatic bundling with significantly reduced dependency overhead.
+This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead extremely fast automatic bundling and  significantly reduced dependency overhead. It only supports TypeScript, JavaScript and CSS asset bundles and is geared towards small to medium sized browser projects.
 
 License MIT
 
 ## Cli
 
-The following command line parameters are supported. The `[...paths]` can be any file or directory. If a directory Hammer will copy the directory into the `dist` location.
+The following command line parameters are supported. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within.
 
 ```
 Examples: $ hammer [..paths] <...options>
