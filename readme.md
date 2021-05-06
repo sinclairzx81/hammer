@@ -36,15 +36,16 @@ Run Hammer
 $ hammer index.html
 ```
 Done
+
 ## Overview
 
-Hammer is a build tool for HTML applications. It works by scanning an HTML file for asset references and will process each discovered asset along with the HTML file into a `dist` directory. Hammer uses `esbuild` for performance and provides a simple development server that supports automatic save and refresh workflows.
+Hammer is a build and bundling tool for HTML applications. It works by parsing HTML files for asset references and will process each discovered asset into a target `dist` directory along with the HTML file. Hammer uses `esbuild` for performance and reduced dependency overhead. It also provides a simple development server for automatic save and refresh workflows.
 
-This project was created to be an ultra lightweight alternative to Parcel. It trades flexiblity in configuration; favoring instead extremely fast automatic bundling and  significantly reduced dependency overhead. It only supports TypeScript, JavaScript and CSS asset bundles and is primarily geared towards small to medium sized browser projects.
+Hammer was created to be an ultra lightweight alternative to Parcel. It is intended to be TypeScript centric and was written with mono repository support in mind leveraging TypeScript path aliasing. Hammer preferences automatic bundling over configuration where possible. It also only takes `esbuild` as a dependency to keep development dependencies to an absolute minimum.
 
 License MIT
 
-## Cli
+## Command Line Interface
 
 The following command line parameters are supported. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within.
 
@@ -65,9 +66,7 @@ Options:
   --port      Sets the dev server port (default: 5000)
 ```
 
-
-
-## Api
+## Application Programming Interface
 
 Hammer provides the following API which analogs the Cli interface. All parameters are required. The `start` function returns a `dispose` function that can be used to stop watch and server processes.
 
@@ -87,4 +86,59 @@ const dispose = await start({
 // ...
 
 dispose() 
+```
+
+## Mono Repository
+
+Hammer provides support for keeping shared library code outside an application source tree by leveraging TypeScript's `tsconfig.json` module aliasing. This feature is wonderfully supported by `esbuild` and leveraged by Hammer to offer mono repository support without the need for additional development dependencies (such as `lerna`, `nx` etc)
+
+Consider the the following source tree where we have two applications `app1` and `app2`. Both of these applications may take dependencies on the shared library `common`. The following demonstrates the minimum `tsconfig.json` setup required to make this possible.
+
+```shell
+/apps
+  /app1
+    index.html
+    index.ts
+    index.css
+    tsconfig.json
+  /app2
+    index.html
+    index.ts
+    index.css
+    tsconfig.json
+/libs
+  /common
+    index.ts
+tsconfig.json
+```
+The following are the configurations.
+
+```javascript
+// apps/app1/tsconfig.json
+{ 
+  extends: '../../tsconfig.json', 
+  files: ["index.ts"] 
+}
+
+// apps/app2/tsconfig.json
+{ 
+  extends: '../../tsconfig.json', 
+  files: ["index.ts"] 
+}
+
+// tsconfig.json
+{
+   "compilerOptions": {
+      "basePath": ".",
+      "paths": {
+        "@libs/common": ["libs/common/index.ts"]
+      }
+   }
+}
+```
+
+Now `app1` and `app2` can take a dependency on the aliased module. 
+
+```typescript
+import { Foo } from '@libs/common'
 ```

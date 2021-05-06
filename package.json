@@ -1,6 +1,6 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.8.8",
+  "version": "0.8.9",
   "description": "Build Tool for HTML Applications.",
   "author": "sinclairzx81",
   "keywords": ["esbuild", "bundler", "html"],
