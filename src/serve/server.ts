@@ -67,12 +67,8 @@ export class Server implements Dispose {
     connect('/hammer/signal', function (next) {
       if (next === 'established') { 
         established = true;
-      } else if (next === 'reload' || established) { 
+      } else if (next === 'reload' && established) { 
         window.location.reload(); 
-      } else if (next !== 'ping') {
-        var style = 'color: #BBB'
-        var hammer = String.fromCodePoint(0x1F528)
-        console.log("%c" + hammer + " Build Started", style);
       }
     });
   })();`)
