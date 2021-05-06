@@ -129,7 +129,7 @@ The following are the configurations.
 // tsconfig.json
 {
    "compilerOptions": {
-      "basePath": ".",
+      "baseUrl": ".",
       "paths": {
         "@libs/common": ["libs/common/index.ts"]
       }
