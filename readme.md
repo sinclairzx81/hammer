@@ -66,29 +66,7 @@ Options:
   --port      Sets the dev server port (default: 5000)
 ```
 
-## Application Programming Interface
-
-Hammer provides the following API which analogs the Cli interface. All parameters are required. The `start` function returns a `dispose` function that can be used to stop watch and server processes.
-
-```typescript
-import { start } from '@sinclair/hammer'
-
-const dispose = await start({
-  sourcePaths: ['index.html'], 
-  outDir: './dist', 
-  target: 'esnext',
-  minify: false,
-  sourcemap: false,
-  watch: false,
-  port: 5000
-})
-
-// ...
-
-dispose() 
-```
-
-## Library Packages
+## Libraries
 
 It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications. Hammer provides support for this by way of `tsconfig.json` configuration. 
 
@@ -134,3 +112,26 @@ const baz = new Baz()
 
 console.log(foo, bar, baz)
 ```
+
+## Application Programming Interface
+
+Hammer provides the following API which analogs the Cli interface. All parameters are required. The `start` function returns a `dispose` function that can be used to stop watch and server processes.
+
+```typescript
+import { start } from '@sinclair/hammer'
+
+const dispose = await start({
+  sourcePaths: ['index.html'], 
+  outDir: './dist', 
+  target: 'esnext',
+  minify: false,
+  sourcemap: false,
+  watch: false,
+  port: 5000
+})
+
+// ...
+
+dispose() 
+```
+
