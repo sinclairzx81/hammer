@@ -35,11 +35,13 @@ export interface Options {
     bundle:       boolean
     sourcemap:    boolean
     watch:        boolean
-    port:         number
+    serve?:       number
+    start?:       string
 }
 
 export class OptionsReader {
     private readonly parameters: string[]
+
     constructor(private readonly args: string[]) {
         this.parameters = this.args.slice(2).join(' ').split(' ').filter(x => x.length !== 0)
     }
@@ -67,45 +69,71 @@ export class OptionsReader {
         const index = this.parameters.indexOf('--watch')
         return (index === -1) ? false : true
     }
+
+    public serve() {
+        const index = this.parameters.indexOf('--serve')
+        if(!(index === -1 || (index + 1) > this.parameters.length)) {
+            return parseInt(this.parameters[index + 1])
+        } else if(!(index === -1)) {
+            return 5000
+        } else {
+            return undefined
+        }
+    }
+    
+    public start() {
+        const index = this.parameters.indexOf('--start')
+        if(!(index === -1 || (index + 1) > this.parameters.length)) {
+            return this.parameters[index + 1]
+        } else if(!(index === -1)) {
+            return 'index.js'
+        } else {
+            return undefined
+        }
+    }
+
     private minify() {
         const index = this.parameters.indexOf('--minify')
         return (index === -1) ? false : true
     }
+
     private sourcemap() {
         const index = this.parameters.indexOf('--sourcemap')
         return (index === -1) ? false : true
     }
-    private port() {
-        const index = this.parameters.indexOf('--port')
-        return (!(index === -1 || (index + 1) > this.parameters.length)) 
-            ? parseInt(this.parameters[index + 1])
-            : 5000
-    }
+
     private dist() {
         const index = this.parameters.indexOf('--dist')
         return (!(index === -1 || (index + 1) > this.parameters.length))
             ? path.join(process.cwd(), this.parameters[index + 1])    
             : path.join(process.cwd(), 'dist')   
     }
+
     private target() {
         const index = this.parameters.indexOf('--esnext')
         return (!(index === -1 || (index + 1) > this.parameters.length))
             ? path.join(process.cwd(), this.parameters[index + 1])    
             : 'esnext' 
     }
+
     public get(): Options | undefined {
         if(this.help()) return undefined
         try {
-            return {
+            const options = {
                 sourcePaths: [...this.sourcePaths()],
                 bundle: this.bundle(),
                 dist: this.dist(),
                 minify: this.minify(),
-                port: this.port(),
                 sourcemap: this.sourcemap(),
                 target: this.target(),
-                watch: this.watch()
+                watch: this.watch(),
+                serve: this.serve(),
+                start: this.start()
             }
+            if(options.serve || options.start) {
+                options.watch = true
+            }
+            return options
         } catch(error) {
             console.log(error.message)
             return undefined

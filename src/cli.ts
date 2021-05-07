@@ -58,10 +58,16 @@ async function cli(argv: string[]) {
   const result = options(process.argv)
   if(result === undefined) return help()
   for(const sourcePath of result.sourcePaths) {
-    console.log(`${hammer} Building ${sourcePath}`)
+    console.log(`${hammer} Build ${sourcePath}`)
   }
   if(result.watch) {
-    console.log(`${hammer} Watching http://localhost:${result.port}`)
+    console.log(`${hammer} Watch for file changes`)
+  }
+  if(result.serve) {
+    console.log(`${hammer} Serve on http://localhost:${result.serve}`)
+  }
+  if(result.start) {
+    console.log(`${hammer} Start ${result.start}`)
   }
   await start(result)
   if(!result.watch) console.log(hammer, 'Done')

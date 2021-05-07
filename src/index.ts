@@ -24,6 +24,7 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
+
 import { into }           from './async/index'
 import { Cache }          from './cache/index'
 import { Build }          from './build/index'
@@ -31,10 +32,12 @@ import { resolve, Asset } from './resolve/index'
 import { watch }          from './watch/index'
 import { serve }          from './serve/index'
 import { Options }        from './options/index'
+import { Dispose }        from './dispose'
 
 export type DisposeFunction = () => void
 
 async function buildAndWatch(options: Options): Promise<DisposeFunction> {
+    const disposables = [] as Dispose[]
     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
     const builder = new Build({
         bundle:    options.bundle,
@@ -46,9 +49,23 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
     const assets  = resolve(options.sourcePaths, options.dist)
     const actions = cache.update(assets)
     await builder.update(actions)
+    disposables.push(builder)
     
-    const server = serve(options.dist, 5000)
+    // ------------------------------------------------
+    // watch | start | serve
+    // ------------------------------------------------
+
     const watcher = watch(options.sourcePaths, assets)
+    disposables.push(watcher)
+
+    if(options.serve) {
+        disposables.push(serve(options.dist, 5000))
+    }
+
+    if(options.start) {
+        // todo: add node process restart here.
+    }
+
     into(async () => {
         for await(const _ of watcher) {
             const assets = resolve(options.sourcePaths, options.dist)
@@ -57,10 +74,11 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
             await builder.update(actions)
         }
     })
+
     return () => {
-        builder.dispose()
-        watcher.dispose()
-        server.dispose()
+        for(const disposable of disposables) {
+            disposable.dispose()
+        }
     }
 }
 
