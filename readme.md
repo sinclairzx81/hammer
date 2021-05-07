@@ -88,57 +88,49 @@ const dispose = await start({
 dispose() 
 ```
 
-## Mono Repository
+## Library Packages
 
-Hammer provides support for keeping shared library code outside an application source tree by leveraging TypeScript's `tsconfig.json` module aliasing. This feature is wonderfully supported by `esbuild` and leveraged by Hammer to offer mono repository support without the need for additional development dependencies (such as `lerna`, `nx` etc)
+It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications. Hammer provides support for this by way of `tsconfig.json` configuration. 
 
-Consider the the following source tree where we have two applications `app1` and `app2`. Both of these applications may take dependencies on the shared library `common`. The following demonstrates the minimum `tsconfig.json` setup required to make this possible.
+Consider the following directory structure.
 
 ```shell
 /apps
-  /app1
+  /website
     index.html
-    index.ts
-    index.css
-    tsconfig.json
-  /app2
-    index.html
-    index.ts
-    index.css
-    tsconfig.json
-/libs
-  /common
-    index.ts
+    index.ts    ───────────┐ 
+/libs                      │
+  /foo                     │
+    index.ts    <──────────┤
+  /bar                     │
+    index.ts    <──────────┤ depends on
+  /baz                     │
+    index.ts    <──────────┘
 tsconfig.json
 ```
-The following are the configurations.
+The following is the contents of the `tsconfig.json` file to allow `website` to link / alias each library.
 
 ```javascript
-// apps/app1/tsconfig.json
-{ 
-  extends: '../../tsconfig.json', 
-  files: ["index.ts"] 
-}
-
-// apps/app2/tsconfig.json
-{ 
-  extends: '../../tsconfig.json', 
-  files: ["index.ts"] 
-}
-
-// tsconfig.json
 {
-   "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@libs/common": ["libs/common/index.ts"]
-      }
-   }
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@libs/foo": ["libs/foo/index.ts"],
+            "@libs/bar": ["libs/bar/index.ts"],
+            "@libs/baz": ["libs/baz/index.ts"],
+        }
+    }
 }
 ```
-
-Now `app1` and `app2` can take a dependency on the aliased module. 
-
+Now the `website` application can reference these libraries with the following.
 ```typescript
-import { Foo } from '@libs/common'
+import { Foo } from '@libs/foo'
+import { Bar } from '@libs/bar'
+import { Baz } from '@libs/baz'
+
+const foo = new Foo()
+const bar = new Bar()
+const baz = new Baz()
+
+console.log(foo, bar, baz)
 ```
