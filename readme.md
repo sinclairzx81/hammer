@@ -68,7 +68,7 @@ Options:
 
 ## Libraries
 
-It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications. Hammer provides support for this by way of `tsconfig.json` configuration. 
+It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications local to the project. Hammer provides support for this by way of `tsconfig.json` configuration. 
 
 Consider the following directory structure.
 
