@@ -24,18 +24,17 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Asset }              from '../resolve/index'
-import { Action }             from '../cache/index'
-import { Dispose }            from '../dispose'
+import { Asset }                        from '../resolve/index'
+import { Action }                       from '../cache/index'
+import { Dispose }                      from '../dispose'
 import { build, BuildResult, Platform } from 'esbuild'
-import * as path              from 'path'
-import * as fs                from 'fs'
+import * as path                        from 'path'
+import * as fs                          from 'fs'
 
 export interface BuilderOptions {
     platform:  string
     target:    string
     minify:    boolean
-    bundle:    boolean
     sourcemap: boolean
     watch:     boolean
 }
@@ -103,11 +102,10 @@ export class Build implements Dispose {
               platform:    this.options.platform as Platform,
               outfile:     asset.targetPath,
               minify:      this.options.minify,
-              bundle:      this.options.bundle,
               target:      this.options.target,
               sourcemap:   this.options.sourcemap,
               watch:       this.options.watch,
-              
+              bundle:      true
             })
             this.handles.set(asset.sourcePath, handle)
           } catch {}

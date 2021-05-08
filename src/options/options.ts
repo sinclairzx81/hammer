@@ -32,7 +32,6 @@ export interface Options {
     dist:         string
     target:       string
     minify:       boolean
-    bundle:       boolean
     sourcemap:    boolean
     watch:        boolean
     platform:     string
@@ -60,10 +59,6 @@ export class OptionsReader {
             if(!fs.existsSync(sourcePath)) continue
             yield sourcePath
         }
-    }
-
-    private bundle() {
-        return true
     }
 
     private watch() {
@@ -101,10 +96,7 @@ export class OptionsReader {
     }
 
     private platform() {
-        const index = this.parameters.indexOf('--platform')
-        return (!(index === -1 || (index + 1) > this.parameters.length))
-            ? this.parameters[index + 1]  
-            : 'browser' 
+        return this.start() === undefined ? 'node' : 'browser'
     }
 
     private minify() {
@@ -137,7 +129,6 @@ export class OptionsReader {
             const options = {
                 sourcePaths: [...this.sourcePaths()],
                 platform: this.platform(),
-                bundle: this.bundle(),
                 dist: this.dist(),
                 minify: this.minify(),
                 sourcemap: this.sourcemap(),

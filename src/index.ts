@@ -42,7 +42,6 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
     const builder = new Build({
         platform:  options.platform,
-        bundle:    options.bundle,
         minify:    options.minify,
         sourcemap: options.sourcemap,
         target:    options.target,
@@ -75,7 +74,6 @@ async function build(options: Options): Promise<DisposeFunction> {
     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
     const builder = new Build({
         platform:  options.platform,
-        bundle:    options.bundle,
         minify:    options.minify,
         sourcemap: options.sourcemap,
         target:    options.target,

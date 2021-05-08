@@ -142,19 +142,19 @@ Examples:
   $ hammer [..paths] <...options>
   $ hammer index.html about.html
   $ hammer index.html images --dist target/website
-  $ hammer index.html --watch
   $ hammer index.html --serve 5000
-  $ hammer index.ts   --start index.js --platform node
+  $ hammer index.ts --start index.js
+  $ hammer index.ts --minify
 
 Options:
 
-  --target    <target>  Sets the ES target. Default is 'esnext'.
-  --dist                Sets the output directory. Default is 'dist'.
+  --target    <target>  Sets the ES target (default: esnext)
+  --dist                Sets the output directory (default: dist)
   --serve     <port>    Watch and serves on the given port.
-  --start     <file>    Watch and starts a script.
-  --watch               Watch and compile on save only.
-  --minify              Minifies the output.
-  --sourcemap           Generate sourcemaps.
+  --start     <script>  Watch and starts a script.
+  --watch               Watch and compile on save only
+  --minify              Minifies the bundle
+  --sourcemap           Generate sourcemaps
 ```
 
 ## Application Programming Interface
