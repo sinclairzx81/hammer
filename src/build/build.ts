@@ -27,11 +27,12 @@ SOFTWARE.
 import { Asset }              from '../resolve/index'
 import { Action }             from '../cache/index'
 import { Dispose }            from '../dispose'
-import { build, BuildResult } from 'esbuild'
+import { build, BuildResult, Platform } from 'esbuild'
 import * as path              from 'path'
 import * as fs                from 'fs'
 
 export interface BuilderOptions {
+    platform:  string
     target:    string
     minify:    boolean
     bundle:    boolean
@@ -97,15 +98,16 @@ export class Build implements Dispose {
     private async startEsbuild(asset: Asset) {
         try {
             if(this.handles.has(asset.sourcePath)) return
-            const handle = await build({
+            const handle = await build({  
               entryPoints: [asset.sourcePath],
+              platform:    this.options.platform as Platform,
               outfile:     asset.targetPath,
               minify:      this.options.minify,
               bundle:      this.options.bundle,
               target:      this.options.target,
               sourcemap:   this.options.sourcemap,
               watch:       this.options.watch,
-              platform: 'node'
+              
             })
             this.handles.set(asset.sourcePath, handle)
           } catch {}

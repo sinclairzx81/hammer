@@ -36,20 +36,25 @@ function help() {
   const yellow = '\x1b[33m'
   const esc = `\x1b[0m`
   console.log([
-    `Examples: $ ${green}hammer${esc} ${green}[..paths]${esc} ${yellow}<...options>${esc}`,
-    `          $ ${green}hammer${esc} index.html about.html`,
-    `          $ ${green}hammer${esc} index.html images --dist dist`,
-    `          $ ${green}hammer${esc} index.html ${yellow}--dist${esc} dist`,
-    `          $ ${green}hammer${esc} index.html ${yellow}--dist${esc} dist ${yellow}--watch${esc} ${yellow}--port${esc} 5000`,
-    `          $ ${green}hammer${esc} index.html ${yellow}--dist${esc} dist ${yellow}--watch${esc} ${yellow}--target${esc} safari11`,
+    `Examples: `,
+    ``,
+    `  $ ${green}hammer${esc} ${green}[..paths]${esc} ${yellow}<...options>${esc}`,
+    `  $ ${green}hammer${esc} index.html about.html`,
+    `  $ ${green}hammer${esc} index.html images --dist target/website`,
+    `  $ ${green}hammer${esc} index.html ${yellow}--watch${esc}`,
+    `  $ ${green}hammer${esc} index.html ${yellow}--serve${esc} 5000`,
+    `  $ ${green}hammer${esc} index.ts   ${yellow}--start${esc} index.js ${yellow}--platform${esc} node`,
     ``,
     `Options:`,
-    `  ${yellow}--dist${esc}      The output directory (default: dist)`,
-    `  ${yellow}--target${esc}    Sets the ES target (default: esnext)`,
-    `  ${yellow}--minify${esc}    Minifies the bundle (default: false)`,
-    `  ${yellow}--sourcemap${esc} Generate sourcemap (default: false)`,
-    `  ${yellow}--watch${esc}     Starts the compiler in watch mode (default: false)`,
-    `  ${yellow}--port${esc}      Sets the dev server port (default: 5000)`,
+    ``,
+    `  ${yellow}--platform${esc}  <target>  Sets the target platform (default: browser)`,
+    `  ${yellow}--target${esc}    <target>  Sets the ES target (default: esnext)`,
+    `  ${yellow}--dist${esc}                Sets the output directory (default: dist)`,
+    `  ${yellow}--watch${esc}               Watch and compile on file changes`,
+    `  ${yellow}--serve${esc}     <port>    Watch and serves the ${yellow}--dist${esc} directory on the given port`,
+    `  ${yellow}--start${esc}     <file>    Watch and starts a node script the ${yellow}--dist${esc} directory`,
+    `  ${yellow}--minify${esc}              Minifies the bundle`,
+    `  ${yellow}--sourcemap${esc}           Generate sourcemaps`,
   ].join(`\n`))
 }
 
@@ -57,6 +62,7 @@ async function cli(argv: string[]) {
   const hammer = String.fromCodePoint(0x1F528)
   const result = options(process.argv)
   if(result === undefined) return help()
+  console.log(`${hammer} Plaform '${result.platform}'`)
   for(const sourcePath of result.sourcePaths) {
     console.log(`${hammer} Build ${sourcePath}`)
   }

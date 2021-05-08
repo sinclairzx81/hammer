@@ -41,11 +41,12 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
     const disposables = [] as Dispose[]
     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
     const builder = new Build({
+        platform:  options.platform,
         bundle:    options.bundle,
         minify:    options.minify,
         sourcemap: options.sourcemap,
         target:    options.target,
-        watch:     options.watch,
+        watch:     options.watch
     })
     const assets  = resolve(options.sourcePaths, options.dist)
     const actions = cache.update(assets)
@@ -63,7 +64,6 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
             await builder.update(actions)
         }
     })
-
     return () => {
         for(const disposable of disposables) {
             disposable.dispose()
@@ -74,6 +74,7 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
 async function build(options: Options): Promise<DisposeFunction> {
     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
     const builder = new Build({
+        platform:  options.platform,
         bundle:    options.bundle,
         minify:    options.minify,
         sourcemap: options.sourcemap,

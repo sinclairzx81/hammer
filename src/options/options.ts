@@ -35,6 +35,7 @@ export interface Options {
     bundle:       boolean
     sourcemap:    boolean
     watch:        boolean
+    platform:     string
     serve?:       number
     start?:       string
 }
@@ -70,7 +71,7 @@ export class OptionsReader {
         return (index === -1) ? false : true
     }
 
-    public serve() {
+    private serve() {
         const index = this.parameters.indexOf('--serve')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
             return parseInt(this.parameters[index + 1])
@@ -81,7 +82,7 @@ export class OptionsReader {
         }
     }
     
-    public start() {
+    private start() {
         const dist  = this.dist()
         const index = this.parameters.indexOf('--start')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
@@ -91,6 +92,10 @@ export class OptionsReader {
         } else {
             return undefined
         }
+    }
+
+    private platform() {
+        return this.start() === undefined ? 'browser' : 'node'
     }
 
     private minify() {
@@ -122,6 +127,7 @@ export class OptionsReader {
         try {
             const options = {
                 sourcePaths: [...this.sourcePaths()],
+                platform: this.platform(),
                 bundle: this.bundle(),
                 dist: this.dist(),
                 minify: this.minify(),
@@ -129,7 +135,7 @@ export class OptionsReader {
                 target: this.target(),
                 watch: this.watch(),
                 serve: this.serve(),
-                start: this.start()
+                start: this.start(),
             }
             if(options.serve || options.start) {
                 options.watch = true
