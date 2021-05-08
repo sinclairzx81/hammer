@@ -87,9 +87,12 @@ export class OptionsReader {
         const dist  = this.dist()
         const index = this.parameters.indexOf('--start')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            const parameter = path.join(dist, this.parameters[index + 1])
-            const split = parameter.split(' ')
-            return fs.existsSync(split[0]) ? parameter : undefined
+            const parameter = this.parameters[index + 1]
+            const split     = parameter.split(' ')
+            const entry     = path.join(dist, split[0])
+            const rest      = split.slice(1)
+            const result    = [entry, ...rest].join(' ')
+            return result
         } else if(!(index === -1)) {
             const entry = path.join(dist, 'index.js')
             return fs.existsSync(entry) ? entry : undefined
