@@ -59,24 +59,21 @@ function help() {
 }
 
 async function cli(argv: string[]) {
+  const green = `\x1b[32m`
+  const yellow = '\x1b[33m'
+  const esc = `\x1b[0m`
   const hammer = String.fromCodePoint(0x1F528)
   const result = options(process.argv)
   if(result === undefined) return help()
-  console.log(`${hammer} Plaform '${result.platform}'`)
   for(const sourcePath of result.sourcePaths) {
-    console.log(`${hammer} Build ${sourcePath}`)
+    console.log(`${green}Building${esc} ${sourcePath}`)
   }
-  if(result.watch) {
-    console.log(`${hammer} Watch for file changes`)
-  }
-  if(result.serve) {
-    console.log(`${hammer} Serve on http://localhost:${result.serve}`)
-  }
-  if(result.start) {
-    console.log(`${hammer} Start ${result.start}`)
-  }
+  if(result.serve) console.log(`${yellow}Serving${esc} on http://localhost:${result.serve}`)
+  if(result.start) console.log(`${yellow}Starting${esc} ${result.start}`)
+  if(result.watch) console.log(`${yellow}Watching${esc} for file changes`)
   await start(result)
-  if(!result.watch) console.log(hammer, 'Done')
+
+  if(!result.watch) console.log(`${green}Done${esc}`)
 }
 
 cli(process.argv)

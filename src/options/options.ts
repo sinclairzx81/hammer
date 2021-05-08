@@ -44,7 +44,7 @@ export class OptionsReader {
     private readonly parameters: string[]
 
     constructor(private readonly args: string[]) {
-        this.parameters = this.args.slice(2).join(' ').split(' ').filter(x => x.length !== 0)
+        this.parameters = this.args.slice(2)
     }
 
     private help() {
@@ -85,10 +85,11 @@ export class OptionsReader {
     
     private start() {
         const dist  = this.dist()
-        const index = this.parameters.indexOf('--start');
+        const index = this.parameters.indexOf('--start')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            const entry = path.join(dist, this.parameters[index + 1])
-            return fs.existsSync(entry) ? entry : undefined
+            const parameter = path.join(dist, this.parameters[index + 1])
+            const split = parameter.split(' ')
+            return fs.existsSync(split[0]) ? parameter : undefined
         } else if(!(index === -1)) {
             const entry = path.join(dist, 'index.js')
             return fs.existsSync(entry) ? entry : undefined

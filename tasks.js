@@ -1,5 +1,6 @@
 export async function clean() {
     await folder('target').delete().exec()
+    await folder('dist').delete().exec()
 }
 
 export async function start(target = 'target/watch') {
