@@ -59,21 +59,29 @@ function help() {
 }
 
 async function cli(argv: string[]) {
-  const green = `\x1b[32m`
+  const green  = `\x1b[32m`
   const yellow = '\x1b[33m'
-  const esc = `\x1b[0m`
-  const hammer = String.fromCodePoint(0x1F528)
+  const esc    = `\x1b[0m`
+
   const result = options(process.argv)
   if(result === undefined) return help()
-  for(const sourcePath of result.sourcePaths) {
-    console.log(`${green}Building${esc} ${sourcePath}`)
-  }
+
+  // ----------------------------------------------------
+  // Info
+  // ----------------------------------------------------
+
+  result.sourcePaths.forEach(sourcePath => console.log(`${green}Building${esc} ${sourcePath}`))
   if(result.serve) console.log(`${yellow}Serving${esc} on http://localhost:${result.serve}`)
   if(result.start) console.log(`${yellow}Starting${esc} ${result.start}`)
   if(result.watch) console.log(`${yellow}Watching${esc} for file changes`)
+
+  // ----------------------------------------------------
+  // Start
+  // ----------------------------------------------------
+
   await start(result)
 
-  if(!result.watch) console.log(`${green}Done${esc}`)
+  console.log(`${green}Done${esc}`)
 }
 
 cli(process.argv)
