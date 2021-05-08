@@ -31,6 +31,7 @@ import { Build }          from './build/index'
 import { resolve, Asset } from './resolve/index'
 import { watch }          from './watch/index'
 import { serve }          from './serve/index'
+import { start as run }   from './start/index'
 import { Options }        from './options/index'
 import { Dispose }        from './dispose'
 
@@ -49,23 +50,11 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
     const assets  = resolve(options.sourcePaths, options.dist)
     const actions = cache.update(assets)
     await builder.update(actions)
-    disposables.push(builder)
-    
-    // ------------------------------------------------
-    // watch | start | serve
-    // ------------------------------------------------
-
     const watcher = watch(options.sourcePaths, assets)
     disposables.push(watcher)
-
-    if(options.serve) {
-        disposables.push(serve(options.dist, 5000))
-    }
-
-    if(options.start) {
-        // todo: add node process restart here.
-    }
-
+    disposables.push(builder)
+    if(options.serve) disposables.push(serve(options.dist, 5000))
+    if(options.start) disposables.push(run(options.start))
     into(async () => {
         for await(const _ of watcher) {
             const assets = resolve(options.sourcePaths, options.dist)

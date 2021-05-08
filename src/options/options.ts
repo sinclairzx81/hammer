@@ -82,11 +82,12 @@ export class OptionsReader {
     }
     
     public start() {
+        const dist  = this.dist()
         const index = this.parameters.indexOf('--start')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            return this.parameters[index + 1]
+            return path.join(dist, this.parameters[index + 1])
         } else if(!(index === -1)) {
-            return 'index.js'
+            return path.join(dist, 'index.js')
         } else {
             return undefined
         }

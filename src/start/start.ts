@@ -25,8 +25,29 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { Dispose } from '../dispose'
+import { into }    from '../async/index'
+import { watch }   from '../watch/index'
 import { shell }   from './shell'
+import * as path   from 'path'
 
 export function start(targetFile: string) {
-    
+    const directory = path.dirname(targetFile)
+    const watcher   = watch([directory], [])
+    const handles   = [shell(`node ${targetFile}`)]
+    into(async () => {
+        for await(const _ of watcher) {
+            const handle = handles.shift()!
+            await handle.dispose()
+            handles.unshift(shell(`node ${targetFile}`))
+        }
+    })
+    return {
+        dispose: () => {
+            watcher.dispose()
+            if(handles.length > 0) {
+                const handle = handles.shift()!
+                handle.dispose()
+            }
+        }
+    }
 }

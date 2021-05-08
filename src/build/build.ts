@@ -104,7 +104,8 @@ export class Build implements Dispose {
               bundle:      this.options.bundle,
               target:      this.options.target,
               sourcemap:   this.options.sourcemap,
-              watch:       this.options.watch
+              watch:       this.options.watch,
+              platform: 'node'
             })
             this.handles.set(asset.sourcePath, handle)
           } catch {}
