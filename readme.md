@@ -107,7 +107,9 @@ The following is the contents of the `tsconfig.json` file to allow the `server` 
     }
 }
 ```
-Now the `website` application can reference these libraries with the following.
+
+This enables the `server` and `website` applications to reference the above libraries as follows.
+
 ```typescript
 import { Foo } from '@libs/foo'
 import { Bar } from '@libs/bar'
@@ -128,9 +130,10 @@ $ hammer apps/server/index.ts --dist target/server --start index.js
 # build the website to target/website and serve.
 $ hammer apps/website/index.html --dist target/website --serve 5000
 ```
+
 ## Application Programming Interface
 
-Hammer provides the following API which mirrors the Cli interface. The `run` function starts Hammer with the given options and returns a `dispose` handle to terminate any processes.
+Hammer provides the following API which mirrors the CLI interface. The `run` function starts Hammer with the given options and returns a `dispose` handle to terminate any processes.
 
 ```typescript
 import { run } from '@sinclair/hammer'
