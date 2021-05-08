@@ -75,7 +75,7 @@ import * as http from 'http'
 http.createServer((req, res) => res.end('hello world')).listen(5001)
 ```
 ```bash
-# builds server.ts to target/server and reloads it on save.
+# builds server.ts and reloads it on save.
 $ hammer index.ts --start index.js
 
 # to pass command line options, use quotes.
