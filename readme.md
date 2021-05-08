@@ -64,7 +64,7 @@ Options:
   --platform  <target>  Sets the target platform (default: browser)
   --target    <target>  Sets the ES target (default: esnext)
   --dist                Sets the output directory (default: dist)
-  --watch               Watch and compile on file changes
+  --watch               Watch and compile on file changes only
   --serve     <port>    Watch and serves the --dist directory on the given port
   --start     <file>    Watch and starts a node script the --dist directory
   --minify              Minifies the bundle
@@ -73,7 +73,7 @@ Options:
 
 ## Serve
 
-Hammer provides a development server with save and restart workflows. To enable use the `--serve` option with a port.
+Hammer provides a development server with save and restart workflows. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
 
 ```html
 <!DOCTYPE html>
@@ -86,6 +86,7 @@ Hammer provides a development server with save and restart workflows. To enable 
   </body>
 </html>
 ```
+
 ```bash
 $ hammer index.html --dist target/website --serve 5000
 ```
