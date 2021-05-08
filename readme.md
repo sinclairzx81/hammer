@@ -2,7 +2,7 @@
 
 <h1>Hammer</h1>
 
-<p>Build Tool for HTML and Node Applications</p>
+<p>Build Tool for HTML Applications</p>
 
 [![npm version](https://badge.fury.io/js/%40sinclair%2Fhammer.svg)](https://badge.fury.io/js/%40sinclair%2Fhammer)
 
@@ -33,13 +33,13 @@ Create an `index.html` file
 ```
 Run Hammer
 ```shell
-$ hammer index.html --serve 5000
+$ hammer index.html
 ```
 Done
 
 ## Overview
 
-Hammer is a build and bundling tool for HTML and Node applications. It works by parsing HTML files for asset references and will process each discovered asset into a target `dist` directory along with the HTML file. Hammer uses `esbuild` for performance and reduced dependency overhead. It also provides a simple development server for automatic save and refresh workflows.
+Hammer is a build and bundling tool for HTML and Node applications. It works by parsing HTML files for asset references and will process each discovered asset into a target `dist` directory along with the HTML file. Hammer uses `esbuild` for performance and reduced dependency overhead. It also provides a simple development server for automatic save and refresh workflows. 
 
 Hammer was created to be an ultra lightweight alternative to Parcel. It is intended to be TypeScript centric and was written with mono repository support in mind leveraging TypeScript path aliasing. Hammer preferences automatic bundling over configuration where possible. It takes `esbuild` as it's only dependency to keep development dependencies to an absolute minimum.
 
@@ -70,6 +70,47 @@ Options:
   --minify              Minifies the bundle
   --sourcemap           Generate sourcemaps
 ```
+
+## Serve
+
+Hammer supports running NodeJS processes on save and restart workflows using the `--serve` option.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="index.tsx"></script>
+  </head>
+  <body>
+    <h1>Hello World</h1>
+  </body>
+</html>
+```
+The following will build `index.html` and start a development HTTP server on port `5000`.
+
+```bash
+$ hammer index.html --dist target/website --serve 5000
+```
+
+## Start
+
+Hammer supports running NodeJS processes on save and restart workflows using the `--start` option following by a `.js` target script built to the `--dist` directory.
+
+```typescript
+import * as http from 'http'
+
+http.createServer((req, res) => res.end('hello world')).listen(5001)
+```
+The following will build `index.ts` and run the output `index.js` in the target `--dist` directory.
+```bash
+$ hammer index.ts --dist target/server --start index.js
+```
+To pass command line options to the Node process. Use quotes.
+
+```bash
+$ hammer index.ts --dist target/server --start "index.js --port 5001"
+```
+
 
 ## Libraries
 
