@@ -47,7 +47,7 @@ License MIT
 
 ## Serve
 
-Hammer provides a development server with watch, save and reload workflows. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
+Hammer provides a built in development server. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
 
 ```html
 <!DOCTYPE html>
@@ -67,7 +67,7 @@ $ hammer index.html --serve 5000
 
 ## Start
 
-Hammer supports running watch, save and restart workflows for NodeJS processes using the `--start` option with a path to a javascript script to run on save. The path is relative to the `--dist` directory. The following watches a small nodejs server.
+Hammer provides support running monitored NodeJS processes that restart on save. Use the `--start` option with a path to a javascript script to enable. The script path is relative to the `--dist` directory. The following will build and watch a small nodejs server.
 
 ```typescript
 import * as http from 'http'
@@ -103,7 +103,7 @@ Consider the following directory structure.
     index.ts    <──────────┘
 tsconfig.json
 ```
-To allow each library to be imported, configure the `baseUrl` and `paths` options of the `tsconfig.json` file.
+To enable the applications to import the libraries, configure the `baseUrl` and `paths` options of the `tsconfig.json` file as follows.
 
 ```javascript
 {
@@ -118,7 +118,7 @@ To allow each library to be imported, configure the `baseUrl` and `paths` option
 }
 ```
 
-Once configured, the `server` and `website` applications can import using the following.
+Once configured, the `server` and `website` applications can import with the following.
 
 ```typescript
 import { Foo } from '@libs/foo'
