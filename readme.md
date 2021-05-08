@@ -67,7 +67,7 @@ $ hammer index.html --serve 5000
 
 ## Start
 
-Hammer provides support running monitored NodeJS processes that restart on save. Use the `--start` option with a path to a javascript script to enable. The script path is relative to the `--dist` directory. The following will build and watch a small nodejs server.
+Hammer provides support running monitored NodeJS processes that restart on save. Use the `--start` option with a path to a javascript file to enable. The script path is relative to the `--dist` directory. The following will build and watch a small NodeJS server.
 
 ```typescript
 import * as http from 'http'
