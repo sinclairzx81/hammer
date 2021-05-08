@@ -104,7 +104,7 @@ Consider the following directory structure.
     index.ts    <──────────┘
 tsconfig.json
 ```
-The following is the contents of the `tsconfig.json` file to allow the `server` and `website` applications to link / alias each library.
+To allow each library to be imported, configure the `baseUrl` and `paths` options of the `tsconfig.json` file.
 
 ```javascript
 {
@@ -131,15 +131,6 @@ const bar = new Bar()
 const baz = new Baz()
 
 console.log(foo, bar, baz)
-```
-And started with.
-
-```bash
-# build the server to target/server and start.
-$ hammer apps/server/index.ts --start index.js
-
-# build the website to target/website and serve.
-$ hammer apps/website/index.html --serve 5000
 ```
 
 ## Command Line Interface
