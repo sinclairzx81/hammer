@@ -73,7 +73,7 @@ Options:
 
 ## Serve
 
-Hammer supports running NodeJS processes on save and restart workflows using the `--serve` option.
+Hammer provides a development server with save and restart workflows. To enable use the `--serve` option with a port.
 
 ```html
 <!DOCTYPE html>
@@ -86,31 +86,26 @@ Hammer supports running NodeJS processes on save and restart workflows using the
   </body>
 </html>
 ```
-The following will build `index.html` and start a development HTTP server on port `5000`.
-
 ```bash
 $ hammer index.html --dist target/website --serve 5000
 ```
 
 ## Start
 
-Hammer supports running NodeJS processes on save and restart workflows using the `--start` option following by a `.js` target script built to the `--dist` directory.
+Hammer supports running watch, save and restart workflows for NodeJS processes using the `--start` option with a path to a javascript script to run on save. The path is relative to the `--dist` directory. The following watches a small nodejs server.
 
 ```typescript
 import * as http from 'http'
 
 http.createServer((req, res) => res.end('hello world')).listen(5001)
 ```
-The following will build `index.ts` and run the output `index.js` in the target `--dist` directory.
 ```bash
+# builds server.ts to target/server and reloads it on save.
 $ hammer index.ts --dist target/server --start index.js
-```
-To pass command line options to the Node process. Use quotes.
 
-```bash
+# to pass command line options, use quotes.
 $ hammer index.ts --dist target/server --start "index.js --port 5001"
 ```
-
 
 ## Libraries
 
