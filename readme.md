@@ -2,7 +2,7 @@
 
 <h1>Hammer</h1>
 
-<p>Build Tool for HTML Applications</p>
+<p>Build Tool for HTML and Node Applications</p>
 
 [![npm version](https://badge.fury.io/js/%40sinclair%2Fhammer.svg)](https://badge.fury.io/js/%40sinclair%2Fhammer)
 
@@ -47,7 +47,7 @@ License MIT
 
 ## Serve
 
-Hammer provides a development server with save and restart workflows. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
+Hammer provides a development server with watch, save and reload workflows. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
 
 ```html
 <!DOCTYPE html>
@@ -118,7 +118,7 @@ To allow each library to be imported, configure the `baseUrl` and `paths` option
 }
 ```
 
-This enables the `server` and `website` applications to reference the above libraries as follows.
+Once configured, the `server` and `website` applications can import using the following.
 
 ```typescript
 import { Foo } from '@libs/foo'
@@ -139,7 +139,7 @@ Hammer provides the following CLI interface. The `[...paths]` can be any file or
 ```
 Examples:
 
-  $ hammer [..paths] <...options>
+  $ hammer [...paths] <...options>
   $ hammer index.html about.html
   $ hammer index.html images --dist target/website
   $ hammer index.html --serve 5000
@@ -159,7 +159,7 @@ Options:
 
 ## Application Programming Interface
 
-Hammer provides the following API which mirrors the CLI interface. The `run` function starts Hammer with the given options and returns a `dispose` handle to terminate any processes.
+Hammer provides the following API which analogs the CLI interface. The `run` function starts Hammer with the given options and returns a `dispose` handle to terminate any processes.
 
 ```typescript
 import { run } from '@sinclair/hammer'
@@ -186,7 +186,6 @@ export interface Options {
     bundle:       boolean
     sourcemap:    boolean
     watch:        boolean
-    platform:     string
     serve?:       number
     start?:       string
 }
