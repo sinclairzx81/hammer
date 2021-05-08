@@ -2,7 +2,7 @@
 
 <h1>Hammer</h1>
 
-<p>Build Tool for HTML Applications</p>
+<p>Build Tool for HTML and Node Applications</p>
 
 [![npm version](https://badge.fury.io/js/%40sinclair%2Fhammer.svg)](https://badge.fury.io/js/%40sinclair%2Fhammer)
 
@@ -33,13 +33,13 @@ Create an `index.html` file
 ```
 Run Hammer
 ```shell
-$ hammer index.html
+$ hammer index.html --serve 5000
 ```
 Done
 
 ## Overview
 
-Hammer is a build and bundling tool for HTML applications. It works by parsing HTML files for asset references and will process each discovered asset into a target `dist` directory along with the HTML file. Hammer uses `esbuild` for performance and reduced dependency overhead. It also provides a simple development server for automatic save and refresh workflows.
+Hammer is a build and bundling tool for HTML and Node applications. It works by parsing HTML files for asset references and will process each discovered asset into a target `dist` directory along with the HTML file. Hammer uses `esbuild` for performance and reduced dependency overhead. It also provides a simple development server for automatic save and refresh workflows.
 
 Hammer was created to be an ultra lightweight alternative to Parcel. It is intended to be TypeScript centric and was written with mono repository support in mind leveraging TypeScript path aliasing. Hammer preferences automatic bundling over configuration where possible. It takes `esbuild` as it's only dependency to keep development dependencies to an absolute minimum.
 
@@ -47,7 +47,7 @@ License MIT
 
 ## Command Line Interface
 
-The following command line parameters are supported. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within.
+Hammer provides the following CLI interface. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within. The `--watch` option will only watch for changes. To serve or start a node process use `--serve` or `--start` respectively which implicitly enables `--watch`.
 
 ```
 Examples:
@@ -140,12 +140,12 @@ import { run } from '@sinclair/hammer'
 
 const dispose = await run({
   sourcePaths: ['index.html'], 
-  outDir: './dist', 
-  target: 'esnext',
-  minify: false,
-  sourcemap: false,
-  watch: true,
-  serve: 5000
+  outDir:      './dist', 
+  target:      'esnext',
+  minify:      false,
+  sourcemap:   false,
+  watch:       true,
+  serve:       5000
 })
 // ...
 dispose() 
