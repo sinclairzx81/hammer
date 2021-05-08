@@ -91,8 +91,7 @@ export class OptionsReader {
             const split     = parameter.split(' ')
             const entry     = path.join(dist, split[0])
             const rest      = split.slice(1)
-            const result    = [entry, ...rest].join(' ')
-            return result
+            return [entry, ...rest].join(' ')
         } else if(!(index === -1)) {
             const entry = path.join(dist, 'index.js')
             return fs.existsSync(entry) ? entry : undefined

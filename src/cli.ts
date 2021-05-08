@@ -81,7 +81,11 @@ async function cli(argv: string[]) {
 
   await start(result)
 
-  console.log(`${green}Done${esc}`)
+  // ----------------------------------------------------
+  // Info
+  // ----------------------------------------------------
+  
+  if(!result.watch) console.log(`${green}Done${esc}`)
 }
 
 cli(process.argv)
