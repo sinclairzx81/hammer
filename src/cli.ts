@@ -38,7 +38,7 @@ function help() {
   console.log([
     `Examples: `,
     ``,
-    `  $ ${green}hammer${esc} ${green}[..paths]${esc} ${yellow}<...options>${esc}`,
+    `  $ ${green}hammer${esc} [...paths] ${yellow}<...options>${esc}`,
     `  $ ${green}hammer${esc} index.html about.html`,
     `  $ ${green}hammer${esc} index.html images ${yellow}--dist${esc} target/website`,
     `  $ ${green}hammer${esc} index.html ${yellow}--serve${esc} 5000`,
@@ -59,21 +59,19 @@ function help() {
 
 async function cli(argv: string[]) {
   const green  = `\x1b[32m`
-  const yellow = '\x1b[33m'
   const esc    = `\x1b[0m`
 
   const result = options(process.argv)
   if(result === undefined) return help()
-
+  
   // ----------------------------------------------------
   // Info
   // ----------------------------------------------------
 
-  result.sourcePaths.forEach(sourcePath => console.log(`${green}Building${esc} ${sourcePath}`))
-  if(result.serve) console.log(`${yellow}Serving${esc} on http://localhost:${result.serve}`)
-  if(result.start) console.log(`${yellow}Starting${esc} ${result.start}`)
-  if(result.watch) console.log(`${yellow}Watching${esc} for file changes`)
-
+  result.sourcePaths.forEach(sourcePath => console.log(`${green}Build${esc} ${sourcePath}`))
+  if(result.serve) console.log(`${green}Serve${esc} http://localhost:${result.serve}`)
+  if(result.start) console.log(`${green}Start${esc} ${result.start}`)
+  if(!result.start && !result.serve && result.watch) console.log(`${green}Watch${esc}`)
   // ----------------------------------------------------
   // Start
   // ----------------------------------------------------

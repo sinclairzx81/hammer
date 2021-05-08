@@ -39,6 +39,12 @@ export interface Options {
     start?:       string
 }
 
+export class OptionError extends Error {
+    constructor(public readonly option: string, message: string) {
+        super(message)
+    }
+}
+
 export class OptionsReader {
     private readonly parameters: string[]
 
@@ -56,7 +62,7 @@ export class OptionsReader {
         for(const parameter of this.parameters) {
             if(parameter.includes('--')) return
             const sourcePath = path.isAbsolute(parameter) ? parameter : path.join(process.cwd(), parameter) 
-            if(!fs.existsSync(sourcePath)) continue
+            if(!fs.existsSync(sourcePath)) throw new OptionError('path', `${sourcePath} not found.`)
             yield sourcePath
         }
     }
@@ -70,9 +76,8 @@ export class OptionsReader {
         const index = this.parameters.indexOf('--serve')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
             const port = parseInt(this.parameters[index + 1])
-            return port === NaN ? 5000 : port
-        } else if(!(index === -1)) {
-            return 5000
+            if(Number.isNaN(port)) throw new OptionError('--serve', `'${this.parameters[index + 1]}' is not a valid port.`)
+            return port
         } else {
             return undefined
         }
@@ -86,17 +91,15 @@ export class OptionsReader {
             const split     = parameter.split(' ')
             const entry     = path.join(dist, split[0])
             const rest      = split.slice(1)
+            if(path.extname(entry) !== '.js') throw new OptionError('--start', 'Script must be a .js file.')
             return [entry, ...rest].join(' ')
-        } else if(!(index === -1)) {
-            const entry = path.join(dist, 'index.js')
-            return fs.existsSync(entry) ? entry : undefined
         } else {
             return undefined
         }
     }
 
     private platform() {
-        return this.start() === undefined ? 'node' : 'browser'
+        return 'node'
     }
 
     private minify() {
@@ -128,21 +131,31 @@ export class OptionsReader {
         try {
             const options = {
                 sourcePaths: [...this.sourcePaths()],
-                platform: this.platform(),
-                dist: this.dist(),
-                minify: this.minify(),
+                platform:  this.platform(),
+                dist:      this.dist(),
+                minify:    this.minify(),
                 sourcemap: this.sourcemap(),
-                target: this.target(),
-                watch: this.watch(),
-                serve: this.serve(),
-                start: this.start(),
+                target:    this.target(),
+                watch:     this.watch(),
+                serve:     this.serve(),
+                start:     this.start(),
             }
-            if(options.serve || options.start) {
-                options.watch = true
+            if(options.serve || options.start) options.watch = true
+            if(options.serve && options.start) {
+                throw new OptionError('--start', 'Cannot start and serve in the same command.')
             }
             return options
         } catch(error) {
-            console.log(error.message)
+            if(error instanceof OptionError) {
+                const yellow = '\x1b[33m'
+                const esc    = `\x1b[0m`
+                console.log('Errors: ')
+                console.log()
+                console.log(`  ${yellow}${error.option}${esc} ${error.message}`)
+                console.log()
+            } else {
+                console.log(error.message)
+            }
             return undefined
         }
     }
