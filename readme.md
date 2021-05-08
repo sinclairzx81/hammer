@@ -62,7 +62,7 @@ Hammer provides a development server with save and restart workflows. To enable 
 ```
 
 ```bash
-$ hammer index.html --dist target/website --serve 5000
+$ hammer index.html --serve 5000
 ```
 
 ## Start
@@ -76,10 +76,10 @@ http.createServer((req, res) => res.end('hello world')).listen(5001)
 ```
 ```bash
 # builds server.ts to target/server and reloads it on save.
-$ hammer index.ts --dist target/server --start index.js
+$ hammer index.ts --start index.js
 
 # to pass command line options, use quotes.
-$ hammer index.ts --dist target/server --start "index.js --port 5001"
+$ hammer index.ts --start "index.js --port 5001"
 ```
 
 ## Libraries
@@ -136,10 +136,10 @@ And started with.
 
 ```bash
 # build the server to target/server and start.
-$ hammer apps/server/index.ts --dist target/server --start index.js
+$ hammer apps/server/index.ts --start index.js
 
 # build the website to target/website and serve.
-$ hammer apps/website/index.html --dist target/website --serve 5000
+$ hammer apps/website/index.html --serve 5000
 ```
 
 ## Command Line Interface
