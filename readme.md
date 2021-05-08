@@ -130,23 +130,35 @@ $ hammer apps/website/index.html --dist target/website --serve 5000
 ```
 ## Application Programming Interface
 
-Hammer provides the following API which analogs the Cli interface. All parameters are required. The `start` function returns a `dispose` function that can be used to stop watch and server processes.
+Hammer provides the following API which mirrors the Cli interface. The `run` function starts Hammer with the given options and returns a `dispose` handle to terminate any processes.
 
 ```typescript
-import { start } from '@sinclair/hammer'
+import { run } from '@sinclair/hammer'
 
-const dispose = await start({
+const dispose = await run({
   sourcePaths: ['index.html'], 
   outDir: './dist', 
   target: 'esnext',
   minify: false,
   sourcemap: false,
-  watch: false,
-  port: 5000
+  watch: true,
+  serve: 5000
 })
-
 // ...
-
 dispose() 
 ```
-
+The following is a full list of options.
+```typescript
+export interface Options {
+    sourcePaths:  string[]
+    dist:         string
+    target:       string
+    minify:       boolean
+    bundle:       boolean
+    sourcemap:    boolean
+    watch:        boolean
+    platform:     string
+    serve?:       number
+    start?:       string
+}
+```

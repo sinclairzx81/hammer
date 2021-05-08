@@ -31,7 +31,7 @@ import { Build }          from './build/index'
 import { resolve, Asset } from './resolve/index'
 import { watch }          from './watch/index'
 import { serve }          from './serve/index'
-import { start as run }   from './start/index'
+import { start }          from './start/index'
 import { Options }        from './options/index'
 import { Dispose }        from './dispose'
 
@@ -55,7 +55,7 @@ async function buildAndWatch(options: Options): Promise<DisposeFunction> {
     disposables.push(watcher)
     disposables.push(builder)
     if(options.serve) disposables.push(serve(options.dist, 5000))
-    if(options.start) disposables.push(run(options.start))
+    if(options.start) disposables.push(start(options.start))
     into(async () => {
         for await(const _ of watcher) {
             const assets = resolve(options.sourcePaths, options.dist)
@@ -87,7 +87,7 @@ async function build(options: Options): Promise<DisposeFunction> {
     return () => builder.dispose()
 }
 
-export async function start(options: Options): Promise<DisposeFunction> {
+export async function run(options: Options): Promise<DisposeFunction> {
     if(options.watch) {
         return await buildAndWatch(options)
     } else {

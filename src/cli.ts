@@ -25,7 +25,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { options } from './options/index'
-import { start } from './index'
+import { run }     from './index'
 
 // -------------------------------------------------------------------------
 // Help
@@ -79,7 +79,7 @@ async function cli(argv: string[]) {
   // Start
   // ----------------------------------------------------
 
-  await start(result)
+  await run(result)
 
   // ----------------------------------------------------
   // Info
