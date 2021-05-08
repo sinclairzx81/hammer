@@ -79,9 +79,11 @@ Consider the following directory structure.
 
 ```shell
 /apps
-  /website
-    index.html
-    index.ts    ───────────┐ 
+  /server
+    index.ts    ───────────┐
+  /website                 │
+    index.html             │
+    index.ts    ───────────┤ 
 /libs                      │
   /foo                     │
     index.ts    <──────────┤
@@ -91,7 +93,7 @@ Consider the following directory structure.
     index.ts    <──────────┘
 tsconfig.json
 ```
-The following is the contents of the `tsconfig.json` file to allow `website` to link / alias each library.
+The following is the contents of the `tsconfig.json` file to allow the `server` and `website` applications to link / alias each library.
 
 ```javascript
 {
@@ -117,7 +119,15 @@ const baz = new Baz()
 
 console.log(foo, bar, baz)
 ```
+And started with.
 
+```bash
+# build the server to target/server and start.
+$ hammer apps/server/index.ts --dist target/server --start index.js
+
+# build the website to target/website and serve.
+$ hammer apps/website/index.html --dist target/website --serve 5000
+```
 ## Application Programming Interface
 
 Hammer provides the following API which analogs the Cli interface. All parameters are required. The `start` function returns a `dispose` function that can be used to stop watch and server processes.

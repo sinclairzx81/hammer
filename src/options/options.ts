@@ -74,7 +74,8 @@ export class OptionsReader {
     private serve() {
         const index = this.parameters.indexOf('--serve')
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            return parseInt(this.parameters[index + 1])
+            const port = parseInt(this.parameters[index + 1])
+            return port === NaN ? 5000 : port
         } else if(!(index === -1)) {
             return 5000
         } else {
@@ -84,18 +85,23 @@ export class OptionsReader {
     
     private start() {
         const dist  = this.dist()
-        const index = this.parameters.indexOf('--start')
+        const index = this.parameters.indexOf('--start');
         if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            return path.join(dist, this.parameters[index + 1])
+            const entry = path.join(dist, this.parameters[index + 1])
+            return fs.existsSync(entry) ? entry : undefined
         } else if(!(index === -1)) {
-            return path.join(dist, 'index.js')
+            const entry = path.join(dist, 'index.js')
+            return fs.existsSync(entry) ? entry : undefined
         } else {
             return undefined
         }
     }
 
     private platform() {
-        return this.start() === undefined ? 'browser' : 'node'
+        const index = this.parameters.indexOf('--platform')
+        return (!(index === -1 || (index + 1) > this.parameters.length))
+            ? this.parameters[index + 1]  
+            : 'browser' 
     }
 
     private minify() {
