@@ -50,20 +50,25 @@ License MIT
 The following command line parameters are supported. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within.
 
 ```
-Examples: $ hammer [..paths] <...options>
-          $ hammer index.html about.html
-          $ hammer index.html images --dist dist
-          $ hammer index.html --dist dist
-          $ hammer index.html --dist dist --watch --port 5000
-          $ hammer index.html --dist dist --watch --target safari11
+Examples:
+
+  $ hammer [..paths] <...options>
+  $ hammer index.html about.html
+  $ hammer index.html images --dist target/website
+  $ hammer index.html --watch
+  $ hammer index.html --serve 5000
+  $ hammer index.ts   --start index.js --platform node
 
 Options:
-  --dist      The output directory (default: dist)
-  --target    Sets the ES target (default: esnext)
-  --minify    Minifies the bundle (default: false)
-  --sourcemap Generate sourcemap (default: false)
-  --watch     Starts the compiler in watch mode (default: false)
-  --port      Sets the dev server port (default: 5000)
+
+  --platform  <target>  Sets the target platform (default: browser)
+  --target    <target>  Sets the ES target (default: esnext)
+  --dist                Sets the output directory (default: dist)
+  --watch               Watch and compile on file changes
+  --serve     <port>    Watch and serves the --dist directory on the given port
+  --start     <file>    Watch and starts a node script the --dist directory
+  --minify              Minifies the bundle
+  --sourcemap           Generate sourcemaps
 ```
 
 ## Libraries
