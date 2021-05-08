@@ -148,14 +148,13 @@ Examples:
 
 Options:
 
-  --platform  <target>  Sets the target platform (default: browser)
-  --target    <target>  Sets the ES target (default: esnext)
-  --dist                Sets the output directory (default: dist)
-  --watch               Watch and compile on file changes only
-  --serve     <port>    Watch and serves the --dist directory on the given port
-  --start     <file>    Watch and starts a node script the --dist directory
-  --minify              Minifies the bundle
-  --sourcemap           Generate sourcemaps
+  --target    <target>  Sets the ES target. Default is 'esnext'.
+  --dist                Sets the output directory. Default is 'dist'.
+  --serve     <port>    Watch and serves on the given port.
+  --start     <file>    Watch and starts a script.
+  --watch               Watch and compile on save only.
+  --minify              Minifies the output.
+  --sourcemap           Generate sourcemaps.
 ```
 
 ## Application Programming Interface

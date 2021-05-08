@@ -50,7 +50,7 @@ function help() {
     `  ${yellow}--platform${esc}  <target>  Sets the target platform (default: browser)`,
     `  ${yellow}--target${esc}    <target>  Sets the ES target (default: esnext)`,
     `  ${yellow}--dist${esc}                Sets the output directory (default: dist)`,
-    `  ${yellow}--watch${esc}               Watch and compile on file changes`,
+    `  ${yellow}--watch${esc}               Watch and compile on save only`,
     `  ${yellow}--serve${esc}     <port>    Watch and serves the ${yellow}--dist${esc} directory on the given port`,
     `  ${yellow}--start${esc}     <file>    Watch and starts a node script the ${yellow}--dist${esc} directory`,
     `  ${yellow}--minify${esc}              Minifies the bundle`,
