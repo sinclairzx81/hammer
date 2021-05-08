@@ -45,32 +45,6 @@ Hammer was created to be an ultra lightweight alternative to Parcel. It is inten
 
 License MIT
 
-## Command Line Interface
-
-Hammer provides the following CLI interface. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within. The `--watch` option will only watch for changes. To serve or start a node process use `--serve` or `--start` respectively which implicitly enables `--watch`.
-
-```
-Examples:
-
-  $ hammer [..paths] <...options>
-  $ hammer index.html about.html
-  $ hammer index.html images --dist target/website
-  $ hammer index.html --watch
-  $ hammer index.html --serve 5000
-  $ hammer index.ts   --start index.js --platform node
-
-Options:
-
-  --platform  <target>  Sets the target platform (default: browser)
-  --target    <target>  Sets the ES target (default: esnext)
-  --dist                Sets the output directory (default: dist)
-  --watch               Watch and compile on file changes only
-  --serve     <port>    Watch and serves the --dist directory on the given port
-  --start     <file>    Watch and starts a node script the --dist directory
-  --minify              Minifies the bundle
-  --sourcemap           Generate sourcemaps
-```
-
 ## Serve
 
 Hammer provides a development server with save and restart workflows. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
@@ -166,6 +140,32 @@ $ hammer apps/server/index.ts --dist target/server --start index.js
 
 # build the website to target/website and serve.
 $ hammer apps/website/index.html --dist target/website --serve 5000
+```
+
+## Command Line Interface
+
+Hammer provides the following CLI interface. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within. The `--watch` option will only watch for changes. To serve or start a node process use `--serve` or `--start` respectively which implicitly enables `--watch`.
+
+```
+Examples:
+
+  $ hammer [..paths] <...options>
+  $ hammer index.html about.html
+  $ hammer index.html images --dist target/website
+  $ hammer index.html --watch
+  $ hammer index.html --serve 5000
+  $ hammer index.ts   --start index.js --platform node
+
+Options:
+
+  --platform  <target>  Sets the target platform (default: browser)
+  --target    <target>  Sets the ES target (default: esnext)
+  --dist                Sets the output directory (default: dist)
+  --watch               Watch and compile on file changes only
+  --serve     <port>    Watch and serves the --dist directory on the given port
+  --start     <file>    Watch and starts a node script the --dist directory
+  --minify              Minifies the bundle
+  --sourcemap           Generate sourcemaps
 ```
 
 ## Application Programming Interface
