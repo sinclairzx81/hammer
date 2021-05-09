@@ -1,6 +1,6 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Build Tool for HTML Applications.",
   "author": "sinclairzx81",
   "keywords": [
@@ -29,7 +29,6 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@sinclair/hammer": "^0.8.10",
     "esbuild": "^0.11.20"
   }
 }
