@@ -13,7 +13,7 @@
 ## Install
 
 ```shell
-$ npm install -g @sinclair/hammer 
+$ npm install @sinclair/hammer -g
 ```
 
 ## Usage
