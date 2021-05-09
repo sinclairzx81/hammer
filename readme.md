@@ -2,7 +2,7 @@
 
 <h1>Hammer</h1>
 
-<p>Build Tool for HTML Applications</p>
+<p>Build Tool for Browser and Node Applications</p>
 
 [![npm version](https://badge.fury.io/js/%40sinclair%2Fhammer.svg)](https://badge.fury.io/js/%40sinclair%2Fhammer)
 
@@ -39,9 +39,9 @@ Done
 
 ## Overview
 
-Hammer is a build and bundling tool for HTML applications. It works by parsing HTML files for asset references and will process each discovered asset into a target `dist` directory along with the HTML file. Hammer uses `esbuild` for performance and reduced dependency overhead. Additionally, Hammer provides watch, save and reload workflows for the browser as well as node applications.
+Hammer is a build tool for browser and node applications. It provides a unified CLI for building both browser and node application types and provides appropriate `watch` and `reload` workflows for each. Hammer also offers support for linking shared local libraries taken by browser and node projects using standard TypeScript `tsconfig.json` configuration.
 
-Hammer was created to be an ultra lightweight alternative to Parcel. It is intended to be TypeScript centric and was written with mono repository support in mind leveraging TypeScript path aliasing. Hammer preferences automatic bundling over configuration where possible. It takes `esbuild` as it's only dependency to keep development dependencies to an absolute minimum.
+Hammer was written to consolidate several disparate tools related to monitoring Node processes (nodemon), building from HTML (parcel) and mono repository support (lerna, nx). It's only dependency is `esbuild` and is equal part concerned with build performance as it is dramatically reducing the number of development dependencies required for modern web application development.
 
 License MIT
 
@@ -81,7 +81,7 @@ $ hammer index.ts --start index.js
 $ hammer index.ts --start "index.js --port 5001"
 ```
 
-## Libraries
+## Linking
 
 It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications local to the project. Hammer provides support for this by way of `tsconfig.json` configuration. 
 
@@ -103,7 +103,7 @@ Consider the following directory structure.
     index.ts    <──────────┘
 tsconfig.json
 ```
-To enable the applications to import the libraries, configure the `baseUrl` and `paths` options of the `tsconfig.json` file as follows.
+To enable the applications to import these libraries, configure the `baseUrl` and `paths` options of the `tsconfig.json` file as follows.
 
 ```javascript
 {
@@ -155,38 +155,4 @@ Options:
   --watch               Watch and compile on save only
   --minify              Minifies the bundle
   --sourcemap           Generate sourcemaps
-```
-
-## Application Programming Interface
-
-Hammer provides the following API which analogs the CLI interface. The `run` function starts Hammer with the given options and returns a `dispose` handle to terminate any processes.
-
-```typescript
-import { run } from '@sinclair/hammer'
-
-const dispose = await run({
-  sourcePaths: ['index.html'], 
-  outDir:      './dist', 
-  target:      'esnext',
-  minify:      false,
-  sourcemap:   false,
-  watch:       true,
-  serve:       5000
-})
-// ...
-dispose() 
-```
-The following is a full list of options.
-```typescript
-export interface Options {
-    sourcePaths:  string[]
-    dist:         string
-    target:       string
-    minify:       boolean
-    bundle:       boolean
-    sourcemap:    boolean
-    watch:        boolean
-    serve?:       number
-    start?:       string
-}
 ```
