@@ -137,7 +137,7 @@ console.log(foo, bar, baz)
 Hammer provides the following CLI interface. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within. The `--watch` option will only watch for changes. To serve or start a node process use `--serve` or `--start` respectively which implicitly enables `--watch`.
 
 ```
-Examples:
+Examples: 
 
   $ hammer [...paths] <...options>
   $ hammer index.html about.html
@@ -148,11 +148,12 @@ Examples:
 
 Options:
 
-  --target    <target>  Sets the ES target (default: esnext)
-  --dist                Sets the output directory (default: dist)
+  --target    <target>  Sets the ES target. (default: esnext)
+  --platform  <target>  Sets the platform. Options are browser or node. (default: browser)
+  --dist                Sets the output directory. (default: dist)
   --serve     <port>    Watch and serves on the given port.
   --start     <script>  Watch and starts a script.
-  --watch               Watch and compile on save only
-  --minify              Minifies the bundle
-  --sourcemap           Generate sourcemaps
+  --watch               Watch and compile on save only.
+  --minify              Minifies the bundle.
+  --sourcemap           Generate sourcemaps.
 ```
