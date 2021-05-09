@@ -99,7 +99,15 @@ export class OptionsReader {
     }
 
     private platform() {
-        return 'node'
+        const index = this.parameters.indexOf('--platform')
+        if(!(index === -1 || (index + 1) > this.parameters.length)) {
+           const platform = this.parameters[index + 1]
+           if(!['node', 'browser'].includes(platform)) throw new OptionError('--platform', `Expected either 'node' or 'browser'. Got ${platform}`)
+           return platform
+        }
+        if(this.serve()) return 'browser'
+        if(this.start()) return 'node'
+        return 'browser'
     }
 
     private minify() {

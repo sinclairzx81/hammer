@@ -47,13 +47,14 @@ function help() {
     ``,
     `Options:`,
     ``,
-    `  ${yellow}--target${esc}    <target>  Sets the ES target (default: esnext)`,
-    `  ${yellow}--dist${esc}                Sets the output directory (default: dist)`,
+    `  ${yellow}--target${esc}    <target>  Sets the ES target. (default: esnext)`,
+    `  ${yellow}--platform${esc}  <target>  Sets the platform. Options are browser or node. (default: browser)`,
+    `  ${yellow}--dist${esc}                Sets the output directory. (default: dist)`,
     `  ${yellow}--serve${esc}     <port>    Watch and serves on the given port.`,
     `  ${yellow}--start${esc}     <script>  Watch and starts a script.`,
-    `  ${yellow}--watch${esc}               Watch and compile on save only`,
-    `  ${yellow}--minify${esc}              Minifies the bundle`,
-    `  ${yellow}--sourcemap${esc}           Generate sourcemaps`,
+    `  ${yellow}--watch${esc}               Watch and compile on save only.`,
+    `  ${yellow}--minify${esc}              Minifies the bundle.`,
+    `  ${yellow}--sourcemap${esc}           Generate sourcemaps.`,
   ].join(`\n`))
 }
 
