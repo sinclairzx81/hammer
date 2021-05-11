@@ -25,7 +25,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { options } from './options/index'
-import { run }     from './index'
+import { hammer }     from './index'
 
 // -------------------------------------------------------------------------
 // Help
@@ -78,7 +78,7 @@ async function cli(argv: string[]) {
   // Start
   // ----------------------------------------------------
 
-  await run(result)
+  await hammer(result)
 
   // ----------------------------------------------------
   // Info

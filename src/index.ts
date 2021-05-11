@@ -85,7 +85,7 @@ async function build(options: Options): Promise<DisposeFunction> {
     return () => builder.dispose()
 }
 
-export async function run(options: Options): Promise<DisposeFunction> {
+export async function hammer(options: Options): Promise<DisposeFunction> {
     if(options.watch) {
         return await buildAndWatch(options)
     } else {

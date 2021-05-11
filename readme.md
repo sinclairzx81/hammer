@@ -157,3 +157,38 @@ Options:
   --minify              Minifies the bundle.
   --sourcemap           Generate sourcemaps.
 ```
+
+## Application Programming Interface
+
+Hammer provides the following API which analogs the CLI interface.
+
+```typescript
+import { hammer } from '@sinclair/hammer'
+
+hammer({
+    sourcePaths: ['index.html'], 
+    dist:        'target/dist', 
+    target:      'esnext',
+    minify:       true,
+    sourcemap:    false,
+    platform:     'browser'
+}).then(() => {
+    console.log('done')
+})
+```
+
+The available options are.
+
+```typescript
+export interface Options {
+    sourcePaths:  string[]
+    dist:         string
+    target:       string
+    minify:       boolean
+    sourcemap:    boolean
+    watch:        boolean
+    platform:     string
+    serve?:       number
+    start?:       string
+}
+```
