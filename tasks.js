@@ -15,7 +15,7 @@ export async function start(target = 'target/watch') {
 export async function build(target = 'target/build') {
     await folder(`${target}`).delete().exec()
     await file(`${target}/index.js`).create().exec()
-    await shell(`tsc --project src/tsconfig.json --outDir ${target}`).exec()
+    await shell(`tsc --project src/tsconfig.json --outDir ${target} --declaration`).exec()
     await folder(`${target}`).add('src/hammer').exec()
     await folder(`${target}`).add('package.json').exec()
     await folder(`${target}`).add('license').exec()

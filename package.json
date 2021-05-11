@@ -1,6 +1,6 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Build Tool for HTML Applications.",
   "author": "sinclairzx81",
   "keywords": [
@@ -13,6 +13,7 @@
     "type": "git",
     "url": "https://github.com/sinclairzx81/hammer"
   },
+  "main": "index.js",
   "bin": {
     "hammer": "./hammer"
   },

@@ -73,6 +73,7 @@ async function cli(argv: string[]) {
   if(result.serve) console.log(`${green}Serve${esc} http://localhost:${result.serve}`)
   if(result.start) console.log(`${green}Start${esc} ${result.start}`)
   if(!result.start && !result.serve && result.watch) console.log(`${green}Watch${esc}`)
+
   // ----------------------------------------------------
   // Start
   // ----------------------------------------------------
