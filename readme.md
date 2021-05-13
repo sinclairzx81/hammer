@@ -91,7 +91,7 @@ export function hello(name: string) {
 ```bash
 $ hammer task hello dave
 ```
-Additionally, Hammer provides several built in libraries running common `file`, `folder`, `shell` and `watch` operations. For example, the following runs two hammer processes in parallel using the `shell` utility.
+Additionally, Hammer provides several built in libraries to run common `file`, `folder`, `shell` and `watch` operations. For example, the following runs two hammer processes in parallel using the `shell` utility.
 
 ```typescript
 // hammer.ts
@@ -107,7 +107,7 @@ export async function start(target = 'dist') {
 ```bash
 $ hammer task start
 ```
-The `file`, `folder`, `shell` and `watch` utilities are well documented and should be fairly easy to understand. Additional functionality for building and processing assets can be written or installed from `npm`.
+The `file`, `folder`, `shell` and `watch` utilities are well documented and should be fairly easy to understand. Additional functionality for building and processing assets can be written or installed via `npm`.
 
 ## Libraries
 

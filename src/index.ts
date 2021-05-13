@@ -32,6 +32,7 @@ import { resolve, Asset } from './resolve/index'
 import { watch } from './watch/index'
 import { serve } from './serve/index'
 import { start } from './start/index'
+import { task } from './task/index'
 import { Dispose } from './dispose'
 
 import {
@@ -135,9 +136,9 @@ export class Hammer implements Dispose {
             }
         })
     }
-
+    
     private async task(options: TaskOptions): Promise<void> {
-
+        await task(options.sourcePath, options.name, options.arguments)
     }
 
     private async version(options: VersionOptions): Promise<void> {
