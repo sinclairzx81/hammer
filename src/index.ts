@@ -67,6 +67,7 @@ export class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            bundle: options.bundle,
             watch: false
         })
         const assets = resolve(options.sourcePaths, options.dist)
@@ -86,6 +87,7 @@ export class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            bundle: options.bundle,
             watch: true
         })
         const assets = resolve(options.sourcePaths, options.dist)
@@ -114,6 +116,7 @@ export class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            bundle: true,
             watch: true
         })
         const assets = resolve(options.sourcePaths, options.dist)
@@ -147,6 +150,7 @@ export class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            bundle: true,
             watch: true
         })
         const assets = resolve([options.sourcePath], options.dist)
@@ -195,39 +199,40 @@ export class Hammer implements Dispose {
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`
         console.log([
-            `$ hammer ${green}build${esc} [...paths] ${yellow}{...options}${esc}`,
-            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `  ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
-            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `  ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
-            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
-            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            `Hammer: ${this.getVersion()}`,
             ``,
-            `$ hammer ${green}watch${esc} [...paths] ${yellow}{...options}${esc}`,
-            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `  ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
-            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `  ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
-            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
-            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            ` $ hammer ${green}build${esc} [...paths] ${yellow}{...options}${esc}`,
+            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `   ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
+            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `   ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
+            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
             ``,
-            `$ hammer ${green}serve${esc} [...paths] ${yellow}{...options}${esc}`,
-            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `  ${yellow}--port${esc}      port         The port to listen on.`,
-            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
-            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
+            ` $ hammer ${green}watch${esc} [...paths] ${yellow}{...options}${esc}`,
+            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `   ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
+            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `   ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
+            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
             ``,
-            `$ hammer ${green}start${esc} script ${yellow}[...arguments]${esc}`,
-            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
-            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
+            ` $ hammer ${green}serve${esc} [...paths] ${yellow}{...options}${esc}`,
+            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `   ${yellow}--port${esc}      port         The port to listen on.`,
+            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
             ``,
-            `hammer ${green}task${esc} name ${yellow}[...arguments]${esc}`,
+            ` $ hammer ${green}start${esc} script ${yellow}[...arguments]${esc}`,
+            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
+            ``,
+            ` $ hammer ${green}task${esc} name ${yellow}[...arguments]${esc}`,
             ``,
         ].join(`\n`))
-
         if (options.message) {
             console.log(options.message)
         }
@@ -241,7 +246,7 @@ export class Hammer implements Dispose {
             case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.dist}`); break
             case 'serve': console.log(`${yellow}Serve${esc}: ${this.options.port}`); break
             case 'start': console.log(`${yellow}Start${esc}: ${this.options.startPath}`); break
-            case 'task': console.log(`Task: ${this.options.name} ${this.options.arguments.join(' ')}`); break
+            case 'task': console.log(`${yellow}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
         switch (this.options.type) {
             case 'build': return this.build(this.options)
