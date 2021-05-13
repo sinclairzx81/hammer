@@ -95,8 +95,6 @@ $ hammer task hello dave
 Additionally, Hammer provides built in libraries to run common `file`, `folder`, `shell` and `watch` operations. The following sets up two tasks, one to clean the project, the other to run a Hammer `serve` and `start` process in parallel. 
 
 ```typescript
-// file: hammer.ts
-
 import { shell, folder } from '@sinclair/hammer'
 
 export async function clean (dist = 'target') {
@@ -109,9 +107,7 @@ export async function start (dist = 'target') {
     `hammer start apps/website/index.ts --dist ${dist}/server`
   ])
 }
-
 ```
-Which can be run with the following
 ```bash
 $ hammer task clean
 $ hammer task start
