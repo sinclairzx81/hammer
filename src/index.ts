@@ -35,14 +35,18 @@ import { start } from './start/index'
 import { task } from './task/index'
 import { Dispose } from './dispose'
 
+import * as path from 'path'
+import * as fs from 'fs'
+
 import {
     Options,
     HelpOptions,
     BuildOptions,
+    WatchOptions,
     ServeOptions,
     StartOptions,
     VersionOptions,
-    TaskOptions
+    TaskOptions,
 } from './options/index'
 
 export class Hammer implements Dispose {
@@ -71,6 +75,34 @@ export class Hammer implements Dispose {
         this.disposables.push(builder)
     }
 
+    /** Starts a watch process. */
+    private async watch(options: WatchOptions): Promise<void> {
+        const cache = new Cache<Asset>({
+            key: 'sourcePath',
+            timestamp: 'timestamp'
+        })
+        const builder = new Build({
+            platform: 'browser',
+            minify: options.minify,
+            sourcemap: options.sourcemap,
+            target: options.target,
+            watch: true
+        })
+        const assets = resolve(options.sourcePaths, options.dist)
+        const actions = cache.update(assets)
+        await builder.update(actions)
+        const watcher = watch(options.sourcePaths, assets)
+        this.disposables.push(watcher)
+        this.disposables.push(builder)
+        into(async () => {
+            for await (const _ of watcher) {
+                const assets = resolve(options.sourcePaths, options.dist)
+                watcher.update(assets)
+                const actions = cache.update(assets)
+                await builder.update(actions)
+            }
+        })
+    }
     /** Starts a http serve process. */
     private async serve(options: ServeOptions): Promise<void> {
         const cache = new Cache<Asset>({
@@ -136,46 +168,76 @@ export class Hammer implements Dispose {
             }
         })
     }
-    
+
     private async task(options: TaskOptions): Promise<void> {
         await task(options.sourcePath, options.name, options.arguments)
     }
 
     private async version(options: VersionOptions): Promise<void> {
-
+        const packagePath = path.join(__dirname, 'package.json')
+        if (!fs.existsSync(packagePath)) console.log(`Cannot find package.json at ${packagePath}`)
+        const contents = fs.readFileSync(packagePath, 'utf-8')
+        const package_json = JSON.parse(contents)
+        console.log(`Hammer: ${package_json.version}`)
     }
 
     private async help(options: HelpOptions): Promise<void> {
-        if(options.message) return console.log(options.message)
-        const green = `\x1b[32m`
+
+        const green = '\x1b[32m'
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`
         console.log([
-            `Examples: `,
+            `$ hammer ${green}build${esc} [...paths] ${yellow}{...options}${esc}`,
+            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `  ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
+            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `  ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
+            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
+            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
             ``,
-            `  $ ${green}hammer${esc} [...paths] ${yellow}<...options>${esc}`,
-            `  $ ${green}hammer${esc} index.html about.html`,
-            `  $ ${green}hammer${esc} index.html images ${yellow}--dist${esc} target/website`,
-            `  $ ${green}hammer${esc} index.html ${yellow}--serve${esc} 5000`,
-            `  $ ${green}hammer${esc} index.ts ${yellow}--start${esc} index.js`,
-            `  $ ${green}hammer${esc} index.ts ${yellow}--minify${esc}`,
+            `$ hammer ${green}watch${esc} [...paths] ${yellow}{...options}${esc}`,
+            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `  ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
+            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `  ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
+            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
+            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
             ``,
-            `Options:`,
+            `$ hammer ${green}serve${esc} [...paths] ${yellow}{...options}${esc}`,
+            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `  ${yellow}--port${esc}      port         The port to listen on.`,
+            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
             ``,
-            `  ${yellow}--target${esc}    <target>  Sets the ES target. (default: esnext)`,
-            `  ${yellow}--platform${esc}  <target>  Sets the platform. Options are browser or node. (default: browser)`,
-            `  ${yellow}--dist${esc}                Sets the output directory. (default: dist)`,
-            `  ${yellow}--serve${esc}     <port>    Watch and serves on the given port.`,
-            `  ${yellow}--start${esc}     <script>  Watch and starts a script.`,
-            `  ${yellow}--watch${esc}               Watch and compile on save only.`,
-            `  ${yellow}--minify${esc}              Minifies the bundle.`,
-            `  ${yellow}--sourcemap${esc}           Generate sourcemaps.`,
+            `$ hammer ${green}start${esc} script ${yellow}[...arguments]${esc}`,
+            `  ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
+            `  ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `  ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            `  ${yellow}--minify${esc}                 Minifies the bundle.`,
+            ``,
+            `hammer ${green}task${esc} name ${yellow}[...arguments]${esc}`,
+            ``,
         ].join(`\n`))
+
+        if (options.message) {
+            console.log(options.message)
+        }
     }
 
     public run() {
+        const yellow = '\x1b[33m'
+        const esc = `\x1b[0m`
+        switch (this.options.type) {
+            case 'build': console.log(`${yellow}Build${esc}: ${this.options.dist}`); break
+            case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.dist}`); break
+            case 'serve': console.log(`${yellow}Serve${esc}: ${this.options.port}`); break
+            case 'start': console.log(`${yellow}Start${esc}: ${this.options.startPath}`); break
+            case 'task': console.log(`Task: ${this.options.name} ${this.options.arguments.join(' ')}`); break
+        }
         switch (this.options.type) {
             case 'build': return this.build(this.options)
+            case 'watch': return this.watch(this.options)
             case 'serve': return this.serve(this.options)
             case 'start': return this.start(this.options)
             case 'task': return this.task(this.options)
@@ -190,61 +252,3 @@ export class Hammer implements Dispose {
         }
     }
 }
-
-
-
-// async function buildAndWatch(options: Options): Promise<DisposeFunction> {
-//     const disposables = [] as Dispose[]
-//     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
-//     const builder = new Build({
-//         platform:  options.platform,
-//         minify:    options.minify,
-//         sourcemap: options.sourcemap,
-//         target:    options.target,
-//         watch:     options.watch
-//     })
-//     const assets  = resolve(options.sourcePaths, options.dist)
-//     const actions = cache.update(assets)
-//     await builder.update(actions)
-//     const watcher = watch(options.sourcePaths, assets)
-//     disposables.push(watcher)
-//     disposables.push(builder)
-//     if(options.serve) disposables.push(serve(options.dist, 5000))
-//     if(options.start) disposables.push(start(options.start))
-//     into(async () => {
-//         for await(const _ of watcher) {
-//             const assets = resolve(options.sourcePaths, options.dist)
-//             watcher.update(assets)
-//             const actions = cache.update(assets)
-//             await builder.update(actions)
-//         }
-//     })
-//     return () => {
-//         for(const disposable of disposables) {
-//             disposable.dispose()
-//         }
-//     }
-// }
-
-// async function build(options: Options): Promise<DisposeFunction> {
-//     const cache   = new Cache<Asset>({ key: 'sourcePath', timestamp: 'timestamp'})
-//     const builder = new Build({
-//         platform:  options.platform,
-//         minify:    options.minify,
-//         sourcemap: options.sourcemap,
-//         target:    options.target,
-//         watch:     options.watch,
-//     })
-//     const assets  = resolve(options.sourcePaths, options.dist)
-//     const actions = cache.update(assets)
-//     await builder.update(actions)
-//     return () => builder.dispose()
-// }
-
-// export async function hammer(options: Options): Promise<DisposeFunction> {
-//     if(options.watch) {
-//         return await buildAndWatch(options)
-//     } else {
-//         return await build(options)
-//     }
-// }

@@ -54,10 +54,21 @@ export interface VersionOptions {
 export interface BuildOptions {
     type: 'build'
     sourcePaths: string[]
+    target: string[]
     dist: string
     platform: 'browser' | 'node'
     bundle: boolean
+    minify: boolean
+    sourcemap: boolean
+}
+
+export interface WatchOptions {
+    type: 'watch'
+    sourcePaths: string[]
     target: string[]
+    dist: string
+    platform: 'browser' | 'node'
+    bundle: boolean
     minify: boolean
     sourcemap: boolean
 }
@@ -93,6 +104,7 @@ export type Options =
     | HelpOptions
     | VersionOptions
     | BuildOptions
+    | WatchOptions
     | StartOptions
     | ServeOptions
     | TaskOptions
@@ -113,6 +125,19 @@ function defaultVersionOptions(): VersionOptions {
 function defaultBuildOptions(): BuildOptions {
     return {
         type: 'build',
+        bundle: true,
+        dist: path.join(process.cwd(), 'dist'),
+        minify: false,
+        platform: 'browser',
+        sourcePaths: [],
+        sourcemap: false,
+        target: ['esnext'],
+    }
+}
+
+function defaultWatchOptions(): WatchOptions {
+    return {
+        type: 'watch',
         bundle: true,
         dist: path.join(process.cwd(), 'dist'),
         minify: false,
@@ -225,6 +250,25 @@ export function parseBuildOptions(params: string[]): BuildOptions {
     return options
 }
 
+export function parseWatchOptions(params: string[]): WatchOptions {
+    const options = defaultWatchOptions()
+    options.sourcePaths = [...parseSourcePaths(params)]
+    if (options.sourcePaths.length === 0) throw new OptionError('build', `Expected at least one source path.`)
+    while (params.length > 0) {
+        const next = params.shift()!
+        switch (next) {
+            case '--platform': options.platform = parsePlatform(params); break;
+            case '--target': options.target = [...parseTarget(params)]; break;
+            case '--dist': options.dist = parseDist(params); break;
+            case '--bundle': options.bundle = true; break;
+            case '--sourcemap': options.sourcemap = true; break;
+            case '--minify': options.minify = true; break;
+            default: throw new OptionError('build', `Unexpected option '${next}'`)
+        }
+    }
+    return options
+}
+
 export function parseStartOptions(params: string[]): StartOptions {
     const options = defaultStartOptions()
     const sourcePaths = [...parseSourcePaths(params)]
@@ -282,12 +326,13 @@ export function parse(args: string[]) {
         const next = params.shift()
         switch (next) {
             case 'build': return parseBuildOptions(params)
+            case 'watch': return parseWatchOptions(params)
             case 'start': return parseStartOptions(params)
             case 'serve': return parseServeOptions(params)
             case 'task': return parseTaskOptions(params)
             case 'help': return defaultHelpOptions()
             case 'version': return defaultVersionOptions()
-            default: throw new OptionError('Hammer', `Unknown command '${next}'`)
+            default: return defaultHelpOptions('Nothing to run')
         }
     } catch (error) {
         return defaultHelpOptions(error.message)
