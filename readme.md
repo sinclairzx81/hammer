@@ -94,6 +94,7 @@ $ hammer task hello dave
 Additionally, Hammer provides several built in libraries running common `file`, `folder`, `shell` and `watch` operations. For example, the following runs two hammer processes in parallel using the `shell` utility.
 
 ```typescript
+// hammer.ts
 import { shell, file, folder, watch } from '@sinclair/hammer'
 
 export async function start(target = 'dist') {
