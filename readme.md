@@ -33,7 +33,7 @@ Create an `index.html` file
 ```
 Run Hammer
 ```shell
-$ hammer index.html
+$ hammer build index.html
 ```
 Done
 
@@ -75,10 +75,7 @@ import * as http from 'http'
 http.createServer((req, res) => res.end('hello world')).listen(5001)
 ```
 ```bash
-$ hammer index.ts --start index.js
-
-# use quotes to pass arguments.
-$ hammer index.ts --start "index.js --port 5001"
+$ hammer start index.ts
 ```
 
 ## Linking
