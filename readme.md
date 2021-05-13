@@ -92,7 +92,7 @@ export function hello(name: string) {
 ```bash
 $ hammer task hello dave
 ```
-Additionally, Hammer provides built in libraries to run common `file`, `folder`, `shell` and `watch` operations. The following sets up two tasks, one to clean the project, the other to run a Hammer `serve` and `start` process in parallel. 
+Hammer provides built in utilities to assist with common `file`, `folder`, `shell` and `watch` operations. The following sets up two tasks, one to clean the project, the other to run a Hammer `serve` and `start` process in parallel. 
 
 ```typescript
 import { shell, folder } from '@sinclair/hammer'
