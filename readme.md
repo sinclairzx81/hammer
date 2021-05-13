@@ -39,9 +39,9 @@ Done
 
 ## Overview
 
-Hammer is a build tool for browser and node applications. It provides a unified command line interface for developing browser and node application types and includes appropriate `watch` and `reload` workflows for each. Hammer also has support for linking shared local libraries taken by browser and node projects using standard TypeScript `tsconfig.json` configuration.
+Hammer is a build tool for browser and node applications. It provides a unified command line interface for developing both browser and node applications and includes appropriate `watch` and `reload` workflows for each. Hammer also provides support for linking local library dependencies taken by browser and node applications as well as the ability to create project automation tasks.
 
-Hammer was written to consolidate several disparate tools related to monitoring node processes (nodemon), building from HTML (parcel) and mono repository support (lerna, nx). It takes `esbuild` as its only dependency and is as much concerned with build performance as it is dramatically reducing the number of development dependencies required for modern web application development.
+Hammer was written to consolidate several disparate tools related to monitoring node processes (nodemon), building from HTML (parcel), mono repository support (lerna, nx) and project automation (gulp, grunt). It takes `esbuild` as its only dependency and is as much concerned with build performance as it is with dramatically reducing the number of development dependencies required for modern web application development.
 
 License MIT
 
