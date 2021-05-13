@@ -78,9 +78,9 @@ http.createServer((req, res) => res.end('hello world')).listen(5001)
 $ hammer start index.ts
 ```
 
-## Tasks
+## Task
 
-Hammer provides support for running project automation tasks that can be used to orchestrate build and watch workflows. This is achieved with a hammer task file named `hammer.ts`. Hammer can call into this file to run any exported function, as follows.
+Hammer provides support for running project automation tasks that can be used to orchestrate build and watch workflows. This is handled with a file named `hammer.ts` in the current working directory. Hammer can call into this file to run any exported function, as follows.
 
 ```typescript
 // hammer.ts
@@ -88,11 +88,10 @@ export function hello(name: string) {
   console.log(`hello, ${name}`)
 }
 ```
-To run
 ```bash
 $ hammer task hello dave
 ```
-Additionally, Hammer provides several built in libraries running common `file`, `folder`, `shell` and `watch` operations. The following runs two hammer processes concurrently using the `shell` utility.
+Additionally, Hammer provides several built in libraries running common `file`, `folder`, `shell` and `watch` operations. For example, the following runs two hammer processes in parallel using the `shell` utility.
 
 ```typescript
 import { shell, file, folder, watch } from '@sinclair/hammer'
@@ -107,9 +106,9 @@ export async function start(target = 'dist') {
 ```bash
 $ hammer task start
 ```
-Additional functionality for building and processing of assets can be written or installed from `npm`. 
+The `file`, `folder`, `shell` and `watch` utilities are well documented and should be fairly easy to understand. Additional functionality for building and processing assets can be written or installed from `npm`.
 
-## Linking
+## Libraries
 
 It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications local to the project. Hammer provides support for this by way of `tsconfig.json` configuration. 
 
