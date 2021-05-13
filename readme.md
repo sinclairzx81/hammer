@@ -83,7 +83,8 @@ $ hammer start index.ts
 Hammer provides support for running project automation tasks that can be used to orchestrate build and watch workflows. This is handled with a file named `hammer.ts` in the current working directory. Hammer can call into this file to run any exported function, as follows.
 
 ```typescript
-// hammer.ts
+// file: hammer.ts
+
 export function hello(name: string) {
   console.log(`hello, ${name}`)
 }
@@ -91,23 +92,27 @@ export function hello(name: string) {
 ```bash
 $ hammer task hello dave
 ```
-Additionally, Hammer provides several built in libraries to run common `file`, `folder`, `shell` and `watch` operations. For example, the following runs two hammer processes in parallel using the `shell` utility.
+Additionally, Hammer provides built in libraries to run common `file`, `folder`, `shell` and `watch` operations. The following sets up two tasks, one to clean the project, the other to run a Hammer `serve` and `start` process in parallel. 
 
 ```typescript
-// hammer.ts
-import { shell, file, folder, watch } from '@sinclair/hammer'
+// file: hammer.ts
 
-export async function start(target = 'dist') {
-  await shell([
-    `hammer start src/server/index.ts --dist ${target}/server`,
-    `hammer serve src/website/index.html --dist ${target}/website`
-  ])
-}
+import { shell, folder } from '@sinclair/hammer'
+
+export const clean = (dist = 'target') => folder(dist).delete()
+
+export const start = (dist = 'target') => shell([
+    `hammer serve apps/website/index.html --dist ${dist}/website`,
+    `hammer start apps/website/index.ts --dist ${dist}/server`
+])
+
 ```
+Which can be run with the following
 ```bash
+$ hammer task clean
 $ hammer task start
 ```
-The `file`, `folder`, `shell` and `watch` utilities are well documented and should be fairly easy to understand. Additional functionality for building and processing assets can be written or installed via `npm`.
+The `file`, `folder`, `shell` and `watch` utilities are well documented and should be fairly intuitive. Additional functionality for building and processing assets can be written or installed via `npm`.
 
 ## Libraries
 
