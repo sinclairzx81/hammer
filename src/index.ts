@@ -24,11 +24,20 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
+// --------------------------------------------------------------------------
+// System Utilities
+// --------------------------------------------------------------------------
+
+export { shell, folder, file, watch, delay } from './system/index'
+
+// --------------------------------------------------------------------------
+// Hammer
+// --------------------------------------------------------------------------
 
 import { into } from './async/index'
 import { Cache } from './cache/index'
 import { Build } from './build/index'
-import { resolve, Asset } from './resolve/index'
+import { Asset, resolve } from './resolve/index'
 import { watch } from './watch/index'
 import { serve } from './serve/index'
 import { start } from './start/index'
@@ -49,11 +58,9 @@ import {
     TaskOptions,
 } from './options/index'
 
-export class Hammer implements Dispose {
+class Hammer implements Dispose {
+    private readonly disposables: Dispose[] = []
 
-    private readonly disposables: Dispose[] = [
-
-    ]
     constructor(private readonly options: Options) { }
 
     /** Starts a build process. */
@@ -251,4 +258,9 @@ export class Hammer implements Dispose {
             disposable.dispose()
         }
     }
+}
+
+export function hammer(options: Options) {
+    const hammer = new Hammer(options)
+    return hammer.run()
 }

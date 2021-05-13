@@ -25,18 +25,11 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { parse }  from './options/index'
-import { Hammer } from './index'
+import { hammer } from './index'
 
-// -------------------------------------------------------------------------
-// Help
-// -------------------------------------------------------------------------
 async function cli(argv: string[]) {
-  const green  = `\x1b[32m`
-  const esc    = `\x1b[0m`
-
   const options = parse(process.argv)
-  const hammer = new Hammer(options)
-  await hammer.run()
+  await hammer(options)
 }
 
 cli(process.argv)

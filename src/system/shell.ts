@@ -78,7 +78,7 @@ export class Shell {
             const [command, options] = this.parse()
             const process = spawn(command, options, { stdio: 'inherit' })
             process.on('error', error => this.onError(error, reject))
-            process.on('close', exitcode => this.onClose(exitcode, resolve, reject))
+            process.on('close', exitcode => this.onClose(exitcode || 1, resolve, reject))
         })
     }
 }
