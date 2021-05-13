@@ -80,11 +80,9 @@ $ hammer start index.ts
 
 ## Task
 
-Hammer provides support for running project automation tasks that can be used to orchestrate build and watch workflows. This is handled with a file named `hammer.ts` in the current working directory. Hammer can call into this file to run any exported function, as follows.
+Hammer provides support for creating project automation tasks that can be used to orchestrate build and watch workflows. This is handled with a file named `hammer.ts` in the current working directory. Hammer can run any exported function in this file. For example.
 
 ```typescript
-// file: hammer.ts
-
 export function hello(name: string) {
   console.log(`hello, ${name}`)
 }
@@ -112,7 +110,6 @@ export async function start (dist = 'target') {
 $ hammer task clean
 $ hammer task start
 ```
-The `file`, `folder`, `shell` and `watch` utilities are well documented and should be fairly intuitive. Additional functionality for building and processing assets can be written or installed via `npm`.
 
 ## Libraries
 
