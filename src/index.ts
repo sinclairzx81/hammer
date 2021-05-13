@@ -173,16 +173,24 @@ export class Hammer implements Dispose {
         await task(options.sourcePath, options.name, options.arguments)
     }
 
+    private getVersion(): string {
+        try {
+            const packagePath = path.join(__dirname, 'package.json')
+            if (!fs.existsSync(packagePath)) throw Error(`Cannot find package.json at ${packagePath}`)
+            const contents = fs.readFileSync(packagePath, 'utf-8')
+            const package_json = JSON.parse(contents)
+            return package_json.version
+        } catch (error) {
+            console.log(error.message)
+            return 'Unknown'
+        }
+    }
+
     private async version(options: VersionOptions): Promise<void> {
-        const packagePath = path.join(__dirname, 'package.json')
-        if (!fs.existsSync(packagePath)) console.log(`Cannot find package.json at ${packagePath}`)
-        const contents = fs.readFileSync(packagePath, 'utf-8')
-        const package_json = JSON.parse(contents)
-        console.log(`Hammer: ${package_json.version}`)
+        console.log(`Hammer: ${this.getVersion()}`)
     }
 
     private async help(options: HelpOptions): Promise<void> {
-
         const green = '\x1b[32m'
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`
