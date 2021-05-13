@@ -45,7 +45,7 @@ import {
 } from './options/index'
 
 export class Hammer implements Dispose {
-    
+
     private readonly disposables: Dispose[] = [
 
     ]
@@ -116,10 +116,10 @@ export class Hammer implements Dispose {
             target: options.target,
             watch: true
         })
-        const assets = resolve(options.sourcePaths, options.dist)
+        const assets = resolve([options.sourcePath], options.dist)
         const actions = cache.update(assets)
         await builder.update(actions)
-        const watcher = watch(options.sourcePaths, assets)
+        const watcher = watch([options.sourcePath], assets)
         const process = start(options.startPath)
 
         this.disposables.push(watcher)
@@ -128,7 +128,7 @@ export class Hammer implements Dispose {
 
         into(async () => {
             for await (const _ of watcher) {
-                const assets = resolve(options.sourcePaths, options.dist)
+                const assets = resolve([options.sourcePath], options.dist)
                 watcher.update(assets)
                 const actions = cache.update(assets)
                 await builder.update(actions)
@@ -145,7 +145,7 @@ export class Hammer implements Dispose {
     }
 
     private async help(options: HelpOptions): Promise<void> {
-
+        if(options.message) return console.log(options.message)
         const green = `\x1b[32m`
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`

@@ -64,7 +64,7 @@ export interface BuildOptions {
 
 export interface StartOptions {
     type: 'start'
-    sourcePaths: string[]
+    sourcePath: string
     startPath: string
     dist: string
     target: string[]
@@ -138,7 +138,7 @@ function defaultServeOptions(): ServeOptions {
 function defaultStartOptions(): StartOptions {
     return {
         type: 'start',
-        sourcePaths: ['index.ts'],
+        sourcePath: 'index.ts',
         startPath: path.join(process.cwd(), 'dist', 'index.js'),
         dist: path.join(process.cwd(), 'dist'),
         target: ['esnext'],
@@ -168,6 +168,7 @@ function* parseSourcePaths(params: string[]): Generator<string> {
         yield sourcePath
     }
 }
+
 function parseDist(params: string[]): string {
     if (params.length === 0) throw new OptionError('--dist', "Expected directory path.")
     return path.join(process.cwd(), params.shift()!)
@@ -218,7 +219,6 @@ export function parseBuildOptions(params: string[]): BuildOptions {
             case '--bundle': options.bundle = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
-
             default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
@@ -227,7 +227,16 @@ export function parseBuildOptions(params: string[]): BuildOptions {
 
 export function parseStartOptions(params: string[]): StartOptions {
     const options = defaultStartOptions()
-    options.sourcePaths = [...parseSourcePaths(params)]
+    const sourcePaths = [...parseSourcePaths(params)]
+    if(sourcePaths.length === 0) throw new OptionError('start', 'Must specify an entry file.')
+    if(sourcePaths.length > 1) throw new OptionError('start', 'Must specify exactly one entry file.')
+    options.sourcePath = sourcePaths[0]
+
+    const extension = path.extname(options.sourcePath)
+    if(extension !== '.ts' && extension !== '.js') {
+        throw new OptionError('start', `Only '.ts' and '.js' entry files are supported.`)
+    }
+
     while (params.length > 0) {
         const next = params.shift()
         switch (next) {
@@ -238,6 +247,7 @@ export function parseStartOptions(params: string[]): StartOptions {
             default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
+    options.startPath = path.join(options.dist, [path.basename(options.sourcePath, extension), '.js'].join(''))
     return options
 }
 
@@ -251,6 +261,7 @@ export function parseServeOptions(params: string[]): ServeOptions {
             case '--minify': options.minify = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--target': options.target = [...parseTarget(params)]; break;
+            case '--port': options.port = parsePort(params); break;
             default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
@@ -276,7 +287,7 @@ export function parse(args: string[]) {
             case 'task': return parseTaskOptions(params)
             case 'help': return defaultHelpOptions()
             case 'version': return defaultVersionOptions()
-            default: return defaultHelpOptions()
+            default: throw new OptionError('Hammer', `Unknown command '${next}'`)
         }
     } catch (error) {
         return defaultHelpOptions(error.message)
