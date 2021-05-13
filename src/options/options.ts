@@ -55,29 +55,31 @@ export interface BuildOptions {
     type: 'build'
     sourcePaths: string[]
     dist: string
-    profile: 'browser' | 'node' | 'library'
+    platform: 'browser' | 'node'
     bundle: boolean
     target: string[]
     minify: boolean
-    sourcemaps: boolean
+    sourcemap: boolean
 }
 
 export interface StartOptions {
     type: 'start'
     sourcePaths: string[]
+    startPath: string
     dist: string
     target: string[]
     minify: boolean
-    sourcemaps: boolean
+    sourcemap: boolean
 }
 
 export interface ServeOptions {
     type: 'serve'
     sourcePaths: string[]
+    port: number
     dist: string
     target: string[]
     minify: boolean
-    sourcemaps: boolean
+    sourcemap: boolean
 }
 
 export interface TaskOptions {
@@ -114,9 +116,9 @@ function defaultBuildOptions(): BuildOptions {
         bundle: true,
         dist: path.join(process.cwd(), 'dist'),
         minify: false,
-        profile: 'browser',
+        platform: 'browser',
         sourcePaths: [],
-        sourcemaps: false,
+        sourcemap: false,
         target: ['esnext'],
     }
 }
@@ -127,7 +129,8 @@ function defaultServeOptions(): ServeOptions {
         sourcePaths: [],
         dist: path.join(process.cwd(), 'dist'),
         target: ['esnext'],
-        sourcemaps: false,
+        port: 5000,
+        sourcemap: false,
         minify: false,
     }
 }
@@ -136,9 +139,10 @@ function defaultStartOptions(): StartOptions {
     return {
         type: 'start',
         sourcePaths: ['index.ts'],
+        startPath: path.join(process.cwd(), 'dist', 'index.js'),
         dist: path.join(process.cwd(), 'dist'),
         target: ['esnext'],
-        sourcemaps: false,
+        sourcemap: false,
         minify: false,
     }
 }
@@ -158,7 +162,7 @@ function defaultTaskOptions(): TaskOptions {
 
 function* parseSourcePaths(params: string[]): Generator<string> {
     while (params.length > 0) {
-        const next = params.shift()
+        const next = params.shift()!
         const sourcePath = path.resolve(process.cwd(), next)
         if (!fs.existsSync(sourcePath)) return params.unshift(next)
         yield sourcePath
@@ -169,11 +173,20 @@ function parseDist(params: string[]): string {
     return path.join(process.cwd(), params.shift()!)
 }
 
-function parseProfile(params: string[]): 'browser' | 'node' | 'library' {
+function parsePlatform(params: string[]): 'browser' | 'node' {
     if (params.length === 0) throw new OptionError('--profile', "Expected profile option.")
     const next = params.shift()!
-    if (next === 'browser' || next === 'node' || next === 'library') return next
-    throw new OptionError('--profile', `Expected 'node', 'browser' or 'library'. Got '${next}'`)
+    if (next === 'browser' || next === 'node') return next
+    throw new OptionError('--profile', `Expected 'node' or 'browser'. Got '${next}'`)
+}
+
+function parsePort(params: string[]): number {
+    if (params.length === 0) throw new OptionError('--port', "Expected port number")
+    const next = params.shift()!
+    const port = parseInt(next)
+    if(Number.isNaN(port)) throw new OptionError('--port', `Expected port number. Received '${port}'`)
+    if(port < 0 || port > 65535) throw new OptionError('--port', `Invalid port number. Received '${port}'`)
+    return port
 }
 
 function* parseTarget(params: string[]): Generator<string> {
@@ -199,11 +212,11 @@ export function parseBuildOptions(params: string[]): BuildOptions {
     while (params.length > 0) {
         const next = params.shift()!
         switch (next) {
-            case '--profile': options.profile = parseProfile(params); break;
+            case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
             case '--bundle': options.bundle = true; break;
-            case '--sourcemaps': options.sourcemaps = true; break;
+            case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
 
             default: throw new OptionError('build', `Unexpected option '${next}'`)
@@ -220,7 +233,7 @@ export function parseStartOptions(params: string[]): StartOptions {
         switch (next) {
             case '--dist': options.dist = parseDist(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
-            case '--sourcemaps': options.sourcemaps = true; break;
+            case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
             default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
@@ -236,7 +249,7 @@ export function parseServeOptions(params: string[]): ServeOptions {
         switch (next) {
             case '--dist': options.dist = parseDist(params); break;
             case '--minify': options.minify = true; break;
-            case '--sourcemaps': options.sourcemaps = true; break;
+            case '--sourcemap': options.sourcemap = true; break;
             case '--target': options.target = [...parseTarget(params)]; break;
             default: throw new OptionError('build', `Unexpected option '${next}'`)
         }

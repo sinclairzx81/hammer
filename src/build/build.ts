@@ -33,7 +33,7 @@ import * as fs                          from 'fs'
 
 export interface BuilderOptions {
     platform:  string
-    target:    string
+    target:    string[]
     minify:    boolean
     sourcemap: boolean
     watch:     boolean
