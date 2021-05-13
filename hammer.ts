@@ -1,4 +1,3 @@
-export function start(a, b) {
-    console.log(a, b)
+export function start() {
     console.log('hello world')
 }

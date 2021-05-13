@@ -157,7 +157,7 @@ export class Hammer implements Dispose {
         const actions = cache.update(assets)
         await builder.update(actions)
         const watcher = watch([options.sourcePath], assets)
-        const process = start(options.startPath)
+        const process = start(options.nodeString)
 
         this.disposables.push(watcher)
         this.disposables.push(builder)
@@ -245,7 +245,7 @@ export class Hammer implements Dispose {
             case 'build': console.log(`${yellow}Build${esc}: ${this.options.dist}`); break
             case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.dist}`); break
             case 'serve': console.log(`${yellow}Serve${esc}: ${this.options.port}`); break
-            case 'start': console.log(`${yellow}Start${esc}: ${this.options.startPath}`); break
+            case 'start': console.log(`${yellow}Start${esc}: ${this.options.nodeString}`); break
             case 'task': console.log(`${yellow}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
         switch (this.options.type) {

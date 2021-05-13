@@ -76,7 +76,8 @@ export interface WatchOptions {
 export interface StartOptions {
     type: 'start'
     sourcePath: string
-    startPath: string
+    nodeString: string
+    arguments: string[]
     dist: string
     target: string[]
     minify: boolean
@@ -164,7 +165,8 @@ function defaultStartOptions(): StartOptions {
     return {
         type: 'start',
         sourcePath: 'index.ts',
-        startPath: path.join(process.cwd(), 'dist', 'index.js'),
+        nodeString: path.join(process.cwd(), 'dist', 'index.js'),
+        arguments: [],
         dist: path.join(process.cwd(), 'dist'),
         target: ['esnext'],
         sourcemap: false,
@@ -191,6 +193,30 @@ function* parseSourcePaths(params: string[]): Generator<string> {
         const sourcePath = path.resolve(process.cwd(), next)
         if (!fs.existsSync(sourcePath)) return params.unshift(next)
         yield sourcePath
+    }
+}
+
+function parseStartSourcePath(params: string[]): [entryPath: string, arguments: string[]] {
+    function assertEntrySourcePath(sourcePath: string) {
+        const extension = path.extname(sourcePath)
+        if(extension !== '.js' && extension !== '.ts') {
+            throw new OptionError('start', 'Entry path does not exist.')
+        }
+        if(!fs.existsSync(sourcePath)) {
+            throw new OptionError('start', 'Entry path does not exist.')
+        }
+    }
+    if(params.length === 0) throw new OptionError('start', 'Expected entry path.')
+    const next = params.shift()!
+    const split = next.split(' ')
+    if(split.length === 1) {
+        const entryPath = path.join(process.cwd(), split.shift()!)
+        assertEntrySourcePath(entryPath)
+        return [entryPath, []]
+    } else {
+        const entryPath = path.join(process.cwd(), split.shift()!)
+        assertEntrySourcePath(entryPath)
+        return [entryPath, split]
     }
 }
 
@@ -271,16 +297,9 @@ export function parseWatchOptions(params: string[]): WatchOptions {
 
 export function parseStartOptions(params: string[]): StartOptions {
     const options = defaultStartOptions()
-    const sourcePaths = [...parseSourcePaths(params)]
-    if(sourcePaths.length === 0) throw new OptionError('start', 'Must specify an entry file.')
-    if(sourcePaths.length > 1) throw new OptionError('start', 'Must specify exactly one entry file.')
-    options.sourcePath = sourcePaths[0]
-
-    const extension = path.extname(options.sourcePath)
-    if(extension !== '.ts' && extension !== '.js') {
-        throw new OptionError('start', `Only '.ts' and '.js' entry files are supported.`)
-    }
-
+    const [sourcePath, args] = parseStartSourcePath(params)
+    options.sourcePath = sourcePath
+    options.arguments = args
     while (params.length > 0) {
         const next = params.shift()
         switch (next) {
@@ -291,7 +310,9 @@ export function parseStartOptions(params: string[]): StartOptions {
             default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
-    options.startPath = path.join(options.dist, [path.basename(options.sourcePath, extension), '.js'].join(''))
+    const extension = path.extname(options.sourcePath)
+    const entryFile = path.join(options.dist, [path.basename(options.sourcePath, extension), '.js'].join(''))
+    options.nodeString = [entryFile, ...args].join(' ')
     return options
 }
 
