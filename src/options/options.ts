@@ -24,151 +24,249 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import * as fs   from 'fs'
+import * as fs from 'fs'
 import * as path from 'path'
 
-export interface Options {
-    sourcePaths:  string[]
-    dist:         string
-    target:       string
-    minify:       boolean
-    sourcemap:    boolean
-    watch:        boolean
-    platform:     string
-    serve?:       number
-    start?:       string
-}
+// ------------------------------------------------------------------------
+// Error
+// ------------------------------------------------------------------------
 
 export class OptionError extends Error {
-    constructor(public readonly option: string, message: string) {
-        super(message)
+    constructor(public readonly option: string, public readonly reason: string) {
+        super(`${option}: ${reason}`)
     }
 }
 
-export class OptionsReader {
-    private readonly parameters: string[]
+// ------------------------------------------------------------------------
+// Options
+// ------------------------------------------------------------------------
 
-    constructor(private readonly args: string[]) {
-        this.parameters = this.args.slice(2)
-    }
+export interface HelpOptions {
+    type: 'help'
+    message?: string
+}
 
-    private help() {
-        if(this.parameters.length === 0) return true
-        const index = this.parameters.indexOf('--help')
-        return (index === -1) ? false : true
-    }
+export interface VersionOptions {
+    type: 'version'
+    version: string
+}
 
-    private *sourcePaths(): Generator<string> {
-        for(const parameter of this.parameters) {
-            if(parameter.includes('--')) return
-            const sourcePath = path.isAbsolute(parameter) ? parameter : path.join(process.cwd(), parameter) 
-            if(!fs.existsSync(sourcePath)) throw new OptionError('path', `${sourcePath} not found.`)
-            yield sourcePath
-        }
-    }
+export interface BuildOptions {
+    type: 'build'
+    sourcePaths: string[]
+    dist: string
+    profile: 'browser' | 'node' | 'library'
+    bundle: boolean
+    target: string[]
+    minify: boolean
+    sourcemaps: boolean
+}
 
-    private watch() {
-        const index = this.parameters.indexOf('--watch')
-        return (index === -1) ? false : true
-    }
+export interface StartOptions {
+    type: 'start'
+    sourcePaths: string[]
+    dist: string
+    target: string[]
+    minify: boolean
+    sourcemaps: boolean
+}
 
-    private serve() {
-        const index = this.parameters.indexOf('--serve')
-        if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            const port = parseInt(this.parameters[index + 1])
-            if(Number.isNaN(port)) throw new OptionError('--serve', `'${this.parameters[index + 1]}' is not a valid port.`)
-            return port
-        } else {
-            return undefined
-        }
-    }
-    
-    private start() {
-        const dist  = this.dist()
-        const index = this.parameters.indexOf('--start')
-        if(!(index === -1 || (index + 1) > this.parameters.length)) {
-            const parameter = this.parameters[index + 1]
-            const split     = parameter.split(' ')
-            const entry     = path.join(dist, split[0])
-            const rest      = split.slice(1)
-            if(path.extname(entry) !== '.js') throw new OptionError('--start', 'Script must be a .js file.')
-            return [entry, ...rest].join(' ')
-        } else {
-            return undefined
-        }
-    }
+export interface ServeOptions {
+    type: 'serve'
+    sourcePaths: string[]
+    dist: string
+    target: string[]
+    minify: boolean
+    sourcemaps: boolean
+}
 
-    private platform() {
-        const index = this.parameters.indexOf('--platform')
-        if(!(index === -1 || (index + 1) > this.parameters.length)) {
-           const platform = this.parameters[index + 1]
-           if(!['node', 'browser'].includes(platform)) throw new OptionError('--platform', `Expected either 'node' or 'browser'. Got '${platform}'.`)
-           return platform
-        }
-        if(this.serve()) return 'browser'
-        if(this.start()) return 'node'
-        return 'browser'
-    }
+export interface TaskOptions {
+    type: 'task'
+    sourcePath: string
+    name: string
+    arguments: string[]
+}
 
-    private minify() {
-        const index = this.parameters.indexOf('--minify')
-        return (index === -1) ? false : true
-    }
+export type Options =
+    | HelpOptions
+    | VersionOptions
+    | BuildOptions
+    | StartOptions
+    | ServeOptions
+    | TaskOptions
 
-    private sourcemap() {
-        const index = this.parameters.indexOf('--sourcemap')
-        return (index === -1) ? false : true
-    }
+// ------------------------------------------------------------------------
+// Defaults
+// ------------------------------------------------------------------------
 
-    private dist() {
-        const index = this.parameters.indexOf('--dist')
-        return (!(index === -1 || (index + 1) > this.parameters.length))
-            ? path.join(process.cwd(), this.parameters[index + 1])    
-            : path.join(process.cwd(), 'dist')   
-    }
 
-    private target() {
-        const index = this.parameters.indexOf('--esnext')
-        return (!(index === -1 || (index + 1) > this.parameters.length))
-            ? path.join(process.cwd(), this.parameters[index + 1])    
-            : 'esnext' 
-    }
+function defaultHelpOptions(message?: string): HelpOptions {
+    return { type: 'help', message }
+}
 
-    public get(): Options | undefined {
-        if(this.help()) return undefined
-        try {
-            const options = {
-                sourcePaths: [...this.sourcePaths()],
-                platform:  this.platform(),
-                dist:      this.dist(),
-                minify:    this.minify(),
-                sourcemap: this.sourcemap(),
-                target:    this.target(),
-                watch:     this.watch(),
-                serve:     this.serve(),
-                start:     this.start(),
-            }
-            if(options.serve || options.start) options.watch = true
-            if(options.serve && options.start) {
-                throw new OptionError('--start', 'Cannot start and serve in the same command.')
-            }
-            return options
-        } catch(error) {
-            if(error instanceof OptionError) {
-                const yellow = '\x1b[33m'
-                const esc    = `\x1b[0m`
-                console.log('Errors: ')
-                console.log()
-                console.log(`  ${yellow}${error.option}${esc} ${error.message}`)
-                console.log()
-            } else {
-                console.log(error.message)
-            }
-            return undefined
-        }
+function defaultVersionOptions(): VersionOptions {
+    return { type: 'version', version: 'resolve from package.json' }
+}
+
+function defaultBuildOptions(): BuildOptions {
+    return {
+        type: 'build',
+        bundle: true,
+        dist: path.join(process.cwd(), 'dist'),
+        minify: false,
+        profile: 'browser',
+        sourcePaths: [],
+        sourcemaps: false,
+        target: ['esnext'],
     }
 }
 
-export function options(argv: string[]): Options | undefined {
-    return new OptionsReader(argv).get()
+function defaultServeOptions(): ServeOptions {
+    return {
+        type: 'serve',
+        sourcePaths: [],
+        dist: path.join(process.cwd(), 'dist'),
+        target: ['esnext'],
+        sourcemaps: false,
+        minify: false,
+    }
 }
+
+function defaultStartOptions(): StartOptions {
+    return {
+        type: 'start',
+        sourcePaths: ['index.ts'],
+        dist: path.join(process.cwd(), 'dist'),
+        target: ['esnext'],
+        sourcemaps: false,
+        minify: false,
+    }
+}
+
+function defaultTaskOptions(): TaskOptions {
+    return {
+        type: 'task',
+        sourcePath: path.join(process.cwd(), 'hammer.ts'),
+        name: '',
+        arguments: []
+    }
+}
+
+// ------------------------------------------------------------------------
+// Field Parsers
+// ------------------------------------------------------------------------
+
+function* parseSourcePaths(params: string[]): Generator<string> {
+    while (params.length > 0) {
+        const next = params.shift()
+        const sourcePath = path.resolve(process.cwd(), next)
+        if (!fs.existsSync(sourcePath)) return params.unshift(next)
+        yield sourcePath
+    }
+}
+function parseDist(params: string[]): string {
+    if (params.length === 0) throw new OptionError('--dist', "Expected directory path.")
+    return path.join(process.cwd(), params.shift()!)
+}
+
+function parseProfile(params: string[]): 'browser' | 'node' | 'library' {
+    if (params.length === 0) throw new OptionError('--profile', "Expected profile option.")
+    const next = params.shift()!
+    if (next === 'browser' || next === 'node' || next === 'library') return next
+    throw new OptionError('--profile', `Expected 'node', 'browser' or 'library'. Got '${next}'`)
+}
+
+function* parseTarget(params: string[]): Generator<string> {
+    if (params.length === 0) throw new OptionError('--target', "Expected target option")
+    while (params.length > 0) {
+        const next = params.shift()!
+        if (next.includes('--')) {
+            params.unshift(next)
+            return
+        }
+        yield next
+    }
+}
+
+// ------------------------------------------------------------------------
+// Parsers
+// ------------------------------------------------------------------------
+
+export function parseBuildOptions(params: string[]): BuildOptions {
+    const options = defaultBuildOptions()
+    options.sourcePaths = [...parseSourcePaths(params)]
+    if (options.sourcePaths.length === 0) throw new OptionError('build', `Expected at least one source path.`)
+    while (params.length > 0) {
+        const next = params.shift()!
+        switch (next) {
+            case '--profile': options.profile = parseProfile(params); break;
+            case '--target': options.target = [...parseTarget(params)]; break;
+            case '--dist': options.dist = parseDist(params); break;
+            case '--bundle': options.bundle = true; break;
+            case '--sourcemaps': options.sourcemaps = true; break;
+            case '--minify': options.minify = true; break;
+
+            default: throw new OptionError('build', `Unexpected option '${next}'`)
+        }
+    }
+    return options
+}
+
+export function parseStartOptions(params: string[]): StartOptions {
+    const options = defaultStartOptions()
+    options.sourcePaths = [...parseSourcePaths(params)]
+    while (params.length > 0) {
+        const next = params.shift()
+        switch (next) {
+            case '--dist': options.dist = parseDist(params); break;
+            case '--target': options.target = [...parseTarget(params)]; break;
+            case '--sourcemaps': options.sourcemaps = true; break;
+            case '--minify': options.minify = true; break;
+            default: throw new OptionError('build', `Unexpected option '${next}'`)
+        }
+    }
+    return options
+}
+
+export function parseServeOptions(params: string[]): ServeOptions {
+    const options = defaultServeOptions()
+    options.sourcePaths = [...parseSourcePaths(params)]
+    while (params.length > 0) {
+        const next = params.shift()
+        switch (next) {
+            case '--dist': options.dist = parseDist(params); break;
+            case '--minify': options.minify = true; break;
+            case '--sourcemaps': options.sourcemaps = true; break;
+            case '--target': options.target = [...parseTarget(params)]; break;
+            default: throw new OptionError('build', `Unexpected option '${next}'`)
+        }
+    }
+    return options
+}
+
+export function parseTaskOptions(params: string[]): TaskOptions {
+    const options = defaultTaskOptions()
+    if (params.length === 0) throw new OptionError('task', 'Expected task name')
+    options.name = params.shift()!
+    options.arguments = params
+    return options
+}
+
+export function parse(args: string[]) {
+    try {
+        const params = args.slice(2)
+        const next = params.shift()
+        switch (next) {
+            case 'build': return parseBuildOptions(params)
+            case 'start': return parseStartOptions(params)
+            case 'serve': return parseServeOptions(params)
+            case 'task': return parseTaskOptions(params)
+            case 'help': return defaultHelpOptions()
+            case 'version': return defaultVersionOptions()
+            default: return defaultHelpOptions()
+        }
+    } catch (error) {
+        return defaultHelpOptions(error.message)
+    }
+}
+
