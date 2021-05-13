@@ -92,18 +92,22 @@ To run
 ```bash
 $ hammer task hello dave
 ```
-Additionally, Hammer provides built in utilities for `file`, `folder`, `shell` and `watch` operations typically run during project tasks. The following runs two hammer processes concurrently using the `shell` utility.
+Additionally, Hammer provides several built in libraries running common `file`, `folder`, `shell` and `watch` operations. The following runs two hammer processes concurrently using the `shell` utility.
 
 ```typescript
-import { shell } from '@sinclair/hammer'
+import { shell, file, folder, watch } from '@sinclair/hammer'
 
-export function start() {
+export async function start(target = 'dist') {
   await shell([
-    `hammer start src/server/index.ts --dist target/server`,
-    `hammer serve src/website/index.html --dist target/website`
+    `hammer start src/server/index.ts --dist ${target}/server`,
+    `hammer serve src/website/index.html --dist ${target}/website`
   ])
 }
 ```
+```bash
+$ hammer task start
+```
+Additional functionality for building and processing of assets can be written or installed from `npm`. 
 
 ## Linking
 
