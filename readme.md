@@ -47,7 +47,7 @@ License MIT
 
 ## Serve
 
-Hammer provides a built in development server. To enable use the `--serve` option with a port number. This option will serve the `--dist` directory and reload on save.
+Hammer provides a built in development server. To use run `hammer serve [...paths]`. This will start a watch and reload server on port `5000` by default. See the command line interface section for additional options.
 
 ```html
 <!DOCTYPE html>
@@ -67,7 +67,7 @@ $ hammer serve index.html
 
 ## Start
 
-Hammer provides support running monitored NodeJS processes that restart on save. Use the `--start` option with a path to a javascript file to enable. The script path is relative to the `--dist` directory. The following will build and watch a small NodeJS server.
+Hammer provides support running monitored NodeJS processes that restart on save. To use run `hammer start <path> [...args]`. See the command line interface section for additional options.
 
 ```typescript
 import * as http from 'http'
@@ -76,6 +76,33 @@ http.createServer((req, res) => res.end('hello world')).listen(5001)
 ```
 ```bash
 $ hammer start index.ts
+```
+
+## Tasks
+
+Hammer provides support for running project automation tasks that can be used to orchestrate build and watch workflows. This is achieved with a hammer task file named `hammer.ts`. Hammer can call into this file to run any exported function, as follows.
+
+```typescript
+// hammer.ts
+export function hello(name: string) {
+  console.log(`hello, ${name}`)
+}
+```
+To run
+```bash
+$ hammer task hello dave
+```
+Additionally, Hammer provides built in utilities for `file`, `folder`, `shell` and `watch` operations typically run during project tasks. The following runs two hammer processes concurrently using the `shell` utility.
+
+```typescript
+import { shell } from '@sinclair/hammer'
+
+export function start() {
+  await shell([
+    `hammer start src/server/index.ts --dist target/server`,
+    `hammer serve src/website/index.html --dist target/website`
+  ])
+}
 ```
 
 ## Linking
