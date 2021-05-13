@@ -99,12 +99,16 @@ Additionally, Hammer provides built in libraries to run common `file`, `folder`,
 
 import { shell, folder } from '@sinclair/hammer'
 
-export const clean = (dist = 'target') => folder(dist).delete()
+export async function clean (dist = 'target') {
+  await folder(dist).delete()
+}
 
-export const start = (dist = 'target') => shell([
+export async function start (dist = 'target') {
+  await shell([
     `hammer serve apps/website/index.html --dist ${dist}/website`,
     `hammer start apps/website/index.ts --dist ${dist}/server`
-])
+  ])
+}
 
 ```
 Which can be run with the following
@@ -170,23 +174,21 @@ console.log(foo, bar, baz)
 Hammer provides the following CLI interface. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within. The `--watch` option will only watch for changes. To serve or start a node process use `--serve` or `--start` respectively which implicitly enables `--watch`.
 
 ```
-Examples: 
+Commands:
 
-  $ hammer [...paths] <...options>
-  $ hammer index.html about.html
-  $ hammer index.html images --dist target/website
-  $ hammer index.html --serve 5000
-  $ hammer index.ts --start index.js
-  $ hammer index.ts --minify
+   $ hammer start script.ts | "script.ts arg1 arg2" {...options}
+   $ hammer serve index.html images {...options}
+   $ hammer watch worker.ts {...options}
+   $ hammer build index.html {...options}
+   $ hammer task start arg1 arg2
 
 Options:
 
-  --target    <target>  Sets the ES target. (default: esnext)
-  --platform  <target>  Sets the platform. Options are browser or node. (default: browser)
-  --dist                Sets the output directory. (default: dist)
-  --serve     <port>    Watch and serves on the given port.
-  --start     <script>  Watch and starts a script.
-  --watch               Watch and compile on save only.
-  --minify              Minifies the bundle.
-  --sourcemap           Generate sourcemaps.
+   --target    [...targets] Sets the ES targets. (default: esnext)
+   --platform  target       Sets the platform. Options are browser or node. (default: browser)
+   --dist      path         Sets the output directory. (default: dist)
+   --bundle                 Bundles the output. (default: false)
+   --minify                 Minifies the bundle. (default: false)
+   --sourcemap              Generate sourcemaps. (default: false)
+   --port      port         The port to listen on.
 ```

@@ -222,7 +222,7 @@ class Hammer implements Dispose {
             `   ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
             `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
             `   ${yellow}--bundle${esc}                 Bundles the output. (default: false)`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle (default: false).`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle. (default: false)`,
             `   ${yellow}--sourcemap${esc}              Generate sourcemaps. (default: false)`,
             `   ${yellow}--port${esc}      port         The port to listen on.`,
             ``,
