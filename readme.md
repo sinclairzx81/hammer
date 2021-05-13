@@ -62,7 +62,7 @@ Hammer provides a built in development server. To enable use the `--serve` optio
 ```
 
 ```bash
-$ hammer index.html --serve 5000
+$ hammer serve index.html
 ```
 
 ## Start
