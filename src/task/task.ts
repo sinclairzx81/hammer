@@ -28,6 +28,7 @@ import { buildSync } from 'esbuild'
 
 import * as path from 'path'
 import * as vm from 'vm'
+import * as fs from 'fs'
 
 export class TaskError extends Error {
     constructor(public readonly task: string, public readonly reason: string) {
@@ -42,7 +43,6 @@ function build(scriptPath: string): string {
         const result = buildSync({
             entryPoints: [scriptPath],
             platform: 'node',
-            format: 'cjs',
             target: 'esnext',
             bundle: true,
             write: false,
@@ -84,6 +84,10 @@ async function execute(exports: TaskExports, name: string, params: any[]) {
 }
 
 export async function task(scriptPath: string, name: string, params: any[]) {
+    if(!fs.existsSync(scriptPath)) {
+        console.log(`Unable to find task file ${scriptPath}`)
+        process.exit(1)
+    }
     try {
         const code = build(scriptPath)
         const exports = instance(scriptPath, code)

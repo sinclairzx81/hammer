@@ -270,7 +270,6 @@ export function parseBuildOptions(params: string[]): BuildOptions {
             case '--bundle': options.bundle = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
-            default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
     return options
@@ -289,7 +288,6 @@ export function parseWatchOptions(params: string[]): WatchOptions {
             case '--bundle': options.bundle = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
-            default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
     return options
@@ -307,7 +305,6 @@ export function parseStartOptions(params: string[]): StartOptions {
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
-            default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
     const extension = path.extname(options.sourcePath)
@@ -327,7 +324,6 @@ export function parseServeOptions(params: string[]): ServeOptions {
             case '--sourcemap': options.sourcemap = true; break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--port': options.port = parsePort(params); break;
-            default: throw new OptionError('build', `Unexpected option '${next}'`)
         }
     }
     return options

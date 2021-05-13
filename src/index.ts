@@ -201,36 +201,23 @@ export class Hammer implements Dispose {
         console.log([
             `Hammer: ${this.getVersion()}`,
             ``,
-            ` $ hammer ${green}build${esc} [...paths] ${yellow}{...options}${esc}`,
+            `Commands:`,
+            ``,
+            `   $ hammer ${green}start${esc} script.ts | "script.ts arg1 arg2" ${yellow}{...options}${esc}`,
+            `   $ hammer ${green}serve${esc} index.html images ${yellow}{...options}${esc}`,
+            `   $ hammer ${green}watch${esc} worker.ts ${yellow}{...options}${esc}`,
+            `   $ hammer ${green}build${esc} index.html ${yellow}{...options}${esc}`,
+            `   $ hammer ${green}task${esc} start arg1 arg2`,
+            ``,
+            `Options:`,
+            ``,
             `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
             `   ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
             `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `   ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
-            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
-            ``,
-            ` $ hammer ${green}watch${esc} [...paths] ${yellow}{...options}${esc}`,
-            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `   ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
-            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `   ${yellow}--bundle${esc}                 Bundles to a single file. (default: true)`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
-            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
-            ``,
-            ` $ hammer ${green}serve${esc} [...paths] ${yellow}{...options}${esc}`,
-            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
+            `   ${yellow}--bundle${esc}                 Bundles the output. (default: false)`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle (default: false).`,
+            `   ${yellow}--sourcemap${esc}              Generate sourcemaps. (default: false)`,
             `   ${yellow}--port${esc}      port         The port to listen on.`,
-            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
-            ``,
-            ` $ hammer ${green}start${esc} script ${yellow}[...arguments]${esc}`,
-            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
-            ``,
-            ` $ hammer ${green}task${esc} name ${yellow}[...arguments]${esc}`,
             ``,
         ].join(`\n`))
         if (options.message) {
@@ -244,7 +231,7 @@ export class Hammer implements Dispose {
         switch (this.options.type) {
             case 'build': console.log(`${yellow}Build${esc}: ${this.options.dist}`); break
             case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.dist}`); break
-            case 'serve': console.log(`${yellow}Serve${esc}: ${this.options.port}`); break
+            case 'serve': console.log(`${yellow}Serve${esc}: http://localhost:${this.options.port}`); break
             case 'start': console.log(`${yellow}Start${esc}: ${this.options.nodeString}`); break
             case 'task': console.log(`${yellow}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
