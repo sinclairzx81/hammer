@@ -84,7 +84,7 @@ export class Folder {
     /** Deletes this folder. If the folder does not exist, no action. */
     public async delete(): Promise<void> {
         if (!await this.checkExists(this.folderPath)) return
-        await fs.rm(this.folderPath, { recursive: true })
+        await fs.rm(this.folderPath, { recursive: true, force: true })
     }
 
     /** Returns true if this folder exists. */
