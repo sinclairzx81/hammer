@@ -66,13 +66,8 @@ $ hammer serve index.html
 
 ## Run
 
-Use the `run` command to run node scripts that reload on file save.
+Use the `run` command to start node scripts that reload on file save.
 
-```typescript
-import * as http from 'http'
-
-http.createServer((req, res) => res.end('Hello World')).listen(5001)
-```
 ```bash
 $ hammer run index.ts
 
@@ -80,7 +75,7 @@ $ hammer run "index.ts arg1 arg2" # use quotes to pass arguments
 ```
 ## Tasks
 
-Hammer has a built in task runner you can use to automate build workflow. To use, create a `hammer.ts` file in the current working directory. Exporting functions in this file allow Hammer to call into it via the `task` command.
+Hammer provides support for running tasks to automate build workflow. To use, create a `hammer.ts` file in the current working directory. You can call any exported function from the `task` command.
 
 ```typescript
 export function print(message: string) {
@@ -90,7 +85,7 @@ export function print(message: string) {
 ```bash
 $ hammer task print "Hello World"
 ```
-You can use tasks to orchestrate build workflows. Hammer provides a `shell` function for this purpose. The following creates a task that runs a browser and node application in parallel.
+You can use tasks to orchestrate concurrent workflows. The following starts `serve` and `run` processes in parallel.
 
 ```typescript
 import { shell } from '@sinclair/hammer'
@@ -99,7 +94,7 @@ export async function start (dist = 'target') {
   await shell([
     `hammer serve apps/website/index.html --dist ${dist}/website`,
     `hammer run apps/server/index.ts --dist ${dist}/server`
-])
+  ])
 }
 ```
 ```bash
@@ -108,7 +103,7 @@ $ hammer task start
 
 ## Libraries
 
-Hammer uses `tsconfig.json` path aliasing to link local library packages that may be shared between multiple applications. Consider the following directory structure.
+Use `tsconfig.json` path aliasing to link local library packages that are shared between multiple applications. Consider the following directory structure.
 
 ```shell
 /apps
@@ -135,7 +130,7 @@ To allow `website` and `server` to import `shared`. Configure `tsconfig.json` as
 }
 ```
 
-Once configured, both `server` and `website` applications can import with the following.
+The `server` and `website` applications can import with the following.
 
 ```typescript
 import { X } from '@libs/shared'
