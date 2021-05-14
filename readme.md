@@ -39,15 +39,17 @@ Done
 
 ## Overview
 
-Hammer is a build tool for browser and node applications. It provides a unified command line interface for developing both browser and node applications and includes appropriate `watch` and `reload` workflows for each. Hammer also provides support for linking local library dependencies taken by browser and node applications as well as the ability to create project automation tasks.
+Hammer is a build tool for browser and node applications. It provides a unified command line interface for developing browser and node applications and includes appropriate `watch` and `reload` workflows for each. It is designed with rapid application development in mind and requires little to no configuration to use. Hammer can scale from single web projects to multi library mono repositories using a its command line paired with its built in task runner.
 
 Hammer was written to consolidate several disparate tools related to monitoring node processes (nodemon), building from HTML (parcel), mono repository support (lerna, nx) and project automation (gulp, grunt). It takes `esbuild` as its only dependency and is as much concerned with build performance as it is with dramatically reducing the number of development dependencies required for modern web application development.
+
+This project is offered as is to anyone who may find it of use.
 
 License MIT
 
 ## Serve
 
-Use the `serve` command to start a development server that reloads on file save.
+Use the `serve` command to start a development server that reloads on save.
 
 ```html
 <!DOCTYPE html>
@@ -66,7 +68,7 @@ $ hammer serve index.html
 
 ## Run
 
-Use the `run` command to start node scripts that reload on file save.
+Use the `run` command to start node scripts that reload on save.
 
 ```bash
 $ hammer run index.ts
@@ -75,7 +77,7 @@ $ hammer run "index.ts arg1 arg2" # use quotes to pass arguments
 ```
 ## Tasks
 
-Hammer provides support for running tasks to automate build workflow. To use, create a `hammer.ts` file in the current working directory. You can call any exported function from the `task` command.
+Hammer provides support for running tasks to automate build workflow. To use tasks, create a `hammer.ts` file in the current working directory. You can call any exported function from the `task` command.
 
 ```typescript
 export function print(message: string) {
@@ -85,8 +87,7 @@ export function print(message: string) {
 ```bash
 $ hammer task print "Hello World"
 ```
-You can use tasks to orchestrate concurrent workflows. The following starts `serve` and `run` processes in parallel.
-
+You can use tasks to orchestrate builds in parallel. The following starts `serve` and `run` processes in parallel.
 ```typescript
 import { shell } from '@sinclair/hammer'
 
@@ -138,9 +139,9 @@ import { X } from '@libs/shared'
 const x = new X()
 ```
 
-## Command Line Interface
+## Cli
 
-Hammer provides the following CLI interface.
+Hammer provides the following command line interface.
 
 ```
 Commands:
