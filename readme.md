@@ -90,11 +90,11 @@ You can use tasks to orchestrate concurrent workflows. The following starts `ser
 ```typescript
 import { shell } from '@sinclair/hammer'
 
-export async function start (dist = 'target') {
-  await shell([
-    `hammer serve apps/website/index.html --dist ${dist}/website`,
-    `hammer run apps/server/index.ts --dist ${dist}/server`
-  ])
+export async function start(dist = 'target') {
+    await shell([
+        `hammer serve apps/website/index.html --dist ${dist}/website`,
+        `hammer run apps/server/index.ts --dist ${dist}/server`
+    ])
 }
 ```
 ```bash
