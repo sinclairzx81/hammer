@@ -102,7 +102,7 @@ $ hammer task start
 
 ## Libs
 
-Use `tsconfig.json` path aliasing to link local library packages that are shared between multiple applications. Consider the following directory structure.
+In mono repository projects, you can import shared libraries by using TypeScript `tsconfig.json` path aliasing.
 
 ```shell
 /apps
@@ -116,7 +116,7 @@ Use `tsconfig.json` path aliasing to link local library packages that are shared
     index.ts    <──────────┘
 tsconfig.json
 ```
-To allow `website` and `server` to import `shared`. Configure `tsconfig.json` as follows.
+To enable `website` and `server` to import the `shared` library. Configure `tsconfig.json` in the project root as follows.
 
 ```javascript
 {
@@ -129,7 +129,7 @@ To allow `website` and `server` to import `shared`. Configure `tsconfig.json` as
 }
 ```
 
-The `server` and `website` applications can import with the following.
+Once configured, the `server` and `website` applications can import with the following.
 
 ```typescript
 import { Foo } from '@libs/shared'
