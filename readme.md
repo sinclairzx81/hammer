@@ -159,7 +159,6 @@ Options:
    --platform  platform     Sets the platform.
    --dist      path         Sets the output directory.
    --port      port         The port to listen on when serving.
-   --bundle                 Bundles the output for build and watch only.
    --minify                 Minifies the bundle.
    --sourcemap              Generate sourcemaps.
 ```

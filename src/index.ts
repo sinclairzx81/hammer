@@ -34,7 +34,6 @@ export { shell, folder, file, watch, delay } from './system/index'
 // Hammer
 // --------------------------------------------------------------------------
 
-import { into } from './async/index'
 import { Cache } from './cache/index'
 import { Build } from './build/index'
 import { Asset, resolve } from './resolve/index'
@@ -43,7 +42,6 @@ import { serve } from './serve/index'
 import { run } from './run/index'
 import { task } from './task/index'
 import { Dispose } from './dispose'
-
 import * as path from 'path'
 import * as fs from 'fs'
 
@@ -103,14 +101,13 @@ class Hammer implements Dispose {
         const watcher = watch(options.sourcePaths, assets)
         this.disposables.push(watcher)
         this.disposables.push(builder)
-        into(async () => {
-            for await (const _ of watcher) {
-                const assets = resolve(options.sourcePaths, options.dist)
-                watcher.update(assets)
-                const actions = cache.update(assets)
-                await builder.update(actions)
-            }
-        })
+
+        for await (const _ of watcher) {
+            const assets = resolve(options.sourcePaths, options.dist)
+            watcher.update(assets)
+            const actions = cache.update(assets)
+            await builder.update(actions)
+        }
     }
     /** Starts a http serve process. */
     private async serve(options: ServeOptions): Promise<void> {
@@ -135,15 +132,12 @@ class Hammer implements Dispose {
         this.disposables.push(watcher)
         this.disposables.push(builder)
         this.disposables.push(server)
-
-        into(async () => {
-            for await (const _ of watcher) {
-                const assets = resolve(options.sourcePaths, options.dist)
-                watcher.update(assets)
-                const actions = cache.update(assets)
-                await builder.update(actions)
-            }
-        })
+        for await (const _ of watcher) {
+            const assets = resolve(options.sourcePaths, options.dist)
+            watcher.update(assets)
+            const actions = cache.update(assets)
+            await builder.update(actions)
+        }
     }
 
     /** Starts a node process. */
@@ -170,14 +164,12 @@ class Hammer implements Dispose {
         this.disposables.push(builder)
         this.disposables.push(process)
 
-        into(async () => {
-            for await (const _ of watcher) {
-                const assets = resolve([options.sourcePath], options.dist)
-                watcher.update(assets)
-                const actions = cache.update(assets)
-                await builder.update(actions)
-            }
-        })
+        for await (const _ of watcher) {
+            const assets = resolve([options.sourcePath], options.dist)
+            watcher.update(assets)
+            const actions = cache.update(assets)
+            await builder.update(actions)
+        }
     }
 
     private async task(options: TaskOptions): Promise<void> {
@@ -234,25 +226,27 @@ class Hammer implements Dispose {
         }
     }
 
-    public execute() {
+    public async execute() {
+        const start = Date.now()
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`
         switch (this.options.type) {
-            case 'build': console.log(`${yellow}Build${esc}: ${this.options.dist}`); break
-            case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.dist}`); break
+            case 'build': console.log(`${yellow}Build${esc}: ${this.options.sourcePaths.join(' ')}`); break
+            case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.sourcePaths.join(' ')}`); break
             case 'serve': console.log(`${yellow}Serve${esc}: http://localhost:${this.options.port}`); break
-            case 'start': console.log(`${yellow}Start${esc}: ${this.options.entryPath}`); break
+            case 'start': console.log(`${yellow}Start${esc}: ${this.options.entryPath} ${this.options.args.join(' ')}`); break
             case 'task': console.log(`${yellow}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
         switch (this.options.type) {
-            case 'build': return this.build(this.options)
-            case 'watch': return this.watch(this.options)
-            case 'serve': return this.serve(this.options)
-            case 'start': return this.run(this.options)
-            case 'task': return this.task(this.options)
-            case 'help': return this.help(this.options)
-            case 'version': return this.version(this.options)
+            case 'build': await this.build(this.options); break;
+            case 'watch': await this.watch(this.options); break;
+            case 'serve': await this.serve(this.options); break;
+            case 'start': await this.run(this.options); break;
+            case 'task': await this.task(this.options); break;
+            case 'help': await this.help(this.options); break;
+            case 'version': await this.version(this.options); break;
         }
+        console.log(`${yellow}Done${esc}: ${Date.now() - start}ms`)
     }
 
     public dispose() {
@@ -263,6 +257,5 @@ class Hammer implements Dispose {
 }
 
 export function hammer(options: Options) {
-    const hammer = new Hammer(options)
-    return hammer.execute()
+    return new Hammer(options)
 }

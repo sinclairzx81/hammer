@@ -1,3 +1,3 @@
-export async function start(input: string) {
-    console.log('hello world', input)
+export async function print(message: string) {
+    console.log(message)
 }
