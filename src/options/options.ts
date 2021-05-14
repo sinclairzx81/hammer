@@ -180,6 +180,33 @@ function defaultTaskOptions(): TaskOptions {
 }
 
 // ------------------------------------------------------------------------
+// Preparation
+// ------------------------------------------------------------------------
+
+function prepareArguments(args: string[]): string[] {
+    let open = false
+    const result = []
+    const temp = []
+    while (args.length > 0) {
+        const next = args.shift()!
+        if(!open && next.indexOf('"') === 0 && next.lastIndexOf('"') !== next.length - 1) {
+            temp.push(next.slice(1))
+            open = true
+        } else if (open && next.indexOf('"') === next.length - 1) {
+            temp.push(next.slice(0, next.length - 1))
+            result.push(temp.join(' '))
+            while(temp.length > 0) temp.shift()
+            open = false
+        } else if(open) {
+            temp.push(next)
+        } else {
+            result.push(next)
+        }
+    }
+    return result
+}
+
+// ------------------------------------------------------------------------
 // Field Parsers
 // ------------------------------------------------------------------------
 
@@ -321,7 +348,7 @@ export function parseTaskOptions(params: string[]): TaskOptions {
 
 export function parse(args: string[]) {
     try {
-        const params = args.slice(2)
+        const params = prepareArguments(args).slice(2)
         if(params.length === 0) return defaultHelpOptions()
         const command = params.shift()
         switch (command) {

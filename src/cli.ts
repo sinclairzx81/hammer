@@ -27,6 +27,7 @@ SOFTWARE.
 import { parse }  from './options/index'
 import { hammer } from './index'
 
+
 async function cli(argv: string[]) {
   const options = parse(process.argv)
   const build = hammer(options)
