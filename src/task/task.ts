@@ -74,9 +74,18 @@ function instance(scriptPath: string, code: string): TaskExports {
     return context.exports
 }
 
+export function print(exports: TaskExports) {
+    console.log()
+    console.log('The following are available tasks')
+    console.log()
+    const keys = Object.keys(exports).filter(key => typeof exports[key] === 'function')
+    for(const key of keys) { console.log(`  $ hammer task ${key}`) }
+    console.log()
+}
+
 async function execute(exports: TaskExports, name: string, params: any[]) {
     const task = exports[name]
-    if(task === undefined) throw new TaskError('Task', `Task module does not export a function named '${name}'`)
+    if(task === undefined) return print(exports)
     await task.apply(null, params)
 }
 

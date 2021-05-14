@@ -340,7 +340,7 @@ export function parseServeOptions(params: string[]): ServeOptions {
 
 export function parseTaskOptions(params: string[]): TaskOptions {
     const options = defaultTaskOptions()
-    if (params.length === 0) throw new OptionsError('task', 'Expected task name')
+    if (params.length === 0) return options
     options.name = params.shift()!
     options.arguments = params
     return options

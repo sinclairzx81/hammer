@@ -196,7 +196,6 @@ class Hammer implements Dispose {
 
     private async help(options: HelpOptions): Promise<void> {
         const green = '\x1b[90m'
-        //const green = '\x1b[33m'
         const blue = '\x1b[36m'
         const esc = `\x1b[0m`
         console.log([
