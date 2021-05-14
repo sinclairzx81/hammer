@@ -132,9 +132,7 @@ To allow `website` and `server` to import `shared`. Configure `tsconfig.json` as
 The `server` and `website` applications can import with the following.
 
 ```typescript
-import { X } from '@libs/shared'
-
-const x = new X()
+import { Foo } from '@libs/shared'
 ```
 
 ## Cli
