@@ -57,7 +57,6 @@ export interface BuildOptions {
     target: string[]
     dist: string
     platform: 'browser' | 'node'
-    bundle: boolean
     minify: boolean
     sourcemap: boolean
 }
@@ -68,7 +67,6 @@ export interface WatchOptions {
     target: string[]
     dist: string
     platform: 'browser' | 'node'
-    bundle: boolean
     minify: boolean
     sourcemap: boolean
 }
@@ -126,7 +124,6 @@ function defaultVersionOptions(): VersionOptions {
 function defaultBuildOptions(): BuildOptions {
     return {
         type: 'build',
-        bundle: true,
         dist: path.join(process.cwd(), 'dist'),
         minify: false,
         platform: 'browser',
@@ -139,7 +136,6 @@ function defaultBuildOptions(): BuildOptions {
 function defaultWatchOptions(): WatchOptions {
     return {
         type: 'watch',
-        bundle: true,
         dist: path.join(process.cwd(), 'dist'),
         minify: false,
         platform: 'browser',
@@ -256,7 +252,6 @@ export function parseBuildOptions(params: string[]): BuildOptions {
             case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
-            case '--bundle': options.bundle = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
         }
@@ -274,7 +269,6 @@ export function parseWatchOptions(params: string[]): WatchOptions {
             case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
-            case '--bundle': options.bundle = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
         }
@@ -328,8 +322,9 @@ export function parseTaskOptions(params: string[]): TaskOptions {
 export function parse(args: string[]) {
     try {
         const params = args.slice(2)
-        const next = params.shift()
-        switch (next) {
+        if(params.length === 0) return defaultHelpOptions()
+        const command = params.shift()
+        switch (command) {
             case 'build': return parseBuildOptions(params)
             case 'watch': return parseWatchOptions(params)
             case 'serve': return parseServeOptions(params)
@@ -337,7 +332,7 @@ export function parse(args: string[]) {
             case 'task': return parseTaskOptions(params)
             case 'help': return defaultHelpOptions()
             case 'version': return defaultVersionOptions()
-            default: return defaultHelpOptions('Nothing to run')
+            default: return defaultHelpOptions(`Unknown command '${command}'`)
         }
     } catch (error) {
         return defaultHelpOptions(error.message)

@@ -58,16 +58,13 @@ function build(scriptPath: string): string {
 
 function instance(scriptPath: string, code: string): TaskExports {
     const context = vm.createContext({
-        /** @ts-ignore */
+        ...global,
         require: (module: string) => {
             try { return require(module) } catch { /** ignore */ }
             return require(path.join(process.cwd(), module))
         },
-        /** @ts-ignore */
         __dirname: process.cwd(),
-        /** @ts-ignore */
         __filename: path.resolve(scriptPath),
-        ...global,
         Buffer,
         process,
         console,
@@ -80,7 +77,7 @@ function instance(scriptPath: string, code: string): TaskExports {
 async function execute(exports: TaskExports, name: string, params: any[]) {
     const task = exports[name]
     if(task === undefined) throw new TaskError(name, `No such method '${name}'`)
-    task.apply(null, params)
+    await task.apply(null, params)
 }
 
 export async function task(scriptPath: string, name: string, params: any[]) {
@@ -96,6 +93,5 @@ export async function task(scriptPath: string, name: string, params: any[]) {
         console.log(error.message)
         process.exit(1)
     }
-
 }
 

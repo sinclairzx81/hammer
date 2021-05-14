@@ -72,7 +72,7 @@ class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
-            bundle: options.bundle,
+            bundle: true,
             watch: false
         })
         const assets = resolve(options.sourcePaths, options.dist)
@@ -92,7 +92,7 @@ class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
-            bundle: options.bundle,
+            bundle: true,
             watch: true
         })
         const assets = resolve(options.sourcePaths, options.dist)
@@ -109,6 +109,7 @@ class Hammer implements Dispose {
             await builder.update(actions)
         }
     }
+
     /** Starts a http serve process. */
     private async serve(options: ServeOptions): Promise<void> {
         const cache = new Cache<Asset>({
@@ -195,47 +196,46 @@ class Hammer implements Dispose {
 
     private async help(options: HelpOptions): Promise<void> {
         const green = '\x1b[32m'
-        const yellow = '\x1b[33m'
+        const blue = '\x1b[36m'
         const esc = `\x1b[0m`
         console.log([
-            `Version: ${this.getVersion()}`,
+            `${blue}Version${esc}: ${this.getVersion()}`,
             ``,
-            `Commands:`,
+            `${blue}Commands${esc}:`,
             ``,
-            `   $ hammer ${green}build${esc} <file or folder> ${yellow}<...options>${esc}`,
-            `   $ hammer ${green}watch${esc} <file or folder> ${yellow}<...options>${esc}`,
-            `   $ hammer ${green}serve${esc} <file or folder> ${yellow}<...options>${esc}`,
-            `   $ hammer ${green}run${esc} <script> ${yellow}<...options>${esc}`,
-            `   $ hammer ${green}task${esc} <task> ${yellow}<...arguments>${esc}`,
+            `   $ hammer ${green}build${esc} <file or folder> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}watch${esc} <file or folder> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}serve${esc} <file or folder> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}run${esc} <script> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}task${esc} <task> ${blue}<...arguments>${esc}`,
             `   $ hammer ${green}version${esc}`,
             `   $ hammer ${green}help${esc}`,
             ``,
-            `Options:`,
+            `${blue}Options${esc}:`,
             ``,
-            `   ${yellow}--target${esc}    <...targets> Sets the ES targets.`,
-            `   ${yellow}--platform${esc}  platform     Sets the platform.`,
-            `   ${yellow}--dist${esc}      path         Sets the output directory.`,
-            `   ${yellow}--port${esc}      port         The port to listen on when serving.`,
-            `   ${yellow}--bundle${esc}                 Bundles the output for build and watch only.`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
-            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
+            `   ${blue}--target${esc}    <...targets> Sets the ES targets.`,
+            `   ${blue}--platform${esc}  platform     Sets the platform.`,
+            `   ${blue}--dist${esc}      path         Sets the output directory.`,
+            `   ${blue}--port${esc}      port         The port to listen on when serving.`,
+            `   ${blue}--minify${esc}                 Minifies the bundle.`,
+            `   ${blue}--sourcemap${esc}              Generate sourcemaps.`,
             ``,
         ].join(`\n`))
         if (options.message) {
-            console.log(options.message)
+            console.log([options.message, ''].join('\n'))
         }
     }
 
     public async execute() {
         const start = Date.now()
-        const yellow = '\x1b[33m'
+        const blue = '\x1b[36m'
         const esc = `\x1b[0m`
         switch (this.options.type) {
-            case 'build': console.log(`${yellow}Build${esc}: ${this.options.sourcePaths.join(' ')}`); break
-            case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.sourcePaths.join(' ')}`); break
-            case 'serve': console.log(`${yellow}Serve${esc}: http://localhost:${this.options.port}`); break
-            case 'start': console.log(`${yellow}Start${esc}: ${this.options.entryPath} ${this.options.args.join(' ')}`); break
-            case 'task': console.log(`${yellow}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
+            case 'build': console.log(`${blue}Build${esc}: ${this.options.sourcePaths.join(' ')}`); break
+            case 'watch': console.log(`${blue}Watch${esc}: ${this.options.sourcePaths.join(' ')}`); break
+            case 'serve': console.log(`${blue}Serve${esc}: http://localhost:${this.options.port}`); break
+            case 'start': console.log(`${blue}Start${esc}: ${this.options.entryPath} ${this.options.args.join(' ')}`); break
+            case 'task': console.log(`${blue}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
         switch (this.options.type) {
             case 'build': await this.build(this.options); break;
@@ -246,7 +246,7 @@ class Hammer implements Dispose {
             case 'help': await this.help(this.options); break;
             case 'version': await this.version(this.options); break;
         }
-        console.log(`${yellow}Done${esc}: ${Date.now() - start}ms`)
+        console.log(`${blue}Done${esc}: ${Date.now() - start}ms`)
     }
 
     public dispose() {
