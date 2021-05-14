@@ -1,12 +1,15 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.10.4",
-  "description": "Build Tool for HTML Applications.",
+  "version": "0.10.5",
+  "description": "Build Tool for Browser and Node Applications",
   "author": "sinclairzx81",
   "keywords": [
     "esbuild",
-    "bundler",
-    "html"
+    "bundle",
+    "html",
+    "node",
+    "watch",
+    "tasks"
   ],
   "license": "MIT",
   "repository": {
