@@ -101,7 +101,7 @@ export async function start(dist = 'target') {
 $ hammer task start
 ```
 
-## Libraries
+## Libs
 
 Use `tsconfig.json` path aliasing to link local library packages that are shared between multiple applications. Consider the following directory structure.
 
