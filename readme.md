@@ -145,20 +145,20 @@ Hammer provides the following CLI interface.
 ```
 Commands:
 
-   $ hammer build <file or folder> <...options>
-   $ hammer watch <file or folder> <...options>
-   $ hammer serve <file or folder> <...options>
-   $ hammer run <script> <...options>
-   $ hammer task <task> <...arguments>
+   $ hammer build  <file or folder> <...options>
+   $ hammer watch  <file or folder> <...options>
+   $ hammer serve  <file or folder> <...options>
+   $ hammer run    <script>         <...options>
+   $ hammer task   <task>           <...arguments>
    $ hammer version
    $ hammer help
 
 Options:
 
-   --target    <...targets> Sets the ES targets.
-   --platform  platform     Sets the platform.
-   --dist      path         Sets the output directory.
-   --port      port         The port to listen on when serving.
-   --minify                 Minifies the bundle.
-   --sourcemap              Generate sourcemaps.
+   --target      targets     The es build targets.
+   --platform    platform    The target plaform.
+   --dist        directory   The target directory.
+   --port        port        The port to listen on.
+   --minify                  Minifies the output.
+   --sourcemap               Generate sourcemaps.
 ```
