@@ -76,13 +76,13 @@ function instance(scriptPath: string, code: string): TaskExports {
 
 async function execute(exports: TaskExports, name: string, params: any[]) {
     const task = exports[name]
-    if(task === undefined) throw new TaskError(name, `No such method '${name}'`)
+    if(task === undefined) throw new TaskError('Task', `Task module does not export a function named '${name}'`)
     await task.apply(null, params)
 }
 
 export async function task(scriptPath: string, name: string, params: any[]) {
     if(!fs.existsSync(scriptPath)) {
-        console.log(`Unable to find task file ${scriptPath}`)
+        console.log(`Task: Task module 'hammer.ts' not found.`)
         process.exit(1)
     }
     try {

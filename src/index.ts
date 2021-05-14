@@ -195,7 +195,8 @@ class Hammer implements Dispose {
     }
 
     private async help(options: HelpOptions): Promise<void> {
-        const green = '\x1b[32m'
+        const green = '\x1b[90m'
+        //const green = '\x1b[33m'
         const blue = '\x1b[36m'
         const esc = `\x1b[0m`
         console.log([
@@ -203,22 +204,22 @@ class Hammer implements Dispose {
             ``,
             `${blue}Commands${esc}:`,
             ``,
-            `   $ hammer ${green}build${esc} <file or folder> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}watch${esc} <file or folder> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}serve${esc} <file or folder> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}run${esc} <script> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}task${esc} <task> ${blue}<...arguments>${esc}`,
+            `   $ hammer ${green}build${esc}  <file or folder> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}watch${esc}  <file or folder> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}serve${esc}  <file or folder> ${blue}<...options>${esc}`,
+            `   $ hammer ${green}run${esc}    <script>         ${blue}<...options>${esc}`,
+            `   $ hammer ${green}task${esc}   <task>           ${blue}<...arguments>${esc}`,
             `   $ hammer ${green}version${esc}`,
             `   $ hammer ${green}help${esc}`,
             ``,
             `${blue}Options${esc}:`,
             ``,
-            `   ${blue}--target${esc}    <...targets> Sets the ES targets.`,
-            `   ${blue}--platform${esc}  platform     Sets the platform.`,
-            `   ${blue}--dist${esc}      path         Sets the output directory.`,
-            `   ${blue}--port${esc}      port         The port to listen on when serving.`,
-            `   ${blue}--minify${esc}                 Minifies the bundle.`,
-            `   ${blue}--sourcemap${esc}              Generate sourcemaps.`,
+            `   ${blue}--target${esc}      targets     The es build targets.`,
+            `   ${blue}--platform${esc}    platform    The target plaform.`,
+            `   ${blue}--dist${esc}        directory   The target directory.`,
+            `   ${blue}--port${esc}        port        The port to listen on.`,
+            `   ${blue}--minify${esc}                  Minifies the output.`,
+            `   ${blue}--sourcemap${esc}               Generate sourcemaps.`,
             ``,
         ].join(`\n`))
         if (options.message) {
