@@ -47,7 +47,7 @@ License MIT
 
 ## Serve
 
-Hammer provides a built in development server. To use run `hammer serve [...paths]`. This will start a watch and reload server on port `5000` by default. See the command line interface section for additional options.
+Use the `serve` command to start a development server that reloads on file save.
 
 ```html
 <!DOCTYPE html>
@@ -60,62 +60,55 @@ Hammer provides a built in development server. To use run `hammer serve [...path
   </body>
 </html>
 ```
-
 ```bash
 $ hammer serve index.html
 ```
 
-## Start
+## Run
 
-Hammer provides support running monitored NodeJS processes that restart on save. To use run `hammer start <path> [...args]`. See the command line interface section for additional options.
+Use the `run` command to run node scripts that reload on file save.
 
 ```typescript
 import * as http from 'http'
 
-http.createServer((req, res) => res.end('hello world')).listen(5001)
+http.createServer((req, res) => res.end('Hello World')).listen(5001)
 ```
 ```bash
-$ hammer start index.ts
+$ hammer run index.ts
+
+$ hammer run "index.ts arg1 arg2" # use quotes to pass arguments
 ```
+## Tasks
 
-## Task
-
-Hammer provides support for creating project automation tasks that can be used to orchestrate build and watch workflows. This is handled with a file named `hammer.ts` in the current working directory. Hammer can run any exported function in this file. For example.
+Hammer has a built in task runner you can use to automate build workflow. To use, create a `hammer.ts` file in the current working directory. Exporting functions in this file allow Hammer to call into it via the `task` command.
 
 ```typescript
-export function hello(name: string) {
-  console.log(`hello, ${name}`)
+export function print(message: string) {
+  console.log(message)
 }
 ```
 ```bash
-$ hammer task hello dave
+$ hammer task print "Hello World"
 ```
-Hammer provides built in utilities to assist with common `file`, `folder`, `shell` and `watch` operations. The following sets up two tasks, one to clean the project, the other to run a Hammer `serve` and `start` process in parallel. 
+You can use tasks to orchestrate build workflows. Hammer provides a `shell` function for this purpose. The following creates a task that runs a browser and node application in parallel.
 
 ```typescript
-import { shell, folder } from '@sinclair/hammer'
-
-export async function clean (dist = 'target') {
-  await folder(dist).delete()
-}
+import { shell } from '@sinclair/hammer'
 
 export async function start (dist = 'target') {
   await shell([
     `hammer serve apps/website/index.html --dist ${dist}/website`,
-    `hammer start apps/website/index.ts --dist ${dist}/server`
-  ])
+    `hammer run apps/server/index.ts --dist ${dist}/server`
+])
 }
 ```
 ```bash
-$ hammer task clean
 $ hammer task start
 ```
 
 ## Libraries
 
-It is common to want to move shared library code outside the main application tree into a `libs` directory. This is typical in scenarios where shared library code may need to be published or reused for a number of applications local to the project. Hammer provides support for this by way of `tsconfig.json` configuration. 
-
-Consider the following directory structure.
+Hammer uses `tsconfig.json` path aliasing to link local library packages that may be shared between multiple applications. Consider the following directory structure.
 
 ```shell
 /apps
@@ -123,65 +116,55 @@ Consider the following directory structure.
     index.ts    ───────────┐
   /website                 │
     index.html             │
-    index.ts    ───────────┤ 
+    index.ts    ───────────┤ depends on
 /libs                      │
-  /foo                     │
-    index.ts    <──────────┤
-  /bar                     │
-    index.ts    <──────────┤ depends on
-  /baz                     │
+  /shared                  │
     index.ts    <──────────┘
 tsconfig.json
 ```
-To enable the applications to import these libraries, configure the `baseUrl` and `paths` options of the `tsconfig.json` file as follows.
+To allow `website` and `server` to import `shared`. Configure `tsconfig.json` as follows.
 
 ```javascript
 {
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@libs/foo": ["libs/foo/index.ts"],
-            "@libs/bar": ["libs/bar/index.ts"],
-            "@libs/baz": ["libs/baz/index.ts"],
+            "@libs/shared": ["libs/shared/index.ts"],
         }
     }
 }
 ```
 
-Once configured, the `server` and `website` applications can import with the following.
+Once configured, both `server` and `website` applications can import with the following.
 
 ```typescript
-import { Foo } from '@libs/foo'
-import { Bar } from '@libs/bar'
-import { Baz } from '@libs/baz'
+import { X } from '@libs/shared'
 
-const foo = new Foo()
-const bar = new Bar()
-const baz = new Baz()
-
-console.log(foo, bar, baz)
+const x = new X()
 ```
 
 ## Command Line Interface
 
-Hammer provides the following CLI interface. The `[...paths]` can be any file or directory. If a directory is passed for a `path`, Hammer will copy the directory into the `dist` location as well as process assets within. The `--watch` option will only watch for changes. To serve or start a node process use `--serve` or `--start` respectively which implicitly enables `--watch`.
+Hammer provides the following CLI interface.
 
 ```
 Commands:
 
-   $ hammer start script.ts | "script.ts arg1 arg2" {...options}
-   $ hammer serve index.html images {...options}
-   $ hammer watch worker.ts {...options}
-   $ hammer build index.html {...options}
-   $ hammer task start arg1 arg2
+   $ hammer build <file or folder> <...options>
+   $ hammer watch <file or folder> <...options>
+   $ hammer serve <file or folder> <...options>
+   $ hammer run <script> <...options>
+   $ hammer task <task> <...arguments>
+   $ hammer version
+   $ hammer help
 
 Options:
 
-   --target    [...targets] Sets the ES targets. (default: esnext)
-   --platform  target       Sets the platform. Options are browser or node. (default: browser)
-   --dist      path         Sets the output directory. (default: dist)
-   --bundle                 Bundles the output. (default: false)
-   --minify                 Minifies the bundle. (default: false)
-   --sourcemap              Generate sourcemaps. (default: false)
-   --port      port         The port to listen on.
+   --target    <...targets> Sets the ES targets.
+   --platform  platform     Sets the platform.
+   --dist      path         Sets the output directory.
+   --port      port         The port to listen on when serving.
+   --bundle                 Bundles the output for build and watch only.
+   --minify                 Minifies the bundle.
+   --sourcemap              Generate sourcemaps.
 ```

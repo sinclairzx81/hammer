@@ -31,7 +31,7 @@ import * as path from 'path'
 // Error
 // ------------------------------------------------------------------------
 
-export class OptionError extends Error {
+export class OptionsError extends Error {
     constructor(public readonly option: string, public readonly reason: string) {
         super(`${option}: ${reason}`)
     }
@@ -73,11 +73,11 @@ export interface WatchOptions {
     sourcemap: boolean
 }
 
-export interface StartOptions {
+export interface RunOptions {
     type: 'start'
     sourcePath: string
-    nodeString: string
-    arguments: string[]
+    entryPath: string
+    args: string[]
     dist: string
     target: string[]
     minify: boolean
@@ -106,7 +106,7 @@ export type Options =
     | VersionOptions
     | BuildOptions
     | WatchOptions
-    | StartOptions
+    | RunOptions
     | ServeOptions
     | TaskOptions
 
@@ -161,12 +161,12 @@ function defaultServeOptions(): ServeOptions {
     }
 }
 
-function defaultStartOptions(): StartOptions {
+function defaultRunOptions(): RunOptions {
     return {
         type: 'start',
         sourcePath: 'index.ts',
-        nodeString: path.join(process.cwd(), 'dist', 'index.js'),
-        arguments: [],
+        entryPath: path.join(process.cwd(), 'dist', 'index.js'),
+        args: [],
         dist: path.join(process.cwd(), 'dist'),
         target: ['esnext'],
         sourcemap: false,
@@ -188,61 +188,50 @@ function defaultTaskOptions(): TaskOptions {
 // ------------------------------------------------------------------------
 
 function* parseSourcePaths(params: string[]): Generator<string> {
-    while (params.length > 0) {
-        const next = params.shift()!
-        const sourcePath = path.resolve(process.cwd(), next)
-        if (!fs.existsSync(sourcePath)) return params.unshift(next)
+    if(params.length === 0) throw new OptionsError('paths', 'Expected one or more paths.')
+    const next = params.shift()!
+    for(const partialPath of next.split(' ')) {
+        const sourcePath = path.resolve(process.cwd(), partialPath)
+        if (!fs.existsSync(sourcePath)) throw new OptionsError('paths', `Cannot entry path '${sourcePath} does not exists.'`)
         yield sourcePath
     }
 }
 
-function parseStartSourcePath(params: string[]): [entryPath: string, arguments: string[]] {
-    function assertEntrySourcePath(sourcePath: string) {
-        const extension = path.extname(sourcePath)
-        if(extension !== '.js' && extension !== '.ts') {
-            throw new OptionError('start', 'Entry path does not exist.')
-        }
-        if(!fs.existsSync(sourcePath)) {
-            throw new OptionError('start', 'Entry path does not exist.')
-        }
-    }
-    if(params.length === 0) throw new OptionError('start', 'Expected entry path.')
+function parseSourcePathAndArguments(params: string[]): [sourcePath: string, args: string[]] {
+    if(params.length === 0) throw new OptionsError('run', 'Expected entry path.')
     const next = params.shift()!
     const split = next.split(' ')
-    if(split.length === 1) {
-        const entryPath = path.join(process.cwd(), split.shift()!)
-        assertEntrySourcePath(entryPath)
-        return [entryPath, []]
-    } else {
-        const entryPath = path.join(process.cwd(), split.shift()!)
-        assertEntrySourcePath(entryPath)
-        return [entryPath, split]
-    }
+    const partialPath = split.shift()!
+    const entryPath = path.join(process.cwd(), partialPath)
+    const extname = path.extname(entryPath)
+    if(!['.ts', '.tsx', '.js'].includes(extname)) throw new OptionsError('run', `Entry path not a TypeScript or JavaScript file. Got '${entryPath}'`)
+    if(!fs.existsSync(entryPath)) throw new OptionsError('run', `Entry path '${entryPath}' does not exist.`)
+    return [entryPath, split]
 }
 
 function parseDist(params: string[]): string {
-    if (params.length === 0) throw new OptionError('--dist', "Expected directory path.")
+    if (params.length === 0) throw new OptionsError('dist', "Expected directory path.")
     return path.join(process.cwd(), params.shift()!)
 }
 
 function parsePlatform(params: string[]): 'browser' | 'node' {
-    if (params.length === 0) throw new OptionError('--profile', "Expected profile option.")
+    if (params.length === 0) throw new OptionsError('platform', "Expected profile option.")
     const next = params.shift()!
     if (next === 'browser' || next === 'node') return next
-    throw new OptionError('--profile', `Expected 'node' or 'browser'. Got '${next}'`)
+    throw new OptionsError('platform', `Expected 'node' or 'browser'. Got '${next}'`)
 }
 
 function parsePort(params: string[]): number {
-    if (params.length === 0) throw new OptionError('--port', "Expected port number")
+    if (params.length === 0) throw new OptionsError('port', "Expected port number")
     const next = params.shift()!
     const port = parseInt(next)
-    if(Number.isNaN(port)) throw new OptionError('--port', `Expected port number. Received '${port}'`)
-    if(port < 0 || port > 65535) throw new OptionError('--port', `Invalid port number. Received '${port}'`)
+    if(Number.isNaN(port)) throw new OptionsError('port', `Expected port number. Received '${port}'`)
+    if(port < 0 || port > 65535) throw new OptionsError('port', `Invalid port number. Received '${port}'`)
     return port
 }
 
 function* parseTarget(params: string[]): Generator<string> {
-    if (params.length === 0) throw new OptionError('--target', "Expected target option")
+    if (params.length === 0) throw new OptionsError('target', "Expected target option")
     while (params.length > 0) {
         const next = params.shift()!
         if (next.includes('--')) {
@@ -260,7 +249,7 @@ function* parseTarget(params: string[]): Generator<string> {
 export function parseBuildOptions(params: string[]): BuildOptions {
     const options = defaultBuildOptions()
     options.sourcePaths = [...parseSourcePaths(params)]
-    if (options.sourcePaths.length === 0) throw new OptionError('build', `Expected at least one source path.`)
+    if (options.sourcePaths.length === 0) throw new OptionsError('build', `Expected at least one source path.`)
     while (params.length > 0) {
         const next = params.shift()!
         switch (next) {
@@ -278,7 +267,7 @@ export function parseBuildOptions(params: string[]): BuildOptions {
 export function parseWatchOptions(params: string[]): WatchOptions {
     const options = defaultWatchOptions()
     options.sourcePaths = [...parseSourcePaths(params)]
-    if (options.sourcePaths.length === 0) throw new OptionError('build', `Expected at least one source path.`)
+    if (options.sourcePaths.length === 0) throw new OptionsError('build', `Expected at least one source path.`)
     while (params.length > 0) {
         const next = params.shift()!
         switch (next) {
@@ -293,11 +282,11 @@ export function parseWatchOptions(params: string[]): WatchOptions {
     return options
 }
 
-export function parseStartOptions(params: string[]): StartOptions {
-    const options = defaultStartOptions()
-    const [sourcePath, args] = parseStartSourcePath(params)
+export function parseRunOptions(params: string[]): RunOptions {
+    const options = defaultRunOptions()
+    const [sourcePath, args] = parseSourcePathAndArguments(params)
     options.sourcePath = sourcePath
-    options.arguments = args
+    options.args = args
     while (params.length > 0) {
         const next = params.shift()
         switch (next) {
@@ -308,8 +297,7 @@ export function parseStartOptions(params: string[]): StartOptions {
         }
     }
     const extension = path.extname(options.sourcePath)
-    const entryFile = path.join(options.dist, [path.basename(options.sourcePath, extension), '.js'].join(''))
-    options.nodeString = [entryFile, ...args].join(' ')
+    options.entryPath = path.join(options.dist, [path.basename(options.sourcePath, extension), '.js'].join('')) 
     return options
 }
 
@@ -331,7 +319,7 @@ export function parseServeOptions(params: string[]): ServeOptions {
 
 export function parseTaskOptions(params: string[]): TaskOptions {
     const options = defaultTaskOptions()
-    if (params.length === 0) throw new OptionError('task', 'Expected task name')
+    if (params.length === 0) throw new OptionsError('task', 'Expected task name')
     options.name = params.shift()!
     options.arguments = params
     return options
@@ -344,8 +332,8 @@ export function parse(args: string[]) {
         switch (next) {
             case 'build': return parseBuildOptions(params)
             case 'watch': return parseWatchOptions(params)
-            case 'start': return parseStartOptions(params)
             case 'serve': return parseServeOptions(params)
+            case 'run': return parseRunOptions(params)
             case 'task': return parseTaskOptions(params)
             case 'help': return defaultHelpOptions()
             case 'version': return defaultVersionOptions()

@@ -25,4 +25,4 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 export * from './shell'
-export * from './start'
+export * from './run'

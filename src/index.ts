@@ -40,7 +40,7 @@ import { Build } from './build/index'
 import { Asset, resolve } from './resolve/index'
 import { watch } from './watch/index'
 import { serve } from './serve/index'
-import { start } from './start/index'
+import { run } from './run/index'
 import { task } from './task/index'
 import { Dispose } from './dispose'
 
@@ -53,7 +53,7 @@ import {
     BuildOptions,
     WatchOptions,
     ServeOptions,
-    StartOptions,
+    RunOptions,
     VersionOptions,
     TaskOptions,
 } from './options/index'
@@ -147,7 +147,7 @@ class Hammer implements Dispose {
     }
 
     /** Starts a node process. */
-    private async start(options: StartOptions): Promise<void> {
+    private async run(options: RunOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
             timestamp: 'timestamp'
@@ -164,7 +164,7 @@ class Hammer implements Dispose {
         const actions = cache.update(assets)
         await builder.update(actions)
         const watcher = watch([options.sourcePath], assets)
-        const process = start(options.nodeString)
+        const process = run(options.entryPath, options.args)
 
         this.disposables.push(watcher)
         this.disposables.push(builder)
@@ -206,25 +206,27 @@ class Hammer implements Dispose {
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`
         console.log([
-            `Hammer: ${this.getVersion()}`,
+            `Version: ${this.getVersion()}`,
             ``,
             `Commands:`,
             ``,
-            `   $ hammer ${green}start${esc} script.ts | "script.ts arg1 arg2" ${yellow}{...options}${esc}`,
-            `   $ hammer ${green}serve${esc} index.html images ${yellow}{...options}${esc}`,
-            `   $ hammer ${green}watch${esc} worker.ts ${yellow}{...options}${esc}`,
-            `   $ hammer ${green}build${esc} index.html ${yellow}{...options}${esc}`,
-            `   $ hammer ${green}task${esc} start arg1 arg2`,
+            `   $ hammer ${green}build${esc} <file or folder> ${yellow}<...options>${esc}`,
+            `   $ hammer ${green}watch${esc} <file or folder> ${yellow}<...options>${esc}`,
+            `   $ hammer ${green}serve${esc} <file or folder> ${yellow}<...options>${esc}`,
+            `   $ hammer ${green}run${esc} <script> ${yellow}<...options>${esc}`,
+            `   $ hammer ${green}task${esc} <task> ${yellow}<...arguments>${esc}`,
+            `   $ hammer ${green}version${esc}`,
+            `   $ hammer ${green}help${esc}`,
             ``,
             `Options:`,
             ``,
-            `   ${yellow}--target${esc}    [...targets] Sets the ES targets. (default: esnext)`,
-            `   ${yellow}--platform${esc}  target       Sets the platform. Options are browser or node. (default: browser)`,
-            `   ${yellow}--dist${esc}      path         Sets the output directory. (default: dist)`,
-            `   ${yellow}--bundle${esc}                 Bundles the output. (default: false)`,
-            `   ${yellow}--minify${esc}                 Minifies the bundle. (default: false)`,
-            `   ${yellow}--sourcemap${esc}              Generate sourcemaps. (default: false)`,
-            `   ${yellow}--port${esc}      port         The port to listen on.`,
+            `   ${yellow}--target${esc}    <...targets> Sets the ES targets.`,
+            `   ${yellow}--platform${esc}  platform     Sets the platform.`,
+            `   ${yellow}--dist${esc}      path         Sets the output directory.`,
+            `   ${yellow}--port${esc}      port         The port to listen on when serving.`,
+            `   ${yellow}--bundle${esc}                 Bundles the output for build and watch only.`,
+            `   ${yellow}--minify${esc}                 Minifies the bundle.`,
+            `   ${yellow}--sourcemap${esc}              Generate sourcemaps.`,
             ``,
         ].join(`\n`))
         if (options.message) {
@@ -232,21 +234,21 @@ class Hammer implements Dispose {
         }
     }
 
-    public run() {
+    public execute() {
         const yellow = '\x1b[33m'
         const esc = `\x1b[0m`
         switch (this.options.type) {
             case 'build': console.log(`${yellow}Build${esc}: ${this.options.dist}`); break
             case 'watch': console.log(`${yellow}Watch${esc}: ${this.options.dist}`); break
             case 'serve': console.log(`${yellow}Serve${esc}: http://localhost:${this.options.port}`); break
-            case 'start': console.log(`${yellow}Start${esc}: ${this.options.nodeString}`); break
+            case 'start': console.log(`${yellow}Start${esc}: ${this.options.entryPath}`); break
             case 'task': console.log(`${yellow}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
         switch (this.options.type) {
             case 'build': return this.build(this.options)
             case 'watch': return this.watch(this.options)
             case 'serve': return this.serve(this.options)
-            case 'start': return this.start(this.options)
+            case 'start': return this.run(this.options)
             case 'task': return this.task(this.options)
             case 'help': return this.help(this.options)
             case 'version': return this.version(this.options)
@@ -262,5 +264,5 @@ class Hammer implements Dispose {
 
 export function hammer(options: Options) {
     const hammer = new Hammer(options)
-    return hammer.run()
+    return hammer.execute()
 }
