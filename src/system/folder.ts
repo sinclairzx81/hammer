@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { SystemError } from './error'
 import { File } from './file'
-import * as fs from 'fs/promises'
+import * as fs from './fs'
 import * as path from 'path'
 
 export class FolderError extends SystemError {

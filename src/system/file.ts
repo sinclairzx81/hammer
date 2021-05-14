@@ -25,7 +25,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { SystemError } from './error'
-import * as fs from 'fs/promises'
+import * as fs from './fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
 
@@ -88,16 +88,16 @@ export class File {
     public async hash(algorithm: string = 'sha1', digest: crypto.BinaryToTextEncoding = 'hex') {
         await this.assertExists('hash', this.filePath)
         let offset = 0
-        const file = await fs.open(this.filePath, 'r')
+        const fd = await fs.open(this.filePath, 'r')
         const hash = crypto.createHash(algorithm)
         const buffer = Buffer.alloc(16384)
         while (true) {
-            const { bytesRead } = await file.read(buffer, 0, buffer.length, offset)
+            const { bytesRead } = await fs.read(fd, buffer, 0, buffer.length, offset)
             if (bytesRead === 0) break
             offset = offset + bytesRead
             hash.update(buffer)
         }
-        await file.close()
+        await fs.close(fd)
         return hash.digest(digest)
     }
 
