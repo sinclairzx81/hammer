@@ -38,7 +38,7 @@ export function run(entryFile: string, args: string[]) {
         for await(const _ of watcher) {
             const handle = handles.shift()!
             await handle.dispose()
-            handles.unshift(shell(`node ${entryFile}`))
+            handles.unshift(shell(`node ${entryFile} ${args.join(' ')}`))
         }
     })
     return {
