@@ -39,7 +39,7 @@ Done
 
 ## Overview
 
-Hammer is a build tool for browser and node applications. It provides a unified command line interface for developing browser and node applications and includes appropriate `watch` and `reload` workflows for each. It is designed with rapid application development in mind and requires little to no configuration to use. Hammer can scale from single web projects to multi library mono repositories using a its command line paired with its built in task runner.
+Hammer is a build tool for browser and node applications. It provides a unified command line interface for developing browser and node applications and includes appropriate `watch` and `reload` workflows for each. It is designed with rapid application development in mind and requires little to no configuration to use. Hammer can scale from single application projects to multi library mono repositories via its command line paired with its built in task runner.
 
 Hammer was written to consolidate several disparate tools related to monitoring node processes (nodemon), building from HTML (parcel), mono repository support (lerna, nx) and project automation (gulp, grunt). It takes `esbuild` as its only dependency and is as much concerned with build performance as it is with dramatically reducing the number of development dependencies required for modern web application development.
 
