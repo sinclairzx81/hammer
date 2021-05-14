@@ -129,7 +129,7 @@ To enable `website` and `server` to import the `shared` library. Configure `tsco
 }
 ```
 
-Once configured, the `server` and `website` applications can import with the following.
+Once configured the `server` and `website` applications can import with the following.
 
 ```typescript
 import { Foo } from '@libs/shared'
