@@ -73,9 +73,9 @@ $ hammer run index.ts
 
 $ hammer run "index.ts arg1 arg2" # use quotes to pass arguments
 ```
-## Tasks
+## Task
 
-Hammer provides support for running tasks to automate build workflow. To use tasks, create a `hammer.ts` file in the current working directory. You can call any exported function from the `task` command.
+Hammer provides support for running tasks. To use, create a `hammer.ts` file in the project root. Any exported function can be run from the command line interface.
 
 ```typescript
 export function print(message: string) {
@@ -85,7 +85,7 @@ export function print(message: string) {
 ```bash
 $ hammer task print "Hello World"
 ```
-You can use tasks to orchestrate builds in parallel. The following starts `serve` and `run` processes in parallel.
+You can use tasks to run Hammer or other command line applications in parallel. The following starts `serve` and `run` processes in parallel.
 ```typescript
 import { shell } from '@sinclair/hammer'
 
