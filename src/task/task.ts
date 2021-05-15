@@ -76,7 +76,7 @@ function instance(scriptPath: string, code: string): TaskExports {
 
 export function print(exports: TaskExports) {
     console.log()
-    console.log('The following are available tasks')
+    console.log('The following tasks are available')
     console.log()
     const keys = Object.keys(exports).filter(key => typeof exports[key] === 'function')
     for(const key of keys) { console.log(`  $ hammer task ${key}`) }
