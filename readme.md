@@ -153,7 +153,7 @@ Commands:
 Options:
 
    --target      targets     The es build targets.
-   --platform    platform    The target plaform.
+   --platform    platform    The target platform.
    --dist        directory   The target directory.
    --port        port        The port to listen on.
    --minify                  Minifies the output.

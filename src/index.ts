@@ -214,7 +214,7 @@ class Hammer implements Dispose {
             `${blue}Options${esc}:`,
             ``,
             `   ${blue}--target${esc}      targets     The es build targets.`,
-            `   ${blue}--platform${esc}    platform    The target plaform.`,
+            `   ${blue}--platform${esc}    platform    The target platform.`,
             `   ${blue}--dist${esc}        directory   The target directory.`,
             `   ${blue}--port${esc}        port        The port to listen on.`,
             `   ${blue}--minify${esc}                  Minifies the output.`,
