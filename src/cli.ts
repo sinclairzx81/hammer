@@ -29,7 +29,7 @@ import { hammer } from './index'
 
 
 async function cli(argv: string[]) {
-  const options = parse(process.argv)
+  const options = parse(argv)
   const build = hammer(options)
   await build.execute()
   await build.dispose()

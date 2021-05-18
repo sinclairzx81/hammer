@@ -99,7 +99,8 @@ export async function task(scriptPath: string, name: string, params: any[]) {
         const exports = instance(scriptPath, code)
         await execute(exports, name, params)
     } catch(error) {
-        console.log(error.message)
+        const message = error.message || error
+        console.log(`Error: [${name}] ${message}`)
         process.exit(1)
     }
 }
