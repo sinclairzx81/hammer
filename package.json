@@ -1,6 +1,6 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.10.13",
+  "version": "0.10.14",
   "description": "Build Tool for Browser and Node Applications",
   "author": "sinclairzx81",
   "keywords": [
