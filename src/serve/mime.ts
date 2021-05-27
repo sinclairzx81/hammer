@@ -584,6 +584,10 @@ export function mime(filePath: string): string {
       return 'image/gif'
     case '.gim':
       return 'application/vnd.groove-identity-message'
+    case '.glb':
+      return 'model/gltf-binary'
+    case '.gltf':
+      return 'model/gltf+json'
     case '.gml':
       return 'application/gml+xml'
     case '.gmx':
