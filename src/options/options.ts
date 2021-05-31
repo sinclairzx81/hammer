@@ -338,8 +338,19 @@ export function parseServeOptions(params: string[]): ServeOptions {
     return options
 }
 
+function resolveHammerFile() {
+    if(fs.existsSync(path.join(process.cwd(), 'hammer.ts'))) {
+        return path.join(process.cwd(), 'hammer.ts')
+    } else if(fs.existsSync(path.join(process.cwd(), 'hammer.js'))) {
+        return path.join(process.cwd(), 'hammer.js')
+    } else {
+        throw Error('No hammer task file. Expected hammer.ts or hammer.js in current directory.')
+    }
+}
+
 export function parseTaskOptions(params: string[]): TaskOptions {
     const options = defaultTaskOptions()
+    options.sourcePath = resolveHammerFile()
     if (params.length === 0) return options
     options.name = params.shift()!
     options.arguments = params

@@ -26,6 +26,7 @@ SOFTWARE.
 
 import { buildSync } from 'esbuild'
 
+import { file, folder, shell, watch } from '../system/index'
 import * as path from 'path'
 import * as vm from 'vm'
 import * as fs from 'fs'
@@ -65,6 +66,10 @@ function instance(scriptPath: string, code: string): TaskExports {
         },
         __dirname: process.cwd(),
         __filename: path.resolve(scriptPath),
+        file,
+        folder,
+        shell,
+        watch,
         Buffer,
         process,
         console,
