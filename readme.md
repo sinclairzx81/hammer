@@ -73,22 +73,28 @@ $ hammer run index.ts
 
 $ hammer run "index.ts arg1 arg2" # use quotes to pass arguments
 ```
+
+## Watch
+
+Use the `watch` command to start a compiler watch process only.
+
+```bash
+$ hammer watch worker.ts
+```
+
+## Monitor
+
+Use the `monitor` command to execute shell commands on file change.
+
+```bash
+$ hammer monitor fib.ts "asc fib.ts --binaryFile fib.wasm --optimize"
+```
+
 ## Task
 
-Hammer provides support for running tasks. To use, create a `hammer.ts` file in the project root. Any exported function can be run from the command line interface.
+Use the `task` command to execute exported javascript functions in a file named `hammer.js`. Hammer will look for this file in the current working directory. You can use tasks to run shell commands in parallel. Hammer includes a built in `shell()` function for this purpose. The following runs a `run` and `serve` task in parallel.
 
 ```typescript
-export function print(message: string) {
-  console.log(message)
-}
-```
-```bash
-$ hammer task print "Hello World"
-```
-You can use tasks to run Hammer or other command line applications in parallel. The following starts `serve` and `run` processes in parallel.
-```typescript
-import { shell } from '@sinclair/hammer'
-
 export async function start(dist = 'target') {
     await shell([
         `hammer serve apps/website/index.html --dist ${dist}/website`,
@@ -141,12 +147,12 @@ Hammer provides the following command line interface.
 
 ```
 Commands:
-
-   $ hammer build  <file or folder> <...options>
-   $ hammer watch  <file or folder> <...options>
-   $ hammer serve  <file or folder> <...options>
-   $ hammer run    <script>         <...options>
-   $ hammer task   <task>           <...arguments>
+   $ hammer run     <entry script>   <...options>
+   $ hammer build   <file or folder> <...options>
+   $ hammer watch   <file or folder> <...options>
+   $ hammer serve   <file or folder> <...options>
+   $ hammer monitor <file or folder> <shell command>
+   $ hammer task    <task>           <...arguments>
    $ hammer version
    $ hammer help
 

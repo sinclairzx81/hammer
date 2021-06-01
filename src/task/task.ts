@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { buildSync } from 'esbuild'
 
-import { file, folder, shell, watch } from '../system/index'
+import { file, folder, shell, watch } from './global/index'
 import * as path from 'path'
 import * as vm from 'vm'
 import * as fs from 'fs'
@@ -109,4 +109,3 @@ export async function task(scriptPath: string, name: string, params: any[]) {
         process.exit(1)
     }
 }
-

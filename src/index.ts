@@ -25,12 +25,6 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 // --------------------------------------------------------------------------
-// System Utilities
-// --------------------------------------------------------------------------
-
-export { shell, folder, file, watch, delay } from './system/index'
-
-// --------------------------------------------------------------------------
 // Hammer
 // --------------------------------------------------------------------------
 
@@ -40,29 +34,20 @@ import { Asset, resolve } from './resolve/index'
 import { watch } from './watch/index'
 import { serve } from './serve/index'
 import { run } from './run/index'
+import { monitor } from './monitor/index'
 import { task } from './task/index'
 import { Dispose } from './dispose'
 import * as path from 'path'
 import * as fs from 'fs'
-
-import {
-    Options,
-    HelpOptions,
-    BuildOptions,
-    WatchOptions,
-    ServeOptions,
-    RunOptions,
-    VersionOptions,
-    TaskOptions,
-} from './options/index'
+import * as options from './options/index'
 
 class Hammer implements Dispose {
     private readonly disposables: Dispose[] = []
 
-    constructor(private readonly options: Options) { }
+    constructor(private readonly options: options.Options) { }
 
     /** Starts a build process. */
-    private async build(options: BuildOptions): Promise<void> {
+    private async build(options: options.BuildOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
             timestamp: 'timestamp'
@@ -82,7 +67,7 @@ class Hammer implements Dispose {
     }
 
     /** Starts a watch process. */
-    private async watch(options: WatchOptions): Promise<void> {
+    private async watch(options: options.WatchOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
             timestamp: 'timestamp'
@@ -111,7 +96,7 @@ class Hammer implements Dispose {
     }
 
     /** Starts a http serve process. */
-    private async serve(options: ServeOptions): Promise<void> {
+    private async serve(options: options.ServeOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
             timestamp: 'timestamp'
@@ -142,7 +127,7 @@ class Hammer implements Dispose {
     }
 
     /** Starts a node process. */
-    private async run(options: RunOptions): Promise<void> {
+    private async run(options: options.RunOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
             timestamp: 'timestamp'
@@ -173,7 +158,11 @@ class Hammer implements Dispose {
         }
     }
 
-    private async task(options: TaskOptions): Promise<void> {
+    private async monitor(options: options.MonitorOptions): Promise<void> {
+        await monitor(options.sourcePaths, options.arguments)
+    }
+
+    private async task(options: options.TaskOptions): Promise<void> {
         await task(options.sourcePath, options.name, options.arguments)
     }
 
@@ -190,24 +179,26 @@ class Hammer implements Dispose {
         }
     }
 
-    private async version(options: VersionOptions): Promise<void> {
+    private async version(options: options.VersionOptions): Promise<void> {
         console.log(`Hammer: ${this.getVersion()}`)
     }
 
-    private async help(options: HelpOptions): Promise<void> {
+    private async help(options: options.HelpOptions): Promise<void> {
         const green = '\x1b[90m'
         const blue = '\x1b[36m'
         const esc = `\x1b[0m`
+
         console.log([
             `${blue}Version${esc}: ${this.getVersion()}`,
             ``,
             `${blue}Commands${esc}:`,
             ``,
-            `   $ hammer ${green}build${esc}  <file or folder> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}watch${esc}  <file or folder> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}serve${esc}  <file or folder> ${blue}<...options>${esc}`,
-            `   $ hammer ${green}run${esc}    <script>         ${blue}<...options>${esc}`,
-            `   $ hammer ${green}task${esc}   <task>           ${blue}<...arguments>${esc}`,
+            `   $ hammer ${green}run${esc}     <script path>     ${blue}<...options>${esc}`,
+            `   $ hammer ${green}build${esc}   <file or folder>  ${blue}<...options>${esc}`,
+            `   $ hammer ${green}watch${esc}   <file or folder>  ${blue}<...options>${esc}`,
+            `   $ hammer ${green}serve${esc}   <file or folder>  ${blue}<...options>${esc}`,
+            `   $ hammer ${green}monitor${esc} <file or folder>  ${blue}<shell command>${esc}`,
+            `   $ hammer ${green}task${esc}    <name>            ${blue}<...arguments>${esc}`,
             `   $ hammer ${green}version${esc}`,
             `   $ hammer ${green}help${esc}`,
             ``,
@@ -242,6 +233,7 @@ class Hammer implements Dispose {
             case 'watch': await this.watch(this.options); break;
             case 'serve': await this.serve(this.options); break;
             case 'start': await this.run(this.options); break;
+            case 'monitor': await this.monitor(this.options); break;
             case 'task': await this.task(this.options); break;
             case 'help': await this.help(this.options); break;
             case 'version': await this.version(this.options); break;
@@ -256,6 +248,6 @@ class Hammer implements Dispose {
     }
 }
 
-export function hammer(options: Options) {
+export function hammer(options: options.Options) {
     return new Hammer(options)
 }

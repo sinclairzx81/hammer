@@ -91,6 +91,11 @@ export interface ServeOptions {
     minify: boolean
     sourcemap: boolean
 }
+export interface MonitorOptions {
+    type: 'monitor'
+    sourcePaths: string[]
+    arguments: string[]
+}
 
 export interface TaskOptions {
     type: 'task'
@@ -106,6 +111,7 @@ export type Options =
     | WatchOptions
     | RunOptions
     | ServeOptions
+    | MonitorOptions
     | TaskOptions
 
 // ------------------------------------------------------------------------
@@ -170,6 +176,14 @@ function defaultRunOptions(): RunOptions {
     }
 }
 
+function defaultMonitorOptions(): MonitorOptions {
+    return {
+        type: 'monitor',
+        sourcePaths: [],
+        arguments: []
+    }
+}
+
 function defaultTaskOptions(): TaskOptions {
     return {
         type: 'task',
@@ -215,7 +229,7 @@ function* parseSourcePaths(params: string[]): Generator<string> {
     const next = params.shift()!
     for(const partialPath of next.split(' ')) {
         const sourcePath = path.resolve(process.cwd(), partialPath)
-        if (!fs.existsSync(sourcePath)) throw new OptionsError('paths', `Cannot entry path '${sourcePath} does not exists.'`)
+        if (!fs.existsSync(sourcePath)) throw new OptionsError('paths', `Cannot find source path '${sourcePath} does not exists.'`)
         yield sourcePath
     }
 }
@@ -338,6 +352,13 @@ export function parseServeOptions(params: string[]): ServeOptions {
     return options
 }
 
+export function parseMonitorOptions(params: string[]): MonitorOptions {
+    const options = defaultMonitorOptions()
+    options.sourcePaths = [...parseSourcePaths(params)]
+    options.arguments = params
+    return options
+}
+
 function resolveHammerFile() {
     if(fs.existsSync(path.join(process.cwd(), 'hammer.ts'))) {
         return path.join(process.cwd(), 'hammer.ts')
@@ -367,6 +388,7 @@ export function parse(args: string[]) {
             case 'watch': return parseWatchOptions(params)
             case 'serve': return parseServeOptions(params)
             case 'run': return parseRunOptions(params)
+            case 'monitor': return parseMonitorOptions(params)
             case 'task': return parseTaskOptions(params)
             case 'help': return defaultHelpOptions()
             case 'version': return defaultVersionOptions()
