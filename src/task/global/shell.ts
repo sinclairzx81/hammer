@@ -34,22 +34,49 @@ export class ShellRuntimeError extends SystemError {
 }
 
 export class ShellExitCodeError extends SystemError {
-    constructor(public readonly command: string, public readonly exitcode: number) {
-        super(`The command '${command}' exited with unexpected exitcode ${exitcode}`)
+    constructor(public readonly command: string, public readonly expect: number, actual: number | null) {
+        super(`The command '${command}' ended with exitcode '${actual}'. Expected '${expect}'.`)
     }
 }
 
 export interface ShellOptions {
-    exitcode?: number
+    exitcode: number
+}
+
+// Parses a full string command and returns components
+// which are passed to spawn. Handles "quoted" strings
+// in the command.
+function prepareCommand(command: string): string[] {
+    const components = command.split(' ')
+    .map(component => component.trim())
+    .filter(component => component.length > 0)
+    let open = false
+    const result = []
+    const temp = []
+    while (components.length > 0) {
+        const next = components.shift()!
+        if(!open && next.indexOf('"') === 0 && next.lastIndexOf('"') !== next.length - 1) {
+            temp.push(next.slice(1))
+            open = true
+        } else if (open && next.indexOf('"') === next.length - 1) {
+            temp.push(next.slice(0, next.length - 1))
+            result.push(temp.join(' '))
+            while(temp.length > 0) temp.shift()
+            open = false
+        } else if(open) {
+            temp.push(next)
+        } else {
+            result.push(next)
+        }
+    }
+    return result
 }
 
 export class Shell {
     constructor(private readonly command: string, private readonly options: ShellOptions) { }
 
     private parse(): [command: string, options: string[]] {
-        const components = this.command.split(' ')
-            .map(component => component.trim())
-            .filter(component => component.length > 0)
+         const components = prepareCommand(this.command)
         if (/^win/.test(process.platform)) {
             const command = 'cmd'
             const options = ['/c', ...components]
@@ -65,9 +92,9 @@ export class Shell {
         reject(new ShellRuntimeError(this.command, error))
     }
 
-    private onClose(exitcode: number, resolve: Function, reject: Function) {
-        if (this.options.exitcode !== undefined && exitcode !== this.options.exitcode) {
-            reject(new ShellExitCodeError(this.command, exitcode))
+    private onClose(exitcode: number | null, resolve: Function, reject: Function) {
+        if (exitcode !== this.options.exitcode) {
+            reject(new ShellExitCodeError(this.command, this.options.exitcode, exitcode))
         } else {
             resolve(exitcode)
         }
@@ -77,8 +104,8 @@ export class Shell {
         return new Promise((resolve, reject) => {            
             const [command, options] = this.parse()
             const process = spawn(command, options, { stdio: 'inherit' })
+            process.on('close', exitcode => this.onClose(exitcode, resolve, reject))
             process.on('error', error => this.onError(error, reject))
-            process.on('close', exitcode => this.onClose(exitcode || 1, resolve, reject))
         })
     }
 }
@@ -89,15 +116,10 @@ export function shell(commands: string[], options?: ShellOptions): Promise<numbe
 /** Runs a shell command and returns its exitcode. */
 export function shell(command: string, options?: ShellOptions): Promise<number>
 
-export async function shell(commands: string | string[], options: ShellOptions = {}): Promise<number | number[]> {
+export async function shell(commands: string | string[], options: ShellOptions = { exitcode: 0 }): Promise<number | number[]> {
     const isParallel = Array.isArray(commands)
     commands = isParallel ? commands as string[] : [commands as string]
     const shells = commands.map(command => new Shell(command, options))
     const results = await Promise.all(shells.map(shell => shell.execute()))
     return isParallel ? results : results[0]
 }
-
-
-
-
-
