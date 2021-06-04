@@ -359,19 +359,19 @@ export function parseMonitorOptions(params: string[]): MonitorOptions {
     return options
 }
 
-function resolveHammerFile() {
-    if(fs.existsSync(path.join(process.cwd(), 'hammer.ts'))) {
-        return path.join(process.cwd(), 'hammer.ts')
-    } else if(fs.existsSync(path.join(process.cwd(), 'hammer.js'))) {
-        return path.join(process.cwd(), 'hammer.js')
+function resolveHammerTaskFile(): string {
+    if(fs.existsSync(path.join(process.cwd(), 'hammer.task.ts'))) {
+        return path.join(process.cwd(), 'hammer.task.ts')
+    } else if(fs.existsSync(path.join(process.cwd(), 'hammer.task.js'))) {
+        return path.join(process.cwd(), 'hammer.task.js')
     } else {
-        throw Error('No hammer task file. Expected hammer.ts or hammer.js in current directory.')
+        throw Error(`No hammer tasks file found. Expected either 'hammer.task.ts' or 'hammer.task.js' in current directory.`)
     }
 }
 
 export function parseTaskOptions(params: string[]): TaskOptions {
     const options = defaultTaskOptions()
-    options.sourcePath = resolveHammerFile()
+    options.sourcePath = resolveHammerTaskFile()
     if (params.length === 0) return options
     options.name = params.shift()!
     options.arguments = params

@@ -92,9 +92,13 @@ $ hammer monitor fib.ts "asc fib.ts --binaryFile fib.wasm --optimize"
 
 ## Task
 
-Use the `task` command to execute exported javascript functions in a file named `hammer.js`. Hammer will look for this file in the current working directory. You can use tasks to run shell commands in parallel. Hammer includes a built in `shell()` function for this purpose. The following runs a `run` and `serve` task in parallel.
+Use the `task` command to execute javascript functions in a file named `hammer.task.ts` or `hammer.task.js`. Hammer will look for this file in the current working directory and will allow any exported function to be called though the CLI. You can use tasks to run shell commands in parallel. Hammer includes a built in `shell()` function for this purpose. The following runs a `run` and `serve` task in parallel.
 
 ```typescript
+/**
+ * file: hammer.task.js
+ */
+
 export async function start(dist = 'target') {
     await shell([
         `hammer serve apps/website/index.html --dist ${dist}/website`,
