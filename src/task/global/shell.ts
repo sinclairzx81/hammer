@@ -47,6 +47,7 @@ export interface ShellOptions {
 // which are passed to spawn. Handles "quoted" strings
 // in the command.
 function prepareCommand(command: string): string[] {
+    const windows = (/^win/.test(process.platform)) // Hack: Need to write a better command line parser.
     const components = command.split(' ')
     .map(component => component.trim())
     .filter(component => component.length > 0)
@@ -60,7 +61,12 @@ function prepareCommand(command: string): string[] {
             open = true
         } else if (open && next.indexOf('"') === next.length - 1) {
             temp.push(next.slice(0, next.length - 1))
-            result.push(temp.join(' '))
+            if(windows) {
+                result.push(temp.join(' '))
+            } else {
+                result.push(`"${temp.join(' ')}"`)
+            }
+           
             while(temp.length > 0) temp.shift()
             open = false
         } else if(open) {
