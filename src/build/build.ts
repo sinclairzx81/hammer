@@ -106,7 +106,13 @@ export class Build implements Dispose {
               target:      this.options.target,
               sourcemap:   this.options.sourcemap,
               watch:       this.options.watch,
-              bundle:      true
+              bundle:      true,
+              loader: { 
+                '.gif': 'binary',
+                '.jpg': 'binary',
+                '.png': 'binary',
+                '.ttf': 'binary'
+              }
             })
             this.handles.set(asset.sourcePath, handle)
           } catch {}
