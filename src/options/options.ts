@@ -59,6 +59,7 @@ export interface BuildOptions {
     platform: 'browser' | 'node'
     minify: boolean
     sourcemap: boolean
+    external: string[]
 }
 
 export interface WatchOptions {
@@ -69,6 +70,7 @@ export interface WatchOptions {
     platform: 'browser' | 'node'
     minify: boolean
     sourcemap: boolean
+    external: string[]
 }
 
 export interface RunOptions {
@@ -80,6 +82,7 @@ export interface RunOptions {
     target: string[]
     minify: boolean
     sourcemap: boolean
+    external: string[]
 }
 
 export interface ServeOptions {
@@ -90,6 +93,7 @@ export interface ServeOptions {
     target: string[]
     minify: boolean
     sourcemap: boolean
+    external: string[]
 }
 export interface MonitorOptions {
     type: 'monitor'
@@ -136,6 +140,7 @@ function defaultBuildOptions(): BuildOptions {
         sourcePaths: [],
         sourcemap: false,
         target: ['esnext'],
+        external: []
     }
 }
 
@@ -148,6 +153,7 @@ function defaultWatchOptions(): WatchOptions {
         sourcePaths: [],
         sourcemap: false,
         target: ['esnext'],
+        external: []
     }
 }
 
@@ -160,6 +166,7 @@ function defaultServeOptions(): ServeOptions {
         port: 5000,
         sourcemap: false,
         minify: false,
+        external: []
     }
 }
 
@@ -173,6 +180,7 @@ function defaultRunOptions(): RunOptions {
         target: ['esnext'],
         sourcemap: false,
         minify: false,
+        external: []
     }
 }
 
@@ -257,7 +265,14 @@ function parsePlatform(params: string[]): 'browser' | 'node' {
     if (next === 'browser' || next === 'node') return next
     throw new OptionsError('platform', `Expected 'node' or 'browser'. Got '${next}'`)
 }
-
+function parseExternal(params: string[]): string[] {
+    if (params.length === 0) throw new OptionsError('external', "Expected external option.")
+    let next = params.shift()!
+    if(next.indexOf('"') === 0) next = next.slice(1, next.length - 1)
+    if(next.lastIndexOf('"') === next.length - 1) next = next.slice(0, next.length - 1)
+    const external = next.split(' ').map(x => x.trim())
+    return external
+}
 function parsePort(params: string[]): number {
     if (params.length === 0) throw new OptionsError('port', "Expected port number")
     const next = params.shift()!
@@ -293,6 +308,7 @@ export function parseBuildOptions(params: string[]): BuildOptions {
             case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
+            case '--external': options.external = parseExternal(params); break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
         }
@@ -310,6 +326,7 @@ export function parseWatchOptions(params: string[]): WatchOptions {
             case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
+            case '--external': options.external = parseExternal(params); break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
         }
@@ -326,6 +343,7 @@ export function parseRunOptions(params: string[]): RunOptions {
         const next = params.shift()
         switch (next) {
             case '--dist': options.dist = parseDist(params); break;
+            case '--external': options.external = parseExternal(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
@@ -343,6 +361,7 @@ export function parseServeOptions(params: string[]): ServeOptions {
         const next = params.shift()
         switch (next) {
             case '--dist': options.dist = parseDist(params); break;
+            case '--external': options.external = parseExternal(params); break;
             case '--minify': options.minify = true; break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--target': options.target = [...parseTarget(params)]; break;

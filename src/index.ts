@@ -30,18 +30,18 @@ export { folder, file, shell, watch, delay } from './task/global/index'
 // Hammer
 // --------------------------------------------------------------------------
 
-import { Cache } from './cache/index'
-import { Build } from './build/index'
+import { Cache }          from './cache/index'
+import { Build }          from './build/index'
 import { Asset, resolve } from './resolve/index'
-import { watch } from './watch/index'
-import { serve } from './serve/index'
-import { run } from './run/index'
-import { monitor } from './monitor/index'
-import { task } from './task/index'
-import { Dispose } from './dispose'
-import * as path from 'path'
-import * as fs from 'fs'
-import * as options from './options/index'
+import { watch }          from './watch/index'
+import { serve }          from './serve/index'
+import { run }            from './run/index'
+import { monitor }        from './monitor/index'
+import { task }           from './task/index'
+import { Dispose }        from './dispose'
+import * as path          from 'path'
+import * as fs            from 'fs'
+import * as options       from './options/index'
 
 class Hammer implements Dispose {
     private readonly disposables: Dispose[] = []
@@ -59,6 +59,7 @@ class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            external: options.external,
             bundle: true,
             watch: false
         })
@@ -79,6 +80,7 @@ class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            external: options.external,
             bundle: true,
             watch: true
         })
@@ -108,6 +110,7 @@ class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            external: options.external,
             bundle: true,
             watch: true
         })
@@ -139,6 +142,7 @@ class Hammer implements Dispose {
             minify: options.minify,
             sourcemap: options.sourcemap,
             target: options.target,
+            external: options.external,
             bundle: true,
             watch: true
         })
@@ -212,6 +216,7 @@ class Hammer implements Dispose {
             `   ${blue}--port${esc}        port        The port to listen on.`,
             `   ${blue}--minify${esc}                  Minifies the output.`,
             `   ${blue}--sourcemap${esc}               Generate sourcemaps.`,
+            `   ${blue}--external${esc}    names       External packages.`,
             ``,
         ].join(`\n`))
         if (options.message) {

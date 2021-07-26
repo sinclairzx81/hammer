@@ -35,6 +35,7 @@ export interface BuilderOptions {
     platform:  string
     target:    string[]
     bundle:    boolean
+    external:  string[]
     minify:    boolean
     sourcemap: boolean
     watch:     boolean
@@ -106,6 +107,7 @@ export class Build implements Dispose {
               target:      this.options.target,
               sourcemap:   this.options.sourcemap,
               watch:       this.options.watch,
+              external:    this.options.external,
               bundle:      true,
               loader: { 
                 '.gif': 'binary',

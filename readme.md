@@ -168,4 +168,5 @@ Options:
    --port        port        The port to listen on.
    --minify                  Minifies the output.
    --sourcemap               Generate sourcemaps.
+   --external                External packages.
 ```
