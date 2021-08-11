@@ -67,6 +67,8 @@ export class Folder {
             const stat = await fs.stat(sourcePath)
             if (stat.isDirectory()) {
                 await fs.mkdir(targetPath, { recursive: true })
+                const folder = new Folder(sourcePath)
+                await folder.copy(path.dirname(targetPath))
             }
             if (stat.isFile()) {
                 await this.createFolder(path.dirname(targetPath))
