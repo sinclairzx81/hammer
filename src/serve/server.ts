@@ -24,10 +24,10 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Dispose } from '../dispose'
+import { Dispose }        from '../dispose'
 import { watch, Watcher } from '../watch/index'
-import { staticHandler } from './static'
-import * as http from 'http'
+import { staticHandler }  from './static'
+import * as http          from 'http'
 
 // --------------------------------------------------------------------------
 // Server
@@ -75,7 +75,7 @@ export class Server implements Dispose {
 
   constructor(private readonly targetDirectory: string, private readonly port: number) {
     this.clients = new Map<number, http.ServerResponse>()
-    this.watcher = watch([this.targetDirectory], [])
+    this.watcher = watch([this.targetDirectory])
     this.server  = http.createServer((req, res) => this.onRequest(req, res))
     this.interval = setInterval(() => this.keepAlive(), 16000)
     this.server.listen(this.port)

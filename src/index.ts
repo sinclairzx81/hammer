@@ -48,7 +48,9 @@ class Hammer implements Dispose {
 
     constructor(private readonly options: options.Options) { }
 
-    /** Starts a build process. */
+    // -------------------------------------------------------------
+    // Build
+    // -------------------------------------------------------------
     private async build(options: options.BuildOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
@@ -69,7 +71,10 @@ class Hammer implements Dispose {
         this.disposables.push(builder)
     }
 
-    /** Starts a watch process. */
+    // -------------------------------------------------------------
+    // Watch
+    // -------------------------------------------------------------
+
     private async watch(options: options.WatchOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
@@ -87,19 +92,22 @@ class Hammer implements Dispose {
         const assets = resolve(options.sourcePaths, options.dist)
         const actions = cache.update(assets)
         await builder.update(actions)
-        const watcher = watch(options.sourcePaths, assets)
+        const watcher = watch([...options.sourcePaths, ...assets.map(asset => asset.sourcePath)])
         this.disposables.push(watcher)
         this.disposables.push(builder)
 
         for await (const _ of watcher) {
             const assets = resolve(options.sourcePaths, options.dist)
-            watcher.update(assets)
+            watcher.add(assets.map(asset => asset.sourcePath))
             const actions = cache.update(assets)
             await builder.update(actions)
         }
     }
 
-    /** Starts a http serve process. */
+    // -------------------------------------------------------------
+    // Serve
+    // -------------------------------------------------------------
+
     private async serve(options: options.ServeOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
@@ -117,7 +125,7 @@ class Hammer implements Dispose {
         const assets = resolve(options.sourcePaths, options.dist)
         const actions = cache.update(assets)
         await builder.update(actions)
-        const watcher = watch(options.sourcePaths, assets)
+        const watcher = watch([...options.sourcePaths, ...assets.map(asset => asset.sourcePath)])
         const server = serve(options.dist, options.port)
 
         this.disposables.push(watcher)
@@ -125,13 +133,16 @@ class Hammer implements Dispose {
         this.disposables.push(server)
         for await (const _ of watcher) {
             const assets = resolve(options.sourcePaths, options.dist)
-            watcher.update(assets)
+            watcher.add(assets.map(asset => asset.sourcePath))
             const actions = cache.update(assets)
             await builder.update(actions)
         }
     }
 
-    /** Starts a node process. */
+    // -------------------------------------------------------------
+    // Run
+    // -------------------------------------------------------------
+
     private async run(options: options.RunOptions): Promise<void> {
         const cache = new Cache<Asset>({
             key: 'sourcePath',
@@ -149,7 +160,8 @@ class Hammer implements Dispose {
         const assets = resolve([options.sourcePath], options.dist)
         const actions = cache.update(assets)
         await builder.update(actions)
-        const watcher = watch([options.sourcePath], assets)
+        
+        const watcher = watch([options.sourcePath, ...assets.map(asset => asset.sourcePath)])
         const process = run(options.entryPath, options.args)
 
         this.disposables.push(watcher)
@@ -158,16 +170,24 @@ class Hammer implements Dispose {
 
         for await (const _ of watcher) {
             const assets = resolve([options.sourcePath], options.dist)
-            watcher.update(assets)
+            watcher.add(assets.map(asset => asset.sourcePath))
             const actions = cache.update(assets)
             await builder.update(actions)
         }
     }
 
+    // -------------------------------------------------------------
+    // Monitor
+    // -------------------------------------------------------------
+    
     private async monitor(options: options.MonitorOptions): Promise<void> {
         await monitor(options.sourcePaths, options.arguments)
     }
-
+    
+    // -------------------------------------------------------------
+    // Task
+    // -------------------------------------------------------------
+    
     private async task(options: options.TaskOptions): Promise<void> {
         await task(options.sourcePath, options.name, options.arguments)
     }
@@ -226,8 +246,8 @@ class Hammer implements Dispose {
 
     public async execute() {
         const start = Date.now()
-        const blue = '\x1b[36m'
-        const esc = `\x1b[0m`
+        const blue  = '\x1b[36m'
+        const esc   = `\x1b[0m`
         switch (this.options.type) {
             case 'build': console.log(`${blue}Build${esc}: ${this.options.sourcePaths.join(' ')}`); break
             case 'watch': console.log(`${blue}Watch${esc}: ${this.options.sourcePaths.join(' ')}`); break

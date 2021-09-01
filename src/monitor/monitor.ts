@@ -29,7 +29,7 @@ import { watch }   from '../watch/index'
 import { Shell }   from '../shell'
 
 export function monitor(sourcePaths: string[], args: string[]) {
-    const watcher = watch(sourcePaths, [])
+    const watcher = watch(sourcePaths)
     const shells = [new Shell(`${args.join(' ')}`)]
     into(async () => {
         for await(const _ of watcher) {

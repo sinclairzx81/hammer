@@ -25,32 +25,53 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { channel, Sender, Receiver, Debounce } from '../async/index'
-import { Asset } from '../resolve/index'
+import * as path from 'path'
 import * as fs from 'fs'
 
-export class Watcher {
-    private readonly watchers: Map<string, fs.FSWatcher>
-    private readonly debounce: Debounce
-    private readonly sender:   Sender<string>
-    private readonly receiver: Receiver<string>
+// --------------------------------------------------------------------------
+//
+// Watcher
+//
+// A multiple file watcher. This class sets up fs watchers for the given
+// sourcePaths. If the sourcePath happens to be a directory and this watcher 
+// is running on linux, then this may result in be multiple watchers per 
+// sourcePath. This class will yield the sourcePath on change NOT the 
+// internal file or directory that changed.
+//
+//              +---- fs.Watcher
+//              |
+// sourcePath --+---- fs.Watcher
+//              |
+//              +---- fs.Watcher
+//
+//              +---- fs.Watcher
+//              |
+// sourcePath --+---- fs.Watcher
+//              |
+//              +---- fs.Watcher
+//
+// --------------------------------------------------------------------------
 
-    constructor(sourcePaths: string[], assets: Asset[]) {
+type SourcePath = string
+
+export class Watcher {
+    private readonly watchers: Map<SourcePath, fs.FSWatcher[]>
+    private readonly receiver: Receiver<string>
+    private readonly sender:   Sender<string>
+    private readonly debounce: Debounce
+
+    constructor(sourcePaths: string[]) {
         const [sender, receiver] = channel<string>()
         this.debounce = new Debounce(100)
-        this.watchers = new Map<string, fs.FSWatcher>()
+        this.watchers = new Map<SourcePath, fs.FSWatcher[]>()
         this.sender   = sender
         this.receiver = receiver
-        for(const sourcePath of sourcePaths) {
-            if(this.watchers.has(sourcePath)) continue
-            if(!fs.existsSync(sourcePath)) continue
-            const stat = fs.statSync(sourcePath)
-            const watcher = stat.isDirectory()
-                ? fs.watch(sourcePath, { recursive: true }, event => this.onChange(sourcePath))
-                : fs.watch(sourcePath, event => this.onChange(sourcePath))
-            this.watchers.set(sourcePath, watcher)
-        }
-        this.update(assets)
+        this.add(sourcePaths)
     }
+
+    // --------------------------------------------------------------
+    // Iterator
+    // --------------------------------------------------------------
 
     public async * [Symbol.asyncIterator]() {
         for await(const path of this.receiver) {
@@ -58,32 +79,76 @@ export class Watcher {
         }
     }
 
-    public update(assets: Asset[]) {
-        for(const sourcePath of assets.map(asset => asset.sourcePath)) {
+    // --------------------------------------------------------------
+    // Methods
+    // --------------------------------------------------------------
+
+    /** Adds additional sourcePaths to watch. If the sourcePath already  exists in this watchers set, then no action will be taken. */
+    public add(sourcePaths: string[]) {
+        for(const sourcePath of sourcePaths) {
             if(this.watchers.has(sourcePath)) continue
             if(!fs.existsSync(sourcePath)) continue
-            const stat = fs.statSync(sourcePath)
-            const watcher = stat.isDirectory()
-                ? fs.watch(sourcePath, { recursive: true }, event => this.onChange(sourcePath))
-                : fs.watch(sourcePath, event => this.onChange(sourcePath))
-            this.watchers.set(sourcePath, watcher)
+            this.watchers.set(sourcePath, [...this.createWatchers(sourcePath)])
         }
     }
+
+    /** Disposes of this watcher and terminates all internal watchers. */
+    public dispose(): void {
+        this.sender.end()
+        for(const [sourcePath, watchers] of this.watchers) {
+            this.watchers.delete(sourcePath)
+            for(const watcher of watchers) {
+                watcher.close()
+            }
+        }
+    }
+
+    // --------------------------------------------------------------
+    // Events
+    // --------------------------------------------------------------
 
     private onChange(sourcePath: string) {
         this.debounce.run(() => this.sender.send(sourcePath))
     }
 
-    public dispose(): void {
-        this.sender.end()
-        for(const [sourcePath, watcher] of this.watchers) {
-            this.watchers.delete(sourcePath)
-            watcher.close()
+    // --------------------------------------------------------------
+    // Watchers
+    // --------------------------------------------------------------
+
+    private * createLinuxDirectoryWatchers(directory: string, sourcePath: string): Generator<fs.FSWatcher> {
+        const stat = fs.statSync(directory)
+        yield fs.watch(directory, event => this.onChange(sourcePath))
+        for(const filepath of fs.readdirSync(directory)) {
+            const next = path.join(directory, filepath)
+            const stat = fs.statSync(next)
+            if(stat.isDirectory()) yield * this.createLinuxDirectoryWatchers(next, sourcePath)
         }
+    }
+    
+    private * createLinuxWatchers(sourcePath: string): Generator<fs.FSWatcher> {
+        const stat = fs.statSync(sourcePath)
+        if(stat.isDirectory()) {
+            yield * this.createLinuxDirectoryWatchers(sourcePath, sourcePath)
+        } else if(stat.isFile()) {
+            yield fs.watch(sourcePath, event => this.onChange(sourcePath))
+        }
+    }
+
+    private * createWindowsWatchers(sourcePath: string): Generator<fs.FSWatcher> {
+        const stat = fs.statSync(sourcePath)
+        yield stat.isDirectory()
+            ? fs.watch(sourcePath, { recursive: true }, event => this.onChange(sourcePath))
+            : fs.watch(sourcePath, event => this.onChange(sourcePath))
+    }
+
+    private * createWatchers(sourcePath: string): Generator<fs.FSWatcher> {
+        yield * /^win/.test(process.platform) ? 
+            this.createWindowsWatchers(sourcePath) : 
+            this.createLinuxWatchers(sourcePath)
     }
 }
 
 
-export function watch(sourcePaths: string[], assets: Asset[]): Watcher {
-    return new Watcher(sourcePaths, assets)
+export function watch(sourcePaths: string[]): Watcher {
+    return new Watcher(sourcePaths)
 }

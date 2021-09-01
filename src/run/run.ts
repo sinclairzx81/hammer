@@ -32,7 +32,7 @@ import * as path   from 'path'
 
 export function run(entryFile: string, args: string[]) {
     const directory = path.dirname(entryFile)
-    const watcher   = watch([directory], [])
+    const watcher   = watch([directory])
     const shells    = [new Shell(`node ${entryFile} ${args.join(' ')}`)]
     into(async () => {
         for await(const _ of watcher) {
