@@ -97,7 +97,7 @@ async function execute(exports: TaskExports, name: string, params: any[]) {
 
 export async function task(scriptPath: string, name: string, params: any[]) {
     if(!fs.existsSync(scriptPath)) {
-        console.log(`Task: Task module 'hammer.ts' not found.`)
+        console.log(`Task: Task file 'hammer.mjs' not found.`)
         process.exit(1)
     }
     try {

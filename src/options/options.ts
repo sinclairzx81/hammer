@@ -195,7 +195,7 @@ function defaultMonitorOptions(): MonitorOptions {
 function defaultTaskOptions(): TaskOptions {
     return {
         type: 'task',
-        sourcePath: path.join(process.cwd(), 'hammer.ts'),
+        sourcePath: path.join(process.cwd(), 'hammer.mjs'),
         name: '',
         arguments: []
     }
@@ -379,12 +379,10 @@ export function parseMonitorOptions(params: string[]): MonitorOptions {
 }
 
 function resolveHammerTaskFile(): string {
-    if(fs.existsSync(path.join(process.cwd(), 'hammer.ts'))) {
-        return path.join(process.cwd(), 'hammer.ts')
-    } else if(fs.existsSync(path.join(process.cwd(), 'hammer.js'))) {
-        return path.join(process.cwd(), 'hammer.js')
+    if(fs.existsSync(path.join(process.cwd(), 'hammer.mjs'))) {
+        return path.join(process.cwd(), 'hammer.mjs')
     } else {
-        throw Error(`No hammer tasks file found. Expected either 'hammer.ts' or 'hammer.js' in current directory.`)
+        throw Error(`No task file found. Expected 'hammer.mjs' in current directory.`)
     }
 }
 

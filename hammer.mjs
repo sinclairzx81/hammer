@@ -9,5 +9,3 @@ export async function start() {
 export async function build() {
     console.log('build')
 }
-
-

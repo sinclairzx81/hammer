@@ -92,11 +92,11 @@ $ hammer monitor index.ts "deno run --allow-all index.ts"
 
 ## Tasks
 
-Hammer provides a built-in task runner for automating various workflow at the command line. Tasks are created with exported JavaScript functions specified in a file named `hammer.js`. Hammer will search for the `hammer.js` file in the current working directory and setup a callable command line interface to each exported function. Hammer provides a global `shell(...)` function that can be used to start command line processes within each task. Additional functionality can be imported via ESM `import`. The following shows running a Hammer website and server watch process in parallel.
+Hammer provides a built-in task runner for automating various workflow at the command line. Tasks are created with JavaScript functions specified in a file named `hammer.mjs`. Hammer will search for the `hammer.mjs` file in the current working directory and setup a callable command line interface to each exported function. Hammer provides a global `shell(...)` function that can be used to start command line processes within each task. Additional functionality can be imported via ESM `import`. The following shows running a Hammer website and server watch process in parallel.
 
 ```typescript
 //
-// file: hammer.js
+// file: hammer.mjs
 //
 export async function start() {
     await Promise.all([
