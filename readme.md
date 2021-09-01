@@ -87,22 +87,21 @@ $ hammer watch worker.ts
 Use the `monitor` command to execute shell commands on file change.
 
 ```bash
-$ hammer monitor fib.ts "asc fib.ts --binaryFile fib.wasm --optimize"
+$ hammer monitor index.ts "deno run --allow-all index.ts"
 ```
 
-## Task
+## Tasks
 
-Use the `task` command to execute javascript functions in a file named `hammer.task.ts` or `hammer.task.js`. Hammer will look for this file in the current working directory and will allow any exported function to be called though the CLI. You can use tasks to run shell commands in parallel. Hammer includes a built in `shell()` function for this purpose. The following runs a `run` and `serve` task in parallel.
+Hammer provides a built-in task runner for automating various workflow at the command line. Tasks are created with exported JavaScript functions specified in a file named `hammer.js`. Hammer will search for the `hammer.js` file in the current working directory and setup a callable command line interface to each exported function. Hammer provides a global `shell(...)` function that can be used to start command line processes within each task. Additional functionality can be imported via ESM `import`. The following shows running a Hammer website and server watch process in parallel.
 
 ```typescript
-/**
- * file: hammer.task.js
- */
-
-export async function start(dist = 'target') {
-    await shell([
-        `hammer serve apps/website/index.html --dist ${dist}/website`,
-        `hammer run apps/server/index.ts --dist ${dist}/server`
+//
+// file: hammer.js
+//
+export async function start() {
+    await Promise.all([
+        shell(`hammer serve apps/website/index.html --dist dist/website`),
+        shell(`hammer run apps/server/index.ts --dist dist/server`)
     ])
 }
 ```

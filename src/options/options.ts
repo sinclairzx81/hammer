@@ -379,12 +379,12 @@ export function parseMonitorOptions(params: string[]): MonitorOptions {
 }
 
 function resolveHammerTaskFile(): string {
-    if(fs.existsSync(path.join(process.cwd(), 'hammer.task.ts'))) {
-        return path.join(process.cwd(), 'hammer.task.ts')
-    } else if(fs.existsSync(path.join(process.cwd(), 'hammer.task.js'))) {
-        return path.join(process.cwd(), 'hammer.task.js')
+    if(fs.existsSync(path.join(process.cwd(), 'hammer.ts'))) {
+        return path.join(process.cwd(), 'hammer.ts')
+    } else if(fs.existsSync(path.join(process.cwd(), 'hammer.js'))) {
+        return path.join(process.cwd(), 'hammer.js')
     } else {
-        throw Error(`No hammer tasks file found. Expected either 'hammer.task.ts' or 'hammer.task.js' in current directory.`)
+        throw Error(`No hammer tasks file found. Expected either 'hammer.ts' or 'hammer.js' in current directory.`)
     }
 }
 
