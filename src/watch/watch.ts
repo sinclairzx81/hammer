@@ -43,7 +43,10 @@ export class Watcher {
         for(const sourcePath of sourcePaths) {
             if(this.watchers.has(sourcePath)) continue
             if(!fs.existsSync(sourcePath)) continue
-            const watcher = fs.watch(sourcePath, event => this.onChange(sourcePath))
+            const stat = fs.statSync(sourcePath)
+            const watcher = stat.isDirectory()
+                ? fs.watch(sourcePath, { recursive: true }, event => this.onChange(sourcePath))
+                : fs.watch(sourcePath, event => this.onChange(sourcePath))
             this.watchers.set(sourcePath, watcher)
         }
         this.update(assets)
@@ -59,7 +62,10 @@ export class Watcher {
         for(const sourcePath of assets.map(asset => asset.sourcePath)) {
             if(this.watchers.has(sourcePath)) continue
             if(!fs.existsSync(sourcePath)) continue
-            const watcher = fs.watch(sourcePath, event => this.onChange(sourcePath))
+            const stat = fs.statSync(sourcePath)
+            const watcher = stat.isDirectory()
+                ? fs.watch(sourcePath, { recursive: true }, event => this.onChange(sourcePath))
+                : fs.watch(sourcePath, event => this.onChange(sourcePath))
             this.watchers.set(sourcePath, watcher)
         }
     }
