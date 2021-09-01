@@ -27,26 +27,26 @@ SOFTWARE.
 import { Dispose } from '../dispose'
 import { into }    from '../async/index'
 import { watch }   from '../watch/index'
-import { shell }   from '../shell'
+import { Shell }   from '../shell'
 import * as path   from 'path'
 
 export function run(entryFile: string, args: string[]) {
     const directory = path.dirname(entryFile)
     const watcher   = watch([directory], [])
-    const handles   = [shell(`node ${entryFile} ${args.join(' ')}`)]
+    const shells    = [new Shell(`node ${entryFile} ${args.join(' ')}`)]
     into(async () => {
         for await(const _ of watcher) {
-            const handle = handles.shift()!
-            await handle.dispose()
-            handles.unshift(shell(`node ${entryFile} ${args.join(' ')}`))
+            const shell = shells.shift()!
+            await shell.dispose()
+            shells.unshift(new Shell(`node ${entryFile} ${args.join(' ')}`))
         }
     })
     return {
         dispose: () => {
             watcher.dispose()
-            if(handles.length > 0) {
-                const handle = handles.shift()!
-                handle.dispose()
+            if(shells.length > 0) {
+                const shell = shells.shift()!
+                shell.dispose()
             }
         }
     }

@@ -2,9 +2,10 @@ import { folder_delete } from './supports/supports'
 import * as fs from 'fs'
 import * as util from 'util'
 
-// ------------------------------------------------
+// -------------------------------------------------------
 // node 12
-// ------------------------------------------------
+// -------------------------------------------------------
+
 export const appendFile = util.promisify(fs.appendFile)
 export const access = util.promisify(fs.access)
 export const close = util.promisify(fs.close)

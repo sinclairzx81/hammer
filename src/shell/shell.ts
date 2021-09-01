@@ -25,113 +25,235 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { ChildProcess, spawn, spawnSync, execSync } from 'child_process'
-import { Dispose } from '../dispose'
 
-// --------------------------------------------------------------------------
-//
+// -------------------------------------------------------------------------------
 // Shell
-//
-// Spawns OS processes and returns to the caller a 'disposable' handle.
-// Runs the inner processes via 'sh' or 'cmd' for linux and windows
-// respectively.
-//
-// --------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
 
-// Specialized termination of the linux `sh` process, Looks up the
-// sub process via the 'sh' pid and terminates it before terminating
-// the 'sh' process itself.
-
-function linuxKill(sh: ChildProcess) {
-    const params = ['-o', 'pid', '--no-headers', '--ppid', sh.pid.toString()]
-    const result = spawnSync('ps', params, { encoding: 'utf8' })
-    const pid = parseInt(result.output[1])
-    process.kill(pid, 'SIGTERM')
-    sh.kill()
+export interface IShell {
+    wait():    Promise<number | null>
+    dispose(): void
 }
 
-export class ShellHandle implements Dispose {
+// -------------------------------------------------------------------------------
+// WindowsShell
+// -------------------------------------------------------------------------------
+
+export class WindowsShell implements IShell {
+    private readonly cp: ChildProcess
+    private promise!: Promise<number | null>
+    private resolve!: (value: number | null) => void
     private disposed: boolean
     private exited: boolean
 
-    constructor(private readonly process: ChildProcess) {
-        this.onStart()
-        this.process.on('close', code => this.onClose(code!))
-        this.process.on('exit', () => this.onExit())
+    constructor(private readonly command: string) {
+        this.promise = new Promise(resolve => { this.resolve = resolve })
+        const [cmd, params] = this.parseArguments(this.command)
+        this.cp = spawn(cmd, params, { stdio: 'inherit' })
+        this.cp.on('close', code => this.onClose(code))
+        this.cp.on('exit', code => this.onExit(code))
         this.disposed = false
         this.exited = false
     }
 
-    private printSignal(message: string) {
-        const gray = '\x1b[90m'
-        const esc = '\x1b[0m'
-        const out = `${gray}[${message}]${esc}\n`
-        process.stdout.write(out)
+    // -------------------------------------------------
+    // Methods
+    // -------------------------------------------------
+
+    public wait(): Promise<number | null> {
+        return this.promise
     }
 
-    private onStart(): void {
-        this.printSignal('run')
-    }
-
-    private onData(data: Buffer) {
-        process.stdout.write(data)
-    }
-
-    private onExit() {
-        this.exited = true
-        this.printSignal('end')
-    }
-
-    private onClose(exitcode: number) {
-        this.exited = true
-    }
-
-    private waitForExit() {
-        return new Promise((resolve, reject) => {
-            const wait = () => {
-                if (this.exited) {
-                    return resolve(void 0)
-                }
-                setTimeout(() => wait(), 10)
-            }
-            wait()
-        })
-    }
-
-    public async dispose() {
+    public dispose() {
         if (!this.exited && !this.disposed) {
             this.disposed = true
-            // Attempt to dispose child process. Windows 
-            // sometimes reports that the process does
-            // not exist, potentially indicating that
-            // the process has been terminated out
-            // of band. Run an warn on error.
-            try {
-                if (/^win/.test(process.platform)) {
-                    execSync(`taskkill /pid ${this.process.pid} /T /F`)
-                } else {
-                    linuxKill(this.process)
-                }
-            } catch (error) {
-                console.warn(error.message)
-            }
-
-            // wait for either a 'close' or 'exit' event to 
-            // set 'exited' to true. Used to help prevent 
-            // processoverlap at the caller.
-            await this.waitForExit()
+            this.terminate()
         }
+    }
+
+    // -------------------------------------------------
+    // Events
+    // -------------------------------------------------
+
+    private onExit(code: number | null) {
+        this.resolve(code)
+        this.exited = true
+    }
+
+    private onClose(code: number | null) {
+        this.resolve(code)
+        if (!this.exited) this.terminate()
+    }
+
+    // -------------------------------------------------
+    // Terminate
+    // -------------------------------------------------
+
+    private terminate() {
+        try {
+            execSync(`taskkill /pid ${this.cp.pid} /T /F`)
+        } catch (error) {
+            console.warn(error.message)
+        }
+    }
+
+    // -------------------------------------------------
+    // Parser
+    // -------------------------------------------------
+
+    private parseArguments(command: string): [string, string[]] {
+        const chars = command.split('')
+        const args: string[] = []
+        const temp: string[] = []
+        while (chars.length > 0) {
+            const char = chars.shift()!
+            switch (char) {
+                case '"': {
+                    const result = this.consumeCharsAsString(chars, char)
+                    args.push(result)
+                    break
+                }
+                case "'": {
+                    const result = this.consumeCharsAsString(chars, char)
+                    args.push(result)
+                    break
+                }
+                case ' ': {
+                    const result = this.consumeChars(temp)
+                    if (result.length > 0) args.push(result)
+                    break
+                }
+                default: {
+                    temp.push(char)
+                    break
+                }
+            }
+        }
+        const result = this.consumeChars(temp)
+        if (result.length > 0) args.push(result)
+        return ['cmd', ['/c', ...args]]
+    }
+
+    private consumeChars(chars: string[]): string {
+        const result = chars.join('')
+        while (chars.length > 0) chars.shift()
+        return result
+    }
+
+    private consumeCharsAsString(buffer: string[], close: string): string {
+        const result: string[] = []
+        while (buffer.length > 0) {
+            const char = buffer.shift()!
+            if (char === close) return result.join('')
+            else result.push(char)
+        }
+        return result.join('')
     }
 }
 
-/** Resolves the operating system start command, 'cmd' for windows, 'sh' for linux. */
-export function resolveOsCommand(command: string): [string, [string, string]] {
-    return (/^win/.test(process.platform))
-        ? ['cmd', ['/c', command]]
-        : ['sh', ['-c', command]]
+// -------------------------------------------------------------------------------
+// LinuxShell
+// -------------------------------------------------------------------------------
+
+export class LinuxShell implements IShell {
+    private readonly cp: ChildProcess
+    private promise!: Promise<number | null>
+    private resolve!: (value: number | null) => void
+    private disposed: boolean
+    private exited:   boolean
+
+    constructor(private readonly command: string) {
+        this.promise = new Promise(resolve => { this.resolve = resolve })
+        const [cmd, params] = this.parseArguments(this.command)
+        this.cp = spawn(cmd, params, { stdio: 'inherit' })
+        this.cp.on('close', code => this.onClose(code))
+        this.cp.on('exit', code => this.onExit(code))
+        this.disposed = false
+        this.exited = false
+    }
+
+    // -------------------------------------------------
+    // Methods
+    // -------------------------------------------------
+
+    public wait(): Promise<number | null> {
+        return this.promise
+    }
+
+    public dispose() {
+        if (!this.exited && !this.disposed) {
+            this.disposed = true
+            this.terminate()
+        }
+    }
+
+    // -------------------------------------------------
+    // Events
+    // -------------------------------------------------
+
+    private onExit(code: number | null) {
+        this.resolve(code)
+        this.exited = true
+    }
+
+    private onClose(code: number | null) {
+        this.resolve(code)
+        if (!this.exited)  this.terminate()
+    }
+
+    // -------------------------------------------------
+    // Terminate
+    // -------------------------------------------------
+
+    private terminate() {
+        try {
+            const params = ['-o', 'pid', '--no-headers', '--ppid', this.cp.pid!.toString()]
+            const result = spawnSync('ps', params, { encoding: 'utf8' })
+            const pid = parseInt(result.output[1]!)
+            process.kill(pid, 'SIGTERM')
+            this.cp.kill()
+        } catch (error) {
+            console.warn(error.message)
+        }
+    }
+
+    // -------------------------------------------------
+    // Parser
+    // -------------------------------------------------
+
+    private parseArguments(command: string): [string, string[]] {
+        return ['sh', ['-c', command]]
+    }
 }
 
-/** Executes this shell command and returns a disposable handle. */
-export function shell(command: string): ShellHandle {
-    const [processName, params] = resolveOsCommand(command)
-    return new ShellHandle(spawn(processName, params, { stdio: 'inherit' }))
+// -------------------------------------------------------------------------------
+// Shell
+// -------------------------------------------------------------------------------
+
+export class Shell implements IShell {
+    private readonly shell: IShell
+    constructor(private readonly command: string) {
+        this.shell = /^win/.test(process.platform) ? new WindowsShell(command) : new LinuxShell(command)
+    }
+    public wait(): Promise<number | null> {
+        return this.shell.wait()
+    }
+
+    public dispose(): void {
+        return this.shell.dispose()
+    }
+}
+
+/** 
+ * Executes the given shell command and returns its exitcode. This function will inherit the
+ * stdio interfaces of the the host process. This function will throw if the processes exitcode 
+ * does not equal the expected value. If left undefined, this function will resolve successfully 
+ * irrespective of if the process crashed.
+ */
+export async function shell(command: string, expect?: number): Promise<number | null> {
+    const shell = new Shell(command)
+    const exitcode = await shell.wait()
+    if (expect === undefined) return exitcode
+    if (expect !== exitcode) throw new Error(`The shell command '${command}' exited with code ${exitcode} but expected code ${expect}.`)
+    return exitcode
 }

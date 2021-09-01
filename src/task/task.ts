@@ -26,7 +26,7 @@ SOFTWARE.
 
 import { buildSync } from 'esbuild'
 
-import { file, folder, shell, watch } from './global/index'
+import { file, folder, shell, watch, delay } from './global/index'
 import * as path from 'path'
 import * as vm from 'vm'
 import * as fs from 'fs'
@@ -44,10 +44,10 @@ function build(scriptPath: string): string {
         const result = buildSync({
             entryPoints: [scriptPath],
             platform: 'node',
-            target: 'esnext',
-            bundle: true,
-            write: false,
-            outdir: 'out',
+            target:   'esnext',
+            bundle:   true,
+            write:    false,
+            outdir:   'out',
         })
         const uint8 = result.outputFiles[0].contents
         return Buffer.from(uint8).toString()
@@ -70,6 +70,7 @@ function instance(scriptPath: string, code: string): TaskExports {
         folder,
         shell,
         watch,
+        delay,
         Buffer,
         process,
         console,
