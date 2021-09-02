@@ -165,7 +165,9 @@ Options:
    --platform    platform    The target platform.
    --dist        directory   The target directory.
    --port        port        The port to listen on.
+   --external                Omits external packages.
+   --esm                     Use esm module target.
    --minify                  Minifies the output.
    --sourcemap               Generate sourcemaps.
-   --external                External packages.
+   
 ```

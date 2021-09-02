@@ -56,6 +56,7 @@ export interface BuildOptions {
     sourcePaths: string[]
     target: string[]
     dist: string
+    esm: boolean
     platform: 'browser' | 'node'
     minify: boolean
     sourcemap: boolean
@@ -67,6 +68,7 @@ export interface WatchOptions {
     sourcePaths: string[]
     target: string[]
     dist: string
+    esm: boolean
     platform: 'browser' | 'node'
     minify: boolean
     sourcemap: boolean
@@ -79,6 +81,7 @@ export interface RunOptions {
     entryPath: string
     args: string[]
     dist: string
+    esm: boolean
     target: string[]
     minify: boolean
     sourcemap: boolean
@@ -90,6 +93,7 @@ export interface ServeOptions {
     sourcePaths: string[]
     port: number
     dist: string
+    esm: boolean
     target: string[]
     minify: boolean
     sourcemap: boolean
@@ -135,6 +139,7 @@ function defaultBuildOptions(): BuildOptions {
     return {
         type: 'build',
         dist: path.join(process.cwd(), 'dist'),
+        esm: false,
         minify: false,
         platform: 'browser',
         sourcePaths: [],
@@ -148,6 +153,7 @@ function defaultWatchOptions(): WatchOptions {
     return {
         type: 'watch',
         dist: path.join(process.cwd(), 'dist'),
+        esm: false,
         minify: false,
         platform: 'browser',
         sourcePaths: [],
@@ -162,6 +168,7 @@ function defaultServeOptions(): ServeOptions {
         type: 'serve',
         sourcePaths: [],
         dist: path.join(process.cwd(), 'dist'),
+        esm: false,
         target: ['esnext'],
         port: 5000,
         sourcemap: false,
@@ -177,6 +184,7 @@ function defaultRunOptions(): RunOptions {
         entryPath: path.join(process.cwd(), 'dist', 'index.js'),
         args: [],
         dist: path.join(process.cwd(), 'dist'),
+        esm: false,
         target: ['esnext'],
         sourcemap: false,
         minify: false,
@@ -308,6 +316,7 @@ export function parseBuildOptions(params: string[]): BuildOptions {
             case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
+            case '--esm': options.esm = true; break;
             case '--external': options.external = parseExternal(params); break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
@@ -326,6 +335,7 @@ export function parseWatchOptions(params: string[]): WatchOptions {
             case '--platform': options.platform = parsePlatform(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--dist': options.dist = parseDist(params); break;
+            case '--esm': options.esm = true; break;
             case '--external': options.external = parseExternal(params); break;
             case '--sourcemap': options.sourcemap = true; break;
             case '--minify': options.minify = true; break;
@@ -343,6 +353,7 @@ export function parseRunOptions(params: string[]): RunOptions {
         const next = params.shift()
         switch (next) {
             case '--dist': options.dist = parseDist(params); break;
+            case '--esm': options.esm = true; break;
             case '--external': options.external = parseExternal(params); break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--sourcemap': options.sourcemap = true; break;
@@ -361,6 +372,7 @@ export function parseServeOptions(params: string[]): ServeOptions {
         const next = params.shift()
         switch (next) {
             case '--dist': options.dist = parseDist(params); break;
+            case '--esm': options.esm = true; break;
             case '--external': options.external = parseExternal(params); break;
             case '--minify': options.minify = true; break;
             case '--sourcemap': options.sourcemap = true; break;

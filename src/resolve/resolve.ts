@@ -144,7 +144,7 @@ export class Resolver {
             if (!fs.existsSync(htmlTag.sourcePath)) continue 
 
             // -----------------------------------------------------------------------------------------
-            // Note: ESM modules are only resolved from HTML files. Because the getHtmlTags(...)
+            // Note: ESM modules can be inferred from HTML files. However because the getHtmlTags(...)
             // function resolves agnostically for any tag that contains a 'src' or 'href' attribute,
             // we need to explicitly check that the tag is both a <script> and contains a 'module'
             // type specifier. In these cases, we call to the functions resolveTypeScript(...) and 

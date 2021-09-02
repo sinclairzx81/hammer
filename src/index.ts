@@ -62,6 +62,7 @@ class Hammer implements Dispose {
             sourcemap: options.sourcemap,
             target: options.target,
             external: options.external,
+            esm: options.esm,
             bundle: true,
             watch: false
         })
@@ -86,6 +87,7 @@ class Hammer implements Dispose {
             sourcemap: options.sourcemap,
             target: options.target,
             external: options.external,
+            esm: options.esm,
             bundle: true,
             watch: true
         })
@@ -119,6 +121,7 @@ class Hammer implements Dispose {
             sourcemap: options.sourcemap,
             target: options.target,
             external: options.external,
+            esm: options.esm,
             bundle: true,
             watch: true
         })
@@ -154,6 +157,7 @@ class Hammer implements Dispose {
             sourcemap: options.sourcemap,
             target: options.target,
             external: options.external,
+            esm: options.esm,
             bundle: true,
             watch: true
         })
@@ -234,9 +238,11 @@ class Hammer implements Dispose {
             `   ${blue}--platform${esc}    platform    The target platform.`,
             `   ${blue}--dist${esc}        directory   The target directory.`,
             `   ${blue}--port${esc}        port        The port to listen on.`,
+            `   ${blue}--external${esc}    packages    Omits external packages.`,
+            `   ${blue}--esm${esc}                     Use esm module target.`,
             `   ${blue}--minify${esc}                  Minifies the output.`,
             `   ${blue}--sourcemap${esc}               Generate sourcemaps.`,
-            `   ${blue}--external${esc}    names       External packages.`,
+            
             ``,
         ].join(`\n`))
         if (options.message) {

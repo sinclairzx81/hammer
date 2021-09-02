@@ -39,6 +39,7 @@ export interface BuilderOptions {
     minify:    boolean
     sourcemap: boolean
     watch:     boolean
+    esm:       boolean
 }
 
 export class Build implements Dispose {
@@ -106,9 +107,9 @@ export class Build implements Dispose {
             // esbuild only supports code-splitting for ESM modules.
             // --------------------------------------------------------------------------
 
-            const entry = (asset.type === 'typescript' || asset.type === 'javascript') && asset.esm ? { 
+            const entry = (asset.type === 'typescript' || asset.type === 'javascript') && (this.options.esm || asset.esm) ? { 
                 outdir:    path.dirname(asset.targetPath),
-                format:    'esm' as Format, 
+                format:    'esm' as Format,
                 splitting: true
             } : {
                 outfile: asset.targetPath
