@@ -39,7 +39,7 @@ Done
 
 ## Overview
 
-Hammer is a build tool for browser and node applications. It offers a command line interface to instantly run browser and node applications and provides appropriate `watch` and `reload` workflows for each. It is designed with rapid application development in mind and requires little to no configuration to use.
+Hammer is a command line tool for browser and node application development. It provides a command line interface to trivially run both browser and node applications and offers appropriate `watch` and `reload` workflows for each environment. It is designed with rapid application development in mind and requires little to no configuration to use.
 
 Hammer was written to consolidate several disparate tools related to monitoring node processes (nodemon), building from HTML (parcel), mono repository support (lerna, nx) and project automation (gulp, grunt). It takes `esbuild` as its only dependency and is as much concerned with build performance as it is with dramatically reducing the number of development dependencies required for modern web application development.
 
@@ -47,13 +47,13 @@ License MIT
 
 ## Serve
 
-Use the `serve` command to start a development server that reloads on save.
+Use the `serve` command to start a development server that reloads pages on save.
 
 ```html
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="index.tsx"></script>
+    <script type="module" src="index.tsx"></script>
   </head>
   <body>
     <h1>Hello World</h1>
@@ -66,7 +66,7 @@ $ hammer serve index.html
 
 ## Run
 
-Use the `run` command to start node scripts that reload on save.
+Use the `run` command to start a node process that restarts on save.
 
 ```bash
 $ hammer run index.ts

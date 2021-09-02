@@ -24,12 +24,12 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Asset }                        from '../resolve/index'
-import { Action }                       from '../cache/index'
-import { Dispose }                      from '../dispose'
-import { build, BuildResult, Platform } from 'esbuild'
-import * as path                        from 'path'
-import * as fs                          from 'fs'
+import { Asset, TypeScript, JavaScript, Css }           from '../resolve/index'
+import { build, BuildResult, Loader, Platform, Format } from 'esbuild'
+import { Action }                                       from '../cache/index'
+import { Dispose }                                      from '../dispose'
+import * as path                                        from 'path'
+import * as fs                                          from 'fs'
 
 export interface BuilderOptions {
     platform:  string
@@ -67,7 +67,7 @@ export class Build implements Dispose {
     
     private async onInsert(asset: Asset) {
         if(['typescript', 'javascript', 'css'].includes(asset.type)) {
-            return this.startEsbuild(asset)
+            return this.startEsbuild(asset as TypeScript | JavaScript | Css)
         }
         return this.copyAsset(asset)
     }
@@ -96,25 +96,52 @@ export class Build implements Dispose {
         }
     }
 
-    private async startEsbuild(asset: Asset) {
+    private async startEsbuild(asset: TypeScript | JavaScript | Css) {
         try {
             if(this.handles.has(asset.sourcePath)) return
-            const handle = await build({  
+
+            // --------------------------------------------------------------------------
+            // Note: For ESM modules, we need to use a seperate esbuild configuration
+            // that starts the process with code splitting enabled. As of writing,
+            // esbuild only supports code-splitting for ESM modules.
+            // --------------------------------------------------------------------------
+
+            const entry = (asset.type === 'typescript' || asset.type === 'javascript') && asset.esm ? { 
+                outdir:    path.dirname(asset.targetPath),
+                format:    'esm' as Format, 
+                splitting: true
+            } : {
+                outfile: asset.targetPath
+            }
+
+            // --------------------------------------------------------------------------
+            // Note: These are loaders are for embedded assets imported via script. Hammer
+            // isn't really opinionated here, so additional assets can be added and built
+            // in later revisions of the tool. 
+            // --------------------------------------------------------------------------
+
+            const loaders = {
+                loader: {
+                    '.gif': 'binary', 
+                    '.jpg': 'binary', 
+                    '.png': 'binary', 
+                    '.ttf': 'binary' 
+                } as { [ext: string]: Loader }
+            }
+
+            const handle = await build({
+              ...entry,
+              ...loaders,
               entryPoints: [asset.sourcePath],
               platform:    this.options.platform as Platform,
-              outfile:     asset.targetPath,
               minify:      this.options.minify,
               target:      this.options.target,
               sourcemap:   this.options.sourcemap,
               watch:       this.options.watch,
               external:    this.options.external,
               bundle:      true,
-              loader: { 
-                '.gif': 'binary',
-                '.jpg': 'binary',
-                '.png': 'binary',
-                '.ttf': 'binary'
-              }
+
+
             })
             this.handles.set(asset.sourcePath, handle)
           } catch {}
