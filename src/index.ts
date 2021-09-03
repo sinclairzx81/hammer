@@ -66,7 +66,7 @@ class Hammer implements Dispose {
             bundle: true,
             watch: false
         })
-        const assets = resolve(options.sourcePaths, options.dist)
+        const assets = [...resolve(options.sourcePaths, options.dist)]
         const actions = cache.update(assets)
         await builder.update(actions)
         this.disposables.push(builder)
@@ -91,7 +91,7 @@ class Hammer implements Dispose {
             bundle: true,
             watch: true
         })
-        const assets = resolve(options.sourcePaths, options.dist)
+        const assets = [...resolve(options.sourcePaths, options.dist)]
         const actions = cache.update(assets)
         await builder.update(actions)
         const watcher = watch([...options.sourcePaths, ...assets.map(asset => asset.sourcePath)])
@@ -99,7 +99,7 @@ class Hammer implements Dispose {
         this.disposables.push(builder)
 
         for await (const _ of watcher) {
-            const assets = resolve(options.sourcePaths, options.dist)
+            const assets = [...resolve(options.sourcePaths, options.dist)]
             watcher.add(assets.map(asset => asset.sourcePath))
             const actions = cache.update(assets)
             await builder.update(actions)
@@ -125,7 +125,7 @@ class Hammer implements Dispose {
             bundle: true,
             watch: true
         })
-        const assets = resolve(options.sourcePaths, options.dist)
+        const assets = [...resolve(options.sourcePaths, options.dist)]
         const actions = cache.update(assets)
         await builder.update(actions)
         const watcher = watch([...options.sourcePaths, ...assets.map(asset => asset.sourcePath)])
@@ -135,7 +135,7 @@ class Hammer implements Dispose {
         this.disposables.push(builder)
         this.disposables.push(server)
         for await (const _ of watcher) {
-            const assets = resolve(options.sourcePaths, options.dist)
+            const assets = [...resolve(options.sourcePaths, options.dist)]
             watcher.add(assets.map(asset => asset.sourcePath))
             const actions = cache.update(assets)
             await builder.update(actions)
@@ -161,7 +161,7 @@ class Hammer implements Dispose {
             bundle: true,
             watch: true
         })
-        const assets = resolve([options.sourcePath], options.dist)
+        const assets = [...resolve([options.sourcePath], options.dist)]
         const actions = cache.update(assets)
         await builder.update(actions)
         
@@ -173,7 +173,7 @@ class Hammer implements Dispose {
         this.disposables.push(process)
 
         for await (const _ of watcher) {
-            const assets = resolve([options.sourcePath], options.dist)
+            const assets = [...resolve([options.sourcePath], options.dist)]
             watcher.add(assets.map(asset => asset.sourcePath))
             const actions = cache.update(assets)
             await builder.update(actions)

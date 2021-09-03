@@ -234,16 +234,14 @@ export class Resolver {
         }
     }
 
-    public resolve(sourcePaths: string[], targetDirectory: string): Asset[] {
-        const assets = [] as Asset[]
+    public * resolve(sourcePaths: string[], targetDirectory: string): Generator<Asset> {
         for (const sourcePath of sourcePaths) {
             const basePath = path.dirname(sourcePath)
-            assets.push(...this.resolveAny(sourcePath, basePath, targetDirectory))
+            yield * this.resolveAny(sourcePath, basePath, targetDirectory)
         }
-        return assets
     }
 }
 
-export function resolve(sourcePaths: string[], targetDirectory: string) {
+export function resolve(sourcePaths: string[], targetDirectory: string): Generator<Asset> {
     return new Resolver().resolve(sourcePaths, targetDirectory)
 }
