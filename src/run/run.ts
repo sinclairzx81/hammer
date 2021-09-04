@@ -24,30 +24,44 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Dispose } from '../dispose'
 import { into }    from '../async/index'
 import { watch }   from '../watch/index'
 import { Shell }   from '../shell'
 import * as path   from 'path'
 
+// ----------------------------------------------------------------------
+// Note: Starts the process with terminal logging to indicate when 
+// the process is run as well as when it exits. This function returns 
+// a 'dispose' function which the watcher can use to terminate a 
+// in-flight process.
+// ----------------------------------------------------------------------
+
+function start(command: string): () => Promise<void> {
+    const [gray, esc] = ['\x1b[30m', '\x1b[0m']
+    console.log(`${gray}[run]${esc}`)
+    const s = new Shell(command)
+    const p = s.wait().then(() => console.log(`${gray}[end]${esc}`))
+    return async () => {
+        s.dispose()
+        await p
+    }
+}
+
 export function run(entryFile: string, args: string[]) {
+    const command   = `node ${entryFile} ${args.join(' ')}`
     const directory = path.dirname(entryFile)
     const watcher   = watch([directory])
-    const shells    = [new Shell(`node ${entryFile} ${args.join(' ')}`)]
+    let dispose     = start(command)
     into(async () => {
         for await(const _ of watcher) {
-            const shell = shells.shift()!
-            await shell.dispose()
-            shells.unshift(new Shell(`node ${entryFile} ${args.join(' ')}`))
+            await dispose()
+            dispose = start(command)
         }
     })
     return {
-        dispose: () => {
+        dispose: async () => {
             watcher.dispose()
-            if(shells.length > 0) {
-                const shell = shells.shift()!
-                shell.dispose()
-            }
+            await dispose()
         }
     }
 }
