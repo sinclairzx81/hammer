@@ -30,12 +30,12 @@ import { Shell }   from '../shell'
 
 export function monitor(sourcePaths: string[], args: string[]) {
     const watcher = watch(sourcePaths)
-    const shells = [new Shell(`${args.join(' ')}`)]
+    const shells = [new Shell(`${args.join(' ')}`, 'inherit')]
     into(async () => {
         for await(const _ of watcher) {
             const shell = shells.shift()!
             await shell.dispose()
-            shells.unshift(new Shell(`${args.join(' ')}`))
+            shells.unshift(new Shell(`${args.join(' ')}`, 'inherit'))
         }
     })
     return {

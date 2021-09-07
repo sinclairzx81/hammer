@@ -46,10 +46,10 @@ export class WindowsShell implements IShell {
     private disposed: boolean
     private exited: boolean
 
-    constructor(private readonly command: string) {
+    constructor(private readonly command: string, stdio: 'inherit' | 'ignore') {
         this.promise = new Promise(resolve => { this.resolve = resolve })
         const [cmd, params] = this.parseArguments(this.command)
-        this.cp = spawn(cmd, params, { stdio: 'inherit' })
+        this.cp = spawn(cmd, params, { stdio })
         this.cp.on('close', code => this.onClose(code))
         this.cp.on('exit', code => this.onExit(code))
         this.disposed = false
@@ -93,7 +93,11 @@ export class WindowsShell implements IShell {
         try {
             execSync(`taskkill /pid ${this.cp.pid} /T /F`)
         } catch (error) {
-            console.warn(error.message)
+            if(error instanceof Error) {
+                 console.warn(error.message)
+                 return
+            }
+            console.warn(error)
         }
     }
 
@@ -162,10 +166,10 @@ export class LinuxShell implements IShell {
     private disposed: boolean
     private exited:   boolean
 
-    constructor(private readonly command: string) {
+    constructor(private readonly command: string, stdio: 'inherit' | 'ignore') {
         this.promise = new Promise(resolve => { this.resolve = resolve })
         const [cmd, params] = this.parseArguments(this.command)
-        this.cp = spawn(cmd, params, { stdio: 'inherit' })
+        this.cp = spawn(cmd, params, { stdio })
         this.cp.on('close', code => this.onClose(code))
         this.cp.on('exit', code => this.onExit(code))
         this.disposed = false
@@ -213,7 +217,11 @@ export class LinuxShell implements IShell {
             process.kill(pid, 'SIGTERM')
             this.cp.kill()
         } catch (error) {
-            console.warn(error.message)
+            if(error instanceof Error) {
+                console.warn(error.message)
+                return
+           }
+           console.warn(error)
         }
     }
 
@@ -232,8 +240,8 @@ export class LinuxShell implements IShell {
 
 export class Shell implements IShell {
     private readonly shell: IShell
-    constructor(private readonly command: string) {
-        this.shell = /^win/.test(process.platform) ? new WindowsShell(command) : new LinuxShell(command)
+    constructor(command: string, stdio: 'inherit' | 'ignore') {
+        this.shell = /^win/.test(process.platform) ? new WindowsShell(command, stdio) : new LinuxShell(command, stdio)
     }
     public wait(): Promise<number | null> {
         return this.shell.wait()
@@ -244,14 +252,24 @@ export class Shell implements IShell {
     }
 }
 
+
+export interface ShellOptions {
+    /** Expected Exit Code */
+    expect?: number
+    /** Suppress stdio */
+    stdio?: boolean
+}
+
 /** 
  * Executes the given shell command and returns its exitcode. This function will inherit the
  * stdio interfaces of the the host process. This function will throw if the processes exitcode 
  * does not equal the expected value. If left undefined, this function will resolve successfully 
  * irrespective of if the process crashed.
  */
-export async function shell(command: string, expect?: number): Promise<number | null> {
-    const shell = new Shell(command)
+export async function shell(command: string, options: ShellOptions = {}): Promise<number | null> {
+    const stdio  = (options.stdio !== undefined && options.stdio === false) ? 'ignore' : 'inherit'
+    const expect = (options.expect !== undefined) ? options.expect : 0
+    const shell  = new Shell(command, stdio)
     const exitcode = await shell.wait()
     if (expect === undefined) return exitcode
     if (expect !== exitcode) throw new Error(`The shell command '${command}' exited with code ${exitcode} but expected code ${expect}.`)
