@@ -204,7 +204,11 @@ class Hammer implements Dispose {
             const package_json = JSON.parse(contents)
             return package_json.version
         } catch (error) {
-            console.log(error.message)
+            if(error instanceof Error) {
+                console.log(error.message)
+            } else { 
+                console.log(error) 
+            }
             return 'Unknown'
         }
     }

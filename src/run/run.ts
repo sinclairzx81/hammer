@@ -37,10 +37,10 @@ import * as path   from 'path'
 // ----------------------------------------------------------------------
 
 function start(command: string): () => Promise<void> {
-    const [gray, esc] = ['\x1b[30m', '\x1b[0m']
-    console.log(`${gray}[run]${esc}`)
+    const [blue, esc] = ['\x1b[36m', '\x1b[0m']
+    console.log(`${blue}[run]${esc}`)
     const s = new Shell(command, 'inherit')
-    const p = s.wait().then(() => console.log(`${gray}[end]${esc}`))
+    const p = s.wait().then(() => console.log(`${blue}[end]${esc}`))
     return async () => {
         s.dispose()
         await p
