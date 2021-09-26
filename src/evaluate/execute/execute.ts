@@ -24,37 +24,33 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { file, folder, shell, watch, delay } from './global/index'
-import { evaluate }                          from '../evaluate/index'
-import * as fs                               from 'fs'
+import { CompileResult } from '../compile/index'
+import * as path from 'path'
+import * as vm   from 'vm'
 
-function print(exports: any) {
-    console.log()
-    console.log('The following tasks are available')
-    console.log()
-    const keys = Object.keys(exports).filter(key => typeof exports[key] === 'function')
-    for(const key of keys) { console.log(`  $ hammer task ${key}`) }
-    console.log()
-}
+export type AdditionalGlobals = { [name: string]: any }
 
-async function call(exports: any, name: string, params: any[]) {
-    const task = exports[name]
-    if(task === undefined) return print(exports)
-    await task.apply(null, params)
-}
-
-/** Executes a task in the given scriptPath. */
-export async function task(scriptPath: string, name: string, params: any[]) {
-    if(!fs.existsSync(scriptPath)) {
-        console.log(`Task: Task file 'hammer.mjs' not found.`)
-        process.exit(1)
-    }
-    try {
-        const exports = evaluate(scriptPath, { delay, file, folder, shell, watch })
-        await call(exports, name, params)
-    } catch(error: any) {
-        const message = error.message || error
-        console.log(`Error: [${name}] ${message}`)
-        process.exit(1)
-    }
+/** 
+ * Evaluates a compilation result. The script is evaluated inside a Node 
+ * context as a module. Any exports from the module are returned as a 
+ * result.
+ */
+export function execute(result: CompileResult, additional: AdditionalGlobals): {[key: string]: any } {
+    const exports = {}
+    const context = vm.createContext({
+        ...global,
+        ...additional,
+        require: (module: string) => {
+            try { return require(module) } catch { /** ignore */ }
+            return require(path.join(process.cwd(), module))
+        },
+        __dirname: result.dirname,
+        __filename: path.resolve(result.filename),
+        Buffer,
+        process,
+        console,
+        exports,
+    })
+    vm.runInNewContext(result.code, context)  
+    return exports
 }
