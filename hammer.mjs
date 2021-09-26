@@ -1,5 +1,5 @@
-export async function clean(a, b) {
-    console.log('clean', a, b)
+export async function clean() {
+    console.log('clean')
 }
 
 export async function start() {
