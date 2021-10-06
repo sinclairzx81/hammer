@@ -260,12 +260,12 @@ class Hammer implements Dispose {
         const yellow = '\x1b[33m'
         const esc    = `\x1b[0m`
         switch (this.options.type) {
-            case 'build':   console.log(`${blue}Build${esc}: ${this.options.sourcePaths.join(' ')}`); break
-            case 'watch':   console.log(`${blue}Watch${esc}: ${this.options.sourcePaths.join(' ')}`); break
-            case 'serve':   console.log(`${blue}Serve${esc}: http://localhost:${this.options.port}`); break
-            case 'start':   console.log(`${blue}Start${esc}: ${this.options.entryPath} ${this.options.args.join(' ')}`); break
-            case 'monitor': console.log(`${blue}Monitor${esc}: ${this.options.sourcePaths.join(' ')}`); break
-            case 'task':    console.log(`${blue}Task${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
+            case 'build':   console.log(`${blue}[build]${esc}: ${this.options.sourcePaths.join(' ')}`); break
+            case 'watch':   console.log(`${blue}[watch]${esc}: ${this.options.sourcePaths.join(' ')}`); break
+            case 'serve':   console.log(`${blue}[serve]${esc}: ${this.options.dist} on ${blue}${this.options.port}${esc}`); break
+            case 'start':   console.log(`${blue}[start]${esc}: ${this.options.entryPath} ${this.options.args.join(' ')}`); break
+            case 'monitor': console.log(`${blue}[monitor]${esc}: ${this.options.sourcePaths.join(' ')}`); break
+            case 'task':    console.log(`${blue}[task]${esc}: ${this.options.name} ${this.options.arguments.join(' ')}`); break
         }
         switch (this.options.type) {
             case 'build': await this.build(this.options); break;
