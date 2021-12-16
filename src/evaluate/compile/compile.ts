@@ -41,11 +41,13 @@ export function compile(scriptPath: string): CompileResult {
     const dirname = path.dirname(filename)
     const result = buildSync({
         entryPoints: [scriptPath],
+        external: ['esbuild'],
         platform: 'node',
         target:   'esnext',
         bundle:   true,
         write:    false,
         outdir:   'out',
+        
     })
     const uint8 = result.outputFiles[0].contents
     const code  = Buffer.from(uint8).toString()
