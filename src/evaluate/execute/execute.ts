@@ -36,7 +36,7 @@ export type AdditionalGlobals = { [name: string]: any }
  * result.
  */
 export function execute(result: CompileResult, additional: AdditionalGlobals): {[key: string]: any } {
-    const exports = {}
+    const module = { exports: {} }
     const context = vm.createContext({
         ...global,
         ...additional,
@@ -49,8 +49,9 @@ export function execute(result: CompileResult, additional: AdditionalGlobals): {
         Buffer,
         process,
         console,
-        exports,
+        module: module,
+        exports: module.exports,
     })
     vm.runInNewContext(result.code, context)  
-    return exports
+    return module.exports
 }

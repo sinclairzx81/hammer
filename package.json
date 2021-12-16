@@ -1,6 +1,6 @@
 {
   "name": "@sinclair/hammer",
-  "version": "0.15.8",
+  "version": "0.16.0",
   "description": "Build Tool for Browser and Node Applications",
   "author": "sinclairzx81",
   "keywords": [
@@ -33,6 +33,6 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "esbuild": "^0.12.24"
+    "esbuild": "^0.14.5"
   }
 }
