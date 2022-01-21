@@ -90,6 +90,11 @@ export class Server implements Dispose {
     response.setHeader('Access-Control-Allow-Methods', 'GET')
   }
 
+  private sharedArrayBuffer(request: http.IncomingMessage, response: http.ServerResponse): void {
+    response.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+    response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+  }
+
   private onReload(request: http.IncomingMessage, response: http.ServerResponse) {
     response.setHeader('Content-Type', 'text/javascript')
     response.setHeader('Content-Length', this.script.length)
@@ -117,6 +122,7 @@ export class Server implements Dispose {
 
   private async onRequest(request: http.IncomingMessage, response: http.ServerResponse) {
     this.cors(request, response)
+    this.sharedArrayBuffer(request, response)
     switch (request.url) {
       case '/hammer/reload': return await this.onReload(request, response)
       case '/hammer/signal': return await this.onSignal(request, response)
