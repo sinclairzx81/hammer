@@ -98,6 +98,8 @@ export interface ServeOptions {
     minify: boolean
     sourcemap: boolean
     external: string[]
+    cors: boolean
+    sabs: boolean
 }
 export interface MonitorOptions {
     type: 'monitor'
@@ -173,7 +175,9 @@ function defaultServeOptions(): ServeOptions {
         port: 5000,
         sourcemap: false,
         minify: false,
-        external: []
+        external: [],
+        cors: false,
+        sabs: false
     }
 }
 
@@ -378,6 +382,8 @@ export function parseServeOptions(params: string[]): ServeOptions {
             case '--sourcemap': options.sourcemap = true; break;
             case '--target': options.target = [...parseTarget(params)]; break;
             case '--port': options.port = parsePort(params); break;
+            case '--cors': options.cors = true
+            case '--sabs': options.sabs = true
         }
     }
     return options
@@ -424,7 +430,8 @@ export function parse(args: string[]) {
             default: return defaultHelpOptions(`Unknown command '${command}'`)
         }
     } catch (error) {
-        return defaultHelpOptions(error.message)
+        if(error instanceof Error) return defaultHelpOptions(error.message)
+        else { return defaultHelpOptions(error as string) }
     }
 }
 

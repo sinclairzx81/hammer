@@ -36,6 +36,8 @@ import * as http          from 'http'
 export interface ReloadServerOptions {
   targetDirectory: string
   port: number
+  cors: boolean
+  sabs: boolean
 }
 
 export class Server implements Dispose {
@@ -73,12 +75,12 @@ export class Server implements Dispose {
     });
   })();`)
 
-  constructor(private readonly targetDirectory: string, private readonly port: number) {
+  constructor(private readonly options: ReloadServerOptions) {
     this.clients = new Map<number, http.ServerResponse>()
-    this.watcher = watch([this.targetDirectory])
+    this.watcher = watch([this.options.targetDirectory])
     this.server  = http.createServer((req, res) => this.onRequest(req, res))
     this.interval = setInterval(() => this.keepAlive(), 16000)
-    this.server.listen(this.port)
+    this.server.listen(this.options.port)
     this.keepAlive()
     this.setupWatch()
   }
@@ -117,12 +119,12 @@ export class Server implements Dispose {
   }
 
   private async onStatic(request: http.IncomingMessage, response: http.ServerResponse) {
-    return staticHandler(request, response, this.targetDirectory)
+    return staticHandler(request, response, this.options.targetDirectory)
   }
 
   private async onRequest(request: http.IncomingMessage, response: http.ServerResponse) {
-    this.cors(request, response)
-    this.sharedArrayBuffer(request, response)
+    if(this.options.cors) { this.cors(request, response) }
+    if(this.options.sabs) { this.sharedArrayBuffer(request, response) }
     switch (request.url) {
       case '/hammer/reload': return await this.onReload(request, response)
       case '/hammer/signal': return await this.onSignal(request, response)
@@ -151,6 +153,6 @@ export class Server implements Dispose {
   }
 }
 
-export function serve(targetDirectory: string, port: number): Server {
-  return new Server(targetDirectory, port)
+export function serve(options: ReloadServerOptions): Server {
+  return new Server(options)
 }

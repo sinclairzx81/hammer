@@ -150,12 +150,13 @@ Hammer provides the following command line interface.
 
 ```
 Commands:
-   $ hammer run     <entry script>   <...options>
-   $ hammer build   <file or folder> <...options>
-   $ hammer watch   <file or folder> <...options>
-   $ hammer serve   <file or folder> <...options>
-   $ hammer monitor <file or folder> <shell command>
-   $ hammer task    <task>           <...arguments>
+
+   $ hammer run     <script path>     <...options>
+   $ hammer build   <file or folder>  <...options>
+   $ hammer watch   <file or folder>  <...options>
+   $ hammer serve   <file or folder>  <...options>
+   $ hammer monitor <file or folder>  <shell command>
+   $ hammer task    <name>            <...arguments>
    $ hammer version
    $ hammer help
 
@@ -165,9 +166,10 @@ Options:
    --platform    platform    The target platform.
    --dist        directory   The target directory.
    --port        port        The port to listen on.
-   --external                Omits external packages.
+   --external    packages    Omits external packages.
    --esm                     Use esm module target.
    --minify                  Minifies the output.
    --sourcemap               Generate sourcemaps.
-   
+   --sabs                    (serve) Enable shared array buffer.
+   --cors                    (serve) Enable cors.
 ```

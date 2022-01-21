@@ -129,7 +129,12 @@ class Hammer implements Dispose {
         const actions = cache.update(assets)
         await builder.update(actions)
         const watcher = watch([...options.sourcePaths, ...assets.map(asset => asset.sourcePath)])
-        const server = serve(options.dist, options.port)
+        const server = serve({
+            targetDirectory: options.dist, 
+            port: options.port,
+            cors: options.cors,
+            sabs: options.sabs
+        })
 
         this.disposables.push(watcher)
         this.disposables.push(builder)
@@ -246,6 +251,9 @@ class Hammer implements Dispose {
             `   ${blue}--esm${esc}                     Use esm module target.`,
             `   ${blue}--minify${esc}                  Minifies the output.`,
             `   ${blue}--sourcemap${esc}               Generate sourcemaps.`,
+            `   ${blue}--sabs${esc}                    (serve) Enable shared array buffer.`,
+            `   ${blue}--cors${esc}                    (serve) Enable cors.`,
+            
             
             ``,
         ].join(`\n`))
