@@ -206,8 +206,8 @@ class Hammer implements Dispose {
             const packagePath = path.join(__dirname, 'package.json')
             if (!fs.existsSync(packagePath)) throw Error(`Cannot find package.json at ${packagePath}`)
             const contents = fs.readFileSync(packagePath, 'utf-8')
-            const package_json = JSON.parse(contents)
-            return package_json.version
+            const packageJson = JSON.parse(contents)
+            return packageJson.version
         } catch (error) {
             if(error instanceof Error) {
                 console.log(error.message)
