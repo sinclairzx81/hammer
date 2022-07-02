@@ -4,6 +4,6 @@
         "target": "ESNext",
         "module": "CommonJS",
         "strict": true,
-
+        "newLine": "lf",
     }, "files": ["cli.ts"]
 }
