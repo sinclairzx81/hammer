@@ -25,70 +25,66 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 export type Action<T> = Insert<T> | Update<T> | Delete<T>
-export type Insert<T> = { type: 'insert', value: T }
-export type Update<T> = { type: 'update', value: T }
-export type Delete<T> = { type: 'delete', value: T }
+export type Insert<T> = { type: 'insert'; value: T }
+export type Update<T> = { type: 'update'; value: T }
+export type Delete<T> = { type: 'delete'; value: T }
 
-type CacheOptions<T> = { key: keyof T, timestamp: keyof T }
+type CacheOptions<T> = { key: keyof T; timestamp: keyof T }
 
 export class Cache<T> {
-    private readonly data = new Map<string, T>()
-    constructor(private readonly options: CacheOptions<T>) { }
+  private readonly data = new Map<string, T>()
+  constructor(private readonly options: CacheOptions<T>) {}
 
-    private keyOf(values: T): string {
-        return values[this.options.key] as any as string
-    }
-    
-    private timestampOf(values: T): number {
-        return values[this.options.timestamp] as any as number
-    }
-    
-    private inserts(values: T[]): Insert<T>[] {
-        const actions: Insert<T>[] = []
-        for (const value of values) {
-            const key = this.keyOf(value)
-            if (!this.data.has(key)) {
-                this.data.set(key, value)
-                actions.push({ type: 'insert', value })
-            }
-        }
-        return actions
-    }
+  private keyOf(values: T): string {
+    return values[this.options.key] as any as string
+  }
 
-    private updates(values: T[]): Update<T>[] {
-        const actions: Update<T>[] = []
-        for (const value of values) {
-            const key = this.keyOf(value)
-            if (this.data.has(key)) {
-                const stored = this.data.get(key)!
-                const hash0 = this.timestampOf(stored)
-                const hash1 = this.timestampOf(value)
-                if (hash0 !== hash1) {
-                    this.data.set(key, value)
-                    actions.push({ type: 'update', value })
-                }
-            }
-        }
-        return actions
-    }
+  private timestampOf(values: T): number {
+    return values[this.options.timestamp] as any as number
+  }
 
-    private deletes(values: T[]): Delete<T>[] {
-        const actions: Delete<T>[] = []
-        for (const [key, value] of this.data) {
-            const existing = values.find(value => this.keyOf(value) === key)
-            if (!existing) {
-                this.data.delete(key)
-                actions.push({ type: 'delete', value })
-            }
+  private inserts(values: T[]): Insert<T>[] {
+    const actions: Insert<T>[] = []
+    for (const value of values) {
+      const key = this.keyOf(value)
+      if (!this.data.has(key)) {
+        this.data.set(key, value)
+        actions.push({ type: 'insert', value })
+      }
+    }
+    return actions
+  }
+
+  private updates(values: T[]): Update<T>[] {
+    const actions: Update<T>[] = []
+    for (const value of values) {
+      const key = this.keyOf(value)
+      if (this.data.has(key)) {
+        const stored = this.data.get(key)!
+        const hash0 = this.timestampOf(stored)
+        const hash1 = this.timestampOf(value)
+        if (hash0 !== hash1) {
+          this.data.set(key, value)
+          actions.push({ type: 'update', value })
         }
-        return actions
+      }
     }
-    
-    public update(values: T[]): Action<T>[] {
-        return [
-            ...this.deletes(values),
-            ...this.inserts(values),
-            ...this.updates(values),
-        ]
+    return actions
+  }
+
+  private deletes(values: T[]): Delete<T>[] {
+    const actions: Delete<T>[] = []
+    for (const [key, value] of this.data) {
+      const existing = values.find((value) => this.keyOf(value) === key)
+      if (!existing) {
+        this.data.delete(key)
+        actions.push({ type: 'delete', value })
+      }
     }
+    return actions
+  }
+
+  public update(values: T[]): Action<T>[] {
+    return [...this.deletes(values), ...this.inserts(values), ...this.updates(values)]
+  }
 }

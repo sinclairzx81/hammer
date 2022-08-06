@@ -26,32 +26,36 @@ SOFTWARE.
 
 import { CompileResult } from '../compile/index'
 import * as path from 'path'
-import * as vm   from 'vm'
+import * as vm from 'vm'
 
 export type AdditionalGlobals = { [name: string]: any }
 
-/** 
- * Evaluates a compilation result. The script is evaluated inside a Node 
- * context as a module. Any exports from the module are returned as a 
+/**
+ * Evaluates a compilation result. The script is evaluated inside a Node
+ * context as a module. Any exports from the module are returned as a
  * result.
  */
-export function execute(result: CompileResult, additional: AdditionalGlobals): {[key: string]: any } {
-    const module = { exports: {} }
-    const context = vm.createContext({
-        ...global,
-        ...additional,
-        require: (module: string) => {
-            try { return require(module) } catch { /** ignore */ }
-            return require(path.join(process.cwd(), module))
-        },
-        __dirname: result.dirname,
-        __filename: path.resolve(result.filename),
-        Buffer,
-        process,
-        console,
-        module: module,
-        exports: module.exports,
-    })
-    vm.runInNewContext(result.code, context)  
-    return module.exports
+export function execute(result: CompileResult, additional: AdditionalGlobals): { [key: string]: any } {
+  const module = { exports: {} }
+  const context = vm.createContext({
+    ...global,
+    ...additional,
+    require: (module: string) => {
+      try {
+        return require(module)
+      } catch {
+        /** ignore */
+      }
+      return require(path.join(process.cwd(), module))
+    },
+    __dirname: result.dirname,
+    __filename: path.resolve(result.filename),
+    Buffer,
+    process,
+    console,
+    module: module,
+    exports: module.exports,
+  })
+  vm.runInNewContext(result.code, context)
+  return module.exports
 }

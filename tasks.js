@@ -1,7 +1,23 @@
+// -------------------------------------------------------------------------------
+// Clean
+// -------------------------------------------------------------------------------
+
 export async function clean() {
     await folder('target').delete().exec()
     await folder('dist').delete().exec()
 }
+
+// -------------------------------------------------------------------------------
+// Format
+// -------------------------------------------------------------------------------
+
+export async function format() {
+    await shell('prettier --no-semi --single-quote --print-width 240 --trailing-comma all --write src website').exec()
+}
+
+// -------------------------------------------------------------------------------
+// Start
+// -------------------------------------------------------------------------------
 
 export async function start(target = 'target/watch') {
     const options = 'serve website/index.html --dist target/website --serve 5000'
@@ -11,6 +27,10 @@ export async function start(target = 'target/watch') {
         shell(`smoke-run ${target} -x node ${target}/cli.js ${options}`).exec(),
     ])
 }
+
+// -------------------------------------------------------------------------------
+// Build
+// -------------------------------------------------------------------------------
 
 export async function build(target = 'target/build') {
     await folder(`${target}`).delete().exec()
@@ -23,8 +43,20 @@ export async function build(target = 'target/build') {
     await shell(`cd ${target} && npm pack`).exec()
 }
 
+// -------------------------------------------------------------------------------
+// Install (requires Administrator)
+// -------------------------------------------------------------------------------
+
 export async function install_cli(target = 'target/build') {
     await build()
-    const package = JSON.parse(await file('./package.json').read('utf-8'))
-    await shell(`cd ${target} && npm install sinclair-hammer-${package['version']}.tgz -g`).exec()
+    const packageJson = JSON.parse(await file('./package.json').read('utf-8'))
+    await shell(`cd ${target} && npm install sinclair-hammer-${packageJson['version']}.tgz -g`).exec()
+}
+
+// -------------------------------------------------------------------------------
+// Publish
+// -------------------------------------------------------------------------------
+
+export async function publish(opt, target) {
+
 }

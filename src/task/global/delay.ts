@@ -25,4 +25,4 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 /** Returns a promise that resolves after the given number of milliseconds. */
-export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

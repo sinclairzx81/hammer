@@ -1,11 +1,11 @@
-body { 
-    background: #333; 
-    color: #AAA; 
-    font-family: monospace; 
+body {
+  background: #333;
+  color: #aaa;
+  font-family: monospace;
 }
 a {
-    color: #AAA;
+  color: #aaa;
 }
 a:visited {
-    color: #AAA;
+  color: #aaa;
 }

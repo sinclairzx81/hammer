@@ -24,4 +24,6 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-export function into(func: Function) { return func() }
+export function into(func: Function) {
+  return func()
+}

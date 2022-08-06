@@ -25,31 +25,30 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { buildSync } from 'esbuild'
-import * as fs       from 'fs'
-import * as path     from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
 
 export interface CompileResult {
-    filename: string
-    dirname:  string
-    code:     string    
+  filename: string
+  dirname: string
+  code: string
 }
 
 /** Compiles the given code into single executable script. */
 export function compile(scriptPath: string): CompileResult {
-    const filename = path.resolve(scriptPath)
-    if(!fs.existsSync(filename)) throw Error(`Cannot locate scriptPath ${scriptPath}`)
-    const dirname = path.dirname(filename)
-    const result = buildSync({
-        entryPoints: [scriptPath],
-        external: ['esbuild'],
-        platform: 'node',
-        target:   'esnext',
-        bundle:   true,
-        write:    false,
-        outdir:   'out',
-        
-    })
-    const uint8 = result.outputFiles[0].contents
-    const code  = Buffer.from(uint8).toString()
-    return { filename, dirname, code }
+  const filename = path.resolve(scriptPath)
+  if (!fs.existsSync(filename)) throw Error(`Cannot locate scriptPath ${scriptPath}`)
+  const dirname = path.dirname(filename)
+  const result = buildSync({
+    entryPoints: [scriptPath],
+    external: ['esbuild'],
+    platform: 'node',
+    target: 'esnext',
+    bundle: true,
+    write: false,
+    outdir: 'out',
+  })
+  const uint8 = result.outputFiles[0].contents
+  const code = Buffer.from(uint8).toString()
+  return { filename, dirname, code }
 }

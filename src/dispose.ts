@@ -25,5 +25,5 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 export interface Dispose {
-    dispose(): void
+  dispose(): void
 }

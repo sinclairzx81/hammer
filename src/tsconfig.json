@@ -1,9 +1,10 @@
 {
-    "compilerOptions": {
-        "moduleResolution": "node",
-        "target": "ESNext",
-        "module": "CommonJS",
-        "strict": true,
-        "newLine": "lf",
-    }, "files": ["cli.ts"]
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": true,
+    "newLine": "lf"
+  },
+  "files": ["cli.ts"]
 }
