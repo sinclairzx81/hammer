@@ -166,7 +166,9 @@ class Hammer implements Dispose {
             bundle: true,
             watch: true
         })
+        
         const assets = [...resolve([options.sourcePath], options.dist)]
+        console.log(assets)
         const actions = cache.update(assets)
         await builder.update(actions)
         

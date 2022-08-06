@@ -106,11 +106,12 @@ export class Build implements Dispose {
             // that starts the process with code splitting enabled. As of writing,
             // esbuild only supports code-splitting for ESM modules.
             // --------------------------------------------------------------------------
-
+            
             const entry = (asset.type === 'typescript' || asset.type === 'javascript') && (this.options.esm || asset.esm) ? { 
                 outdir:    path.dirname(asset.targetPath),
                 format:    'esm' as Format,
-                splitting: true
+                splitting: true,
+                outExtension: { '.js': '.mjs' },
             } : {
                 outfile: asset.targetPath
             }
@@ -141,8 +142,6 @@ export class Build implements Dispose {
               watch:       this.options.watch,
               external:    this.options.external,
               bundle:      true,
-
-
             })
             this.handles.set(asset.sourcePath, handle)
           } catch {}

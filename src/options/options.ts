@@ -261,7 +261,8 @@ function parseSourcePathAndArguments(params: string[]): [sourcePath: string, arg
     const partialPath = split.shift()!
     const entryPath = path.join(process.cwd(), partialPath)
     const extname = path.extname(entryPath)
-    if(!['.ts', '.tsx', '.js'].includes(extname)) throw new OptionsError('run', `Entry path not a TypeScript or JavaScript file. Got '${entryPath}'`)
+    const allowed = ['.ts', '.mts', '.tsx', 'mtsx', '.js', '.mjs', '.jsx', '.mjsx']
+    if(!allowed.includes(extname)) throw new OptionsError('run', `Entry path not a TypeScript or JavaScript file. Got '${entryPath}'`)
     if(!fs.existsSync(entryPath)) throw new OptionsError('run', `Entry path '${entryPath}' does not exist.`)
     return [entryPath, split]
 }
@@ -348,6 +349,19 @@ export function parseWatchOptions(params: string[]): WatchOptions {
     return options
 }
 
+export function resolveEntryPath(distPath: string, sourcePath: string) {
+    const extension = path.extname(sourcePath)
+    switch(extension) {
+        case '.mts': return path.join(distPath, [path.basename(sourcePath, extension), '.mjs'].join(''))
+        case '.mjs': return path.join(distPath, [path.basename(sourcePath, extension), '.mjs'].join(''))
+        case '.cts': return path.join(distPath, [path.basename(sourcePath, extension), '.js'].join(''))
+        case '.tsx': return path.join(distPath, [path.basename(sourcePath, extension), '.js'].join(''))
+        case '.ts': return path.join(distPath, [path.basename(sourcePath, extension), '.js'].join(''))
+        case '.js': return path.join(distPath, [path.basename(sourcePath, extension), '.js'].join(''))
+        default: throw Error(`Options: Unable to resolve entry path. Unknown extension '${extension}'`)
+    }
+}
+
 export function parseRunOptions(params: string[]): RunOptions {
     const options = defaultRunOptions()
     const [sourcePath, args] = parseSourcePathAndArguments(params)
@@ -364,8 +378,7 @@ export function parseRunOptions(params: string[]): RunOptions {
             case '--minify': options.minify = true; break;
         }
     }
-    const extension = path.extname(options.sourcePath)
-    options.entryPath = path.join(options.dist, [path.basename(options.sourcePath, extension), '.js'].join('')) 
+    options.entryPath = resolveEntryPath(options.dist, options.sourcePath)
     return options
 }
 

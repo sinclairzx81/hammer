@@ -25,15 +25,15 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import * as path from 'path'
-import * as fs   from 'fs'
+import * as fs from 'fs'
 
-export type AssetType  = 'html' | 'typescript' | 'javascript' | 'css' | 'file'
-export type Asset      = Html | JavaScript | TypeScript | Css | File
-export type Html       = { type: 'html',       timestamp: number, sourcePath: string, targetPath: string, content: string }
+export type AssetType = 'html' | 'typescript' | 'javascript' | 'css' | 'file'
+export type Asset = Html | JavaScript | TypeScript | Css | File
+export type Html = { type: 'html', timestamp: number, sourcePath: string, targetPath: string, content: string }
 export type JavaScript = { type: 'javascript', timestamp: number, sourcePath: string, targetPath: string, esm: boolean }
 export type TypeScript = { type: 'typescript', timestamp: number, sourcePath: string, targetPath: string, esm: boolean }
-export type Css        = { type: 'css',        timestamp: number, sourcePath: string, targetPath: string }
-export type File       = { type: 'file',       timestamp: number, sourcePath: string, targetPath: string }
+export type Css = { type: 'css', timestamp: number, sourcePath: string, targetPath: string }
+export type File = { type: 'file', timestamp: number, sourcePath: string, targetPath: string }
 
 export class Resolver {
 
@@ -52,8 +52,8 @@ export class Resolver {
         if (stat.isDirectory()) return 'directory'
         if (stat.isFile()) {
             const extension = path.extname(sourcePath)
-            if (extension === '.ts' || extension === '.tsx') return 'typescript'
-            if (extension === '.js' || extension === '.jsx') return 'javascript'
+            if (extension === '.ts' || extension === '.tsx' || extension === '.mts' || extension === '.mtsx') return 'typescript'
+            if (extension === '.js' || extension === '.jsx' || extension === '.mjs' || extension === '.mjsx') return 'javascript'
             if (extension === '.css') return 'css'
             if (extension === '.html') return 'html'
             return 'file'
@@ -65,6 +65,31 @@ export class Resolver {
     // Pathing
     // -------------------------------------------------------------------------------------
 
+    private esmExtension(sourcePath: string, esm: boolean): boolean {
+        const extname = path.extname(sourcePath)
+        switch (extname) {
+            case '.mts': return true
+            case '.mjs': return true
+            case '.cts': return esm
+            case '.tsx': return esm
+            case '.ts': return esm
+            case '.js': return esm
+            default: throw Error(`Resolve: Unable to resolve esm extension type for '${extname}'`)
+        }
+    }
+
+    private mappedExtension(sourcePath: string): string {
+        const extname = path.extname(sourcePath)
+        switch (extname) {
+            case '.mts': return '.mjs'
+            case '.mjs': return '.mjs'
+            case '.cts': return '.js'
+            case '.tsx': return '.js'
+            case '.ts': return '.js'
+            case '.js': return '.js'
+            default: throw Error(`Resolve: Unable to resolve mapped extension for '${extname}'`)
+        }
+    }
     private changeExtension(sourcePath: string, ext: string): string {
         const extension = path.extname(sourcePath)
         const filename = path.basename(sourcePath, extension)
@@ -98,15 +123,15 @@ export class Resolver {
 
     private * resolveDirectory(sourcePath: string, basePath: string, targetDirectory: string): Generator<Asset> {
         for (const partialPath of fs.readdirSync(sourcePath)) {
-            yield * this.resolveAny(path.join(sourcePath, partialPath), basePath, targetDirectory)
+            yield* this.resolveAny(path.join(sourcePath, partialPath), basePath, targetDirectory)
         }
     }
 
     // -------------------------------------------------------------------------------------
     // Html
     // -------------------------------------------------------------------------------------
-    
-    private * getHtmlTags(content: string, basePath: string, targetDirectory: string): Generator<{sourceContent: string, sourcePath: string, targetPath: string}> {
+
+    private * getHtmlTags(content: string, basePath: string, targetDirectory: string): Generator<{ sourceContent: string, sourcePath: string, targetPath: string }> {
         const regex = /<.*(src|href)\s*=\s*['"]([a-zA-Z0-9\._-]*)['"].*>/gi
         while (true) {
             const match = regex.exec(content)
@@ -118,13 +143,13 @@ export class Resolver {
         }
     }
 
-    private getHtmlContent(content: string, tags: Array<{sourceContent: string, sourcePath: string, targetPath: string}>): string {
+    private getHtmlContent(content: string, tags: Array<{ sourceContent: string, sourcePath: string, targetPath: string }>): string {
         return tags.reduce((html, tag) => {
-            const extension  = path.extname(tag.sourcePath)
-            const filename   = path.basename(tag.sourcePath, extension)
+            const extension = path.extname(tag.sourcePath)
+            const filename = path.basename(tag.sourcePath, extension)
             const sourceName = `${filename}${extension}`
             const targetName = (extension === '.tsx' || extension === '.ts') ? `${filename}.js` : `${filename}${extension}`
-            const targetTag  = tag.sourceContent.replace(sourceName, targetName)
+            const targetTag = tag.sourceContent.replace(sourceName, targetName)
             return html.replace(tag.sourceContent, targetTag)
         }, content)
     }
@@ -133,7 +158,7 @@ export class Resolver {
         const content = fs.readFileSync(sourcePath, 'utf-8')
         const sourceDirectory = this.getSourceDirectory(sourcePath)
         const htmlTags = [...this.getHtmlTags(content, sourceDirectory, targetDirectory)]
-        for(const htmlTag of htmlTags) {
+        for (const htmlTag of htmlTags) {
 
             // -----------------------------------------------------------------------------------------
             // Note: Hammer will ignore any path it can't resolve that are referenced from the html
@@ -141,7 +166,7 @@ export class Resolver {
             // asset. Can consider emitting a warning to the user in later revisions.
             // -----------------------------------------------------------------------------------------
 
-            if (!fs.existsSync(htmlTag.sourcePath)) continue 
+            if (!fs.existsSync(htmlTag.sourcePath)) continue
 
             // -----------------------------------------------------------------------------------------
             // Note: ESM modules can be inferred from HTML files. However because the getHtmlTags(...)
@@ -153,16 +178,16 @@ export class Resolver {
 
             const match = /<script.*type\s*=\s*['"]module['"].*>/gi.exec(htmlTag.sourceContent)
             const type = this.getSourcePathType(htmlTag.sourcePath)
-            if (match && type === 'typescript') yield * this.resolveTypeScript(htmlTag.sourcePath, sourceDirectory, targetDirectory, true)
-            else if(match && type === 'javascript') yield * this.resolveJavaScript(htmlTag.sourcePath, sourceDirectory, targetDirectory, true)
-            else yield * this.resolveAny(htmlTag.sourcePath, basePath, targetDirectory)
+            if (match && type === 'typescript') yield* this.resolveTypeScript(htmlTag.sourcePath, sourceDirectory, targetDirectory, true)
+            else if (match && type === 'javascript') yield* this.resolveJavaScript(htmlTag.sourcePath, sourceDirectory, targetDirectory, true)
+            else yield* this.resolveAny(htmlTag.sourcePath, basePath, targetDirectory)
         }
         yield {
             type: 'html',
-            timestamp:  this.getTimestamp(sourcePath),
+            timestamp: this.getTimestamp(sourcePath),
             sourcePath: this.getSourcePathFromAbsolute(sourcePath),
             targetPath: this.getTargetPathFromAbsolute(sourcePath, basePath, targetDirectory),
-            content:    this.getHtmlContent(content, htmlTags)
+            content: this.getHtmlContent(content, htmlTags)
         }
     }
 
@@ -183,8 +208,9 @@ export class Resolver {
     private * resolveTypeScript(sourcePath: string, basePath: string, targetDirectory: string, esm: boolean): Generator<Asset> {
         const outputPath = this.getTargetPathFromAbsolute(sourcePath, basePath, targetDirectory)
         const timestamp = this.getTimestamp(sourcePath)
-        const targetPath = this.changeExtension(outputPath, '.js')
-        yield { type: 'typescript', timestamp, sourcePath, targetPath, esm }
+        const extension = this.mappedExtension(sourcePath)
+        const targetPath = this.changeExtension(outputPath, extension)
+        yield { type: 'typescript', timestamp, sourcePath, targetPath, esm: this.esmExtension(sourcePath, esm) }
     }
 
     // -------------------------------------------------------------------------------------
@@ -194,7 +220,7 @@ export class Resolver {
     private * resolveJavaScript(sourcePath: string, basePath: string, targetDirectory: string, esm: boolean): Generator<Asset> {
         const targetPath = this.getTargetPathFromAbsolute(sourcePath, basePath, targetDirectory)
         const timestamp = this.getTimestamp(sourcePath)
-        yield { type: 'javascript', timestamp, sourcePath, targetPath, esm }
+        yield { type: 'javascript', timestamp, sourcePath, targetPath, esm: this.esmExtension(sourcePath, esm) }
     }
 
     // -------------------------------------------------------------------------------------
@@ -217,7 +243,7 @@ export class Resolver {
 
 
     private * resolveAny(sourcePath: string, basePath: string, targetDirectory: string): Generator<Asset> {
-        if(this.sourcePaths.has(sourcePath)) return
+        if (this.sourcePaths.has(sourcePath)) return
         this.sourcePaths.add(sourcePath)
 
         if (!fs.existsSync(sourcePath)) return
@@ -237,7 +263,7 @@ export class Resolver {
     public * resolve(sourcePaths: string[], targetDirectory: string): Generator<Asset> {
         for (const sourcePath of sourcePaths) {
             const basePath = path.dirname(sourcePath)
-            yield * this.resolveAny(sourcePath, basePath, targetDirectory)
+            yield* this.resolveAny(sourcePath, basePath, targetDirectory)
         }
     }
 }
