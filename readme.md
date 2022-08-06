@@ -73,7 +73,7 @@ $ hammer run index.ts
 
 $ hammer run "index.ts arg1 arg2" # use quotes to pass arguments
 
-$ hammer run index.mts            # node esm modules supported via mts
+$ hammer run index.mts            # node esm modules supported via .mts
 ```
 
 ## Watch
