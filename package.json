@@ -9,7 +9,8 @@
     "html",
     "node",
     "watch",
-    "tasks"
+    "tasks",
+    "esm"
   ],
   "license": "MIT",
   "repository": {

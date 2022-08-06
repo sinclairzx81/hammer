@@ -44,7 +44,7 @@ export async function build(target = 'target/build') {
 }
 
 // -------------------------------------------------------------------------------
-// Install (requires Administrator)
+// Install (may require administrator)
 // -------------------------------------------------------------------------------
 
 export async function install_cli(target = 'target/build') {

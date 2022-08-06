@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright (c) Hammer 2021 Haydn Paterson (sinclair) <haydn.developer@gmail.com>
+Copyright (c) Hammer 2022 Haydn Paterson (sinclair) <haydn.developer@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

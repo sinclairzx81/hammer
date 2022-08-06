@@ -2,7 +2,7 @@
 
 MIT License
 
-Copyright (c) Hammer 2021 Haydn Paterson (sinclair) <haydn.developer@gmail.com>
+Copyright (c) Hammer 2022 Haydn Paterson (sinclair) <haydn.developer@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -82,6 +82,7 @@ class Hammer implements Dispose {
       key: 'sourcePath',
       timestamp: 'timestamp',
     })
+
     const builder = new Build({
       platform: 'browser',
       minify: options.minify,
@@ -93,6 +94,7 @@ class Hammer implements Dispose {
       bundle: true,
       watch: true,
     })
+
     const assets = [...resolve(options.sourcePaths, options.dist)]
     const actions = cache.update(assets)
     await builder.update(actions)
@@ -117,6 +119,7 @@ class Hammer implements Dispose {
       key: 'sourcePath',
       timestamp: 'timestamp',
     })
+
     const builder = new Build({
       platform: 'browser',
       minify: options.minify,
@@ -128,6 +131,7 @@ class Hammer implements Dispose {
       bundle: true,
       watch: true,
     })
+
     const assets = [...resolve(options.sourcePaths, options.dist)]
     const actions = cache.update(assets)
     await builder.update(actions)
