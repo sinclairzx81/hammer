@@ -159,8 +159,11 @@ export async function staticHandler(request: IncomingMessage, response: ServerRe
   }
   const info = fileInfo(filePath)
   switch (info.type) {
-    case 'file': return fileHandler(request, response, info)
-    case 'html': return htmlHandler(request, response, info)
-    default: return notFoundHandler(request, response)
+    case 'file':
+      return fileHandler(request, response, info)
+    case 'html':
+      return htmlHandler(request, response, info)
+    default:
+      return notFoundHandler(request, response)
   }
 }

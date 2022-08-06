@@ -24,10 +24,10 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { Dispose }        from '../dispose'
+import { Dispose } from '../dispose'
 import { watch, Watcher } from '../watch/index'
-import { staticHandler }  from './static'
-import * as http          from 'http'
+import { staticHandler } from './static'
+import * as http from 'http'
 
 // --------------------------------------------------------------------------
 // Server
@@ -41,9 +41,9 @@ export interface ReloadServerOptions {
 }
 
 export class Server implements Dispose {
-  private readonly clients:  Map<number, http.ServerResponse>
-  private readonly server:   http.Server
-  private readonly watcher:  Watcher
+  private readonly clients: Map<number, http.ServerResponse>
+  private readonly server: http.Server
+  private readonly watcher: Watcher
   private readonly interval: NodeJS.Timeout
   private readonly script = Buffer.from(`(function () {
     function connect(endpoint, func) {
@@ -78,7 +78,7 @@ export class Server implements Dispose {
   constructor(private readonly options: ReloadServerOptions) {
     this.clients = new Map<number, http.ServerResponse>()
     this.watcher = watch([this.options.targetDirectory])
-    this.server  = http.createServer((req, res) => this.onRequest(req, res))
+    this.server = http.createServer((req, res) => this.onRequest(req, res))
     this.interval = setInterval(() => this.keepAlive(), 16000)
     this.server.listen(this.options.port)
     this.keepAlive()
@@ -123,12 +123,19 @@ export class Server implements Dispose {
   }
 
   private async onRequest(request: http.IncomingMessage, response: http.ServerResponse) {
-    if(this.options.cors) { this.cors(request, response) }
-    if(this.options.sabs) { this.sharedArrayBuffer(request, response) }
+    if (this.options.cors) {
+      this.cors(request, response)
+    }
+    if (this.options.sabs) {
+      this.sharedArrayBuffer(request, response)
+    }
     switch (request.url) {
-      case '/hammer/reload': return await this.onReload(request, response)
-      case '/hammer/signal': return await this.onSignal(request, response)
-      default: return await this.onStatic(request, response)
+      case '/hammer/reload':
+        return await this.onReload(request, response)
+      case '/hammer/signal':
+        return await this.onSignal(request, response)
+      default:
+        return await this.onStatic(request, response)
     }
   }
 
@@ -139,17 +146,17 @@ export class Server implements Dispose {
   }
 
   private async setupWatch() {
-      for await (const _ of this.watcher) {
-        for(const client of this.clients.values()) {
-          client.write('reload')
-        }
+    for await (const _ of this.watcher) {
+      for (const client of this.clients.values()) {
+        client.write('reload')
       }
+    }
   }
 
   private keepAlive() {
-      for (const key of this.clients.keys()) {
-        this.clients.get(key)!.write('ping')
-      }
+    for (const key of this.clients.keys()) {
+      this.clients.get(key)!.write('ping')
+    }
   }
 }
 

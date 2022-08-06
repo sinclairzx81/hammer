@@ -25,10 +25,10 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { execute, AdditionalGlobals } from './execute/index'
-import { compile }                    from './compile/index'
+import { compile } from './compile/index'
 
 /** Executes the given script in memory, and returns it's exports. */
 export function evaluate(scriptPath: string, additional: AdditionalGlobals = {}) {
-    const result = compile(scriptPath)
-    return execute(result, additional)
+  const result = compile(scriptPath)
+  return execute(result, additional)
 }

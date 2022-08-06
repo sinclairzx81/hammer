@@ -24,44 +24,44 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { into }    from '../async/index'
-import { watch }   from '../watch/index'
-import { Shell }   from '../shell'
-import * as path   from 'path'
+import { into } from '../async/index'
+import { watch } from '../watch/index'
+import { Shell } from '../shell'
+import * as path from 'path'
 
 // ----------------------------------------------------------------------
-// Note: Starts the process with terminal logging to indicate when 
-// the process is run as well as when it exits. This function returns 
-// a 'dispose' function which the watcher can use to terminate a 
+// Note: Starts the process with terminal logging to indicate when
+// the process is run as well as when it exits. This function returns
+// a 'dispose' function which the watcher can use to terminate a
 // in-flight process.
 // ----------------------------------------------------------------------
 
 function start(command: string): () => Promise<void> {
-    const [blue, esc] = ['\x1b[36m', '\x1b[0m']
-    console.log(`${blue}[run]${esc}`)
-    const s = new Shell(command, 'inherit')
-    const p = s.wait().then(() => console.log(`${blue}[end]${esc}`))
-    return async () => {
-        s.dispose()
-        await p
-    }
+  const [blue, esc] = ['\x1b[36m', '\x1b[0m']
+  console.log(`${blue}[run]${esc}`)
+  const s = new Shell(command, 'inherit')
+  const p = s.wait().then(() => console.log(`${blue}[end]${esc}`))
+  return async () => {
+    s.dispose()
+    await p
+  }
 }
 
 export function run(entryFile: string, args: string[]) {
-    const command   = `node ${entryFile} ${args.join(' ')}`
-    const directory = path.dirname(entryFile)
-    const watcher   = watch([directory])
-    let dispose     = start(command)
-    into(async () => {
-        for await(const _ of watcher) {
-            await dispose()
-            dispose = start(command)
-        }
-    })
-    return {
-        dispose: async () => {
-            watcher.dispose()
-            await dispose()
-        }
+  const command = `node ${entryFile} ${args.join(' ')}`
+  const directory = path.dirname(entryFile)
+  const watcher = watch([directory])
+  let dispose = start(command)
+  into(async () => {
+    for await (const _ of watcher) {
+      await dispose()
+      dispose = start(command)
     }
+  })
+  return {
+    dispose: async () => {
+      watcher.dispose()
+      await dispose()
+    },
+  }
 }

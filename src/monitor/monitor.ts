@@ -24,27 +24,27 @@ SOFTWARE.
 
 ---------------------------------------------------------------------------*/
 
-import { into }    from '../async/index'
-import { watch }   from '../watch/index'
-import { Shell }   from '../shell'
+import { into } from '../async/index'
+import { watch } from '../watch/index'
+import { Shell } from '../shell'
 
 export function monitor(sourcePaths: string[], args: string[]) {
-    const watcher = watch(sourcePaths)
-    const shells = [new Shell(`${args.join(' ')}`, 'inherit')]
-    into(async () => {
-        for await(const _ of watcher) {
-            const shell = shells.shift()!
-            await shell.dispose()
-            shells.unshift(new Shell(`${args.join(' ')}`, 'inherit'))
-        }
-    })
-    return {
-        dispose: () => {
-            watcher.dispose()
-            if(shells.length > 0) {
-                const shell = shells.shift()!
-                shell.dispose()
-            }
-        }
+  const watcher = watch(sourcePaths)
+  const shells = [new Shell(`${args.join(' ')}`, 'inherit')]
+  into(async () => {
+    for await (const _ of watcher) {
+      const shell = shells.shift()!
+      await shell.dispose()
+      shells.unshift(new Shell(`${args.join(' ')}`, 'inherit'))
     }
+  })
+  return {
+    dispose: () => {
+      watcher.dispose()
+      if (shells.length > 0) {
+        const shell = shells.shift()!
+        shell.dispose()
+      }
+    },
+  }
 }

@@ -28,9 +28,9 @@ export const writeFile = util.promisify(fs.writeFile)
 // ------------------------------------------------
 
 /** Recursive rm. By default. */
-export const rm = async (path: string, options: { recursive: boolean, force: boolean }): Promise<any> => {
-    if(!fs.existsSync(path)) return
-    const stat = fs.statSync(path)
-    if(stat.isFile()) return await unlink(path)
-    await folder_delete(path)
+export const rm = async (path: string, options: { recursive: boolean; force: boolean }): Promise<any> => {
+  if (!fs.existsSync(path)) return
+  const stat = fs.statSync(path)
+  if (stat.isFile()) return await unlink(path)
+  await folder_delete(path)
 }

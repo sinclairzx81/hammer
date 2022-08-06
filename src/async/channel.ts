@@ -121,20 +121,19 @@ export function channel<T>(): [Sender<T>, Receiver<T>] {
   return [sender, receiver]
 }
 
-
-type SelectInner<T extends Receiver<any>[]> = { 
+type SelectInner<T extends Receiver<any>[]> = {
   [K in keyof T]: T[K] extends Receiver<infer U> ? U : never
 }[number]
 
 export function select<R extends Receiver<any>[]>(receivers: [...R]): Receiver<SelectInner<R>> {
   async function receive(sender: Sender<any>, receiver: Receiver<any>) {
-      for await(const value of receiver) {
-          await sender.send(value)
-      }
-      await sender.end()
+    for await (const value of receiver) {
+      await sender.send(value)
+    }
+    await sender.end()
   }
   const [sender, receiver] = channel<any>()
-  const promises = receivers.map(source => receive(sender, source))
+  const promises = receivers.map((source) => receive(sender, source))
   Promise.all(promises).then(() => sender.end())
   return receiver
 }
