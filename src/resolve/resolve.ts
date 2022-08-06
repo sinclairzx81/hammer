@@ -159,12 +159,30 @@ export class Resolver {
     }
   }
 
+  private getHtmlContentTargetName(filename: string, extension: string) {
+    switch(extension) {
+        case '.ts': return `${filename}.js`
+        case '.mts': return `${filename}.js`
+        case '.cts': return `${filename}.js`
+        case '.tsx': return `${filename}.js`
+        case '.mtsx': return `${filename}.js`
+        
+        case '.js': return `${filename}.js`
+        case '.mjs': return `${filename}.js`
+        case '.cjs': return `${filename}.js`
+        case '.jsx': return `${filename}.js`
+        case '.mjsx': return `${filename}.js`
+        default: return `${filename}${extension}`
+    }
+  }
+
   private getHtmlContent(content: string, tags: Array<{ sourceContent: string; sourcePath: string; targetPath: string }>): string {
     return tags.reduce((html, tag) => {
       const extension = path.extname(tag.sourcePath)
       const filename = path.basename(tag.sourcePath, extension)
       const sourceName = `${filename}${extension}`
-      const targetName = extension === '.tsx' || extension === '.ts' ? `${filename}.js` : `${filename}${extension}`
+      // const targetName = extension === '.tsx' || extension === '.ts' ? `${filename}.js` : `${filename}${extension}`
+      const targetName = this.getHtmlContentTargetName(filename, extension)
       const targetTag = tag.sourceContent.replace(sourceName, targetName)
       return html.replace(tag.sourceContent, targetTag)
     }, content)
