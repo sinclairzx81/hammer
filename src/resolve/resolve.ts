@@ -54,8 +54,8 @@ export class Resolver {
     if (stat.isDirectory()) return 'directory'
     if (stat.isFile()) {
       const extension = path.extname(sourcePath)
-      if (extension === '.ts' || extension === '.tsx' || extension === '.mts' || extension === '.mtsx') return 'typescript'
-      if (extension === '.js' || extension === '.jsx' || extension === '.mjs' || extension === '.mjsx') return 'javascript'
+      if (extension === '.ts' || extension === '.tsx' || extension === '.mts') return 'typescript'
+      if (extension === '.js' || extension === '.jsx' || extension === '.mjs') return 'javascript'
       if (extension === '.css') return 'css'
       if (extension === '.html') return 'html'
       return 'file'
@@ -160,19 +160,25 @@ export class Resolver {
   }
 
   private getHtmlContentTargetName(filename: string, extension: string) {
-    switch(extension) {
-        case '.ts': return `${filename}.js`
-        case '.mts': return `${filename}.js`
-        case '.cts': return `${filename}.js`
-        case '.tsx': return `${filename}.js`
-        case '.mtsx': return `${filename}.js`
-        
-        case '.js': return `${filename}.js`
-        case '.mjs': return `${filename}.js`
-        case '.cjs': return `${filename}.js`
-        case '.jsx': return `${filename}.js`
-        case '.mjsx': return `${filename}.js`
-        default: return `${filename}${extension}`
+    switch (extension) {
+      case '.ts':
+        return `${filename}.js`
+      case '.mts':
+        return `${filename}.js`
+      case '.cts':
+        return `${filename}.js`
+      case '.tsx':
+        return `${filename}.js`
+      case '.js':
+        return `${filename}.js`
+      case '.mjs':
+        return `${filename}.js`
+      case '.cjs':
+        return `${filename}.js`
+      case '.jsx':
+        return `${filename}.js`
+      default:
+        return `${filename}${extension}`
     }
   }
 
@@ -181,7 +187,6 @@ export class Resolver {
       const extension = path.extname(tag.sourcePath)
       const filename = path.basename(tag.sourcePath, extension)
       const sourceName = `${filename}${extension}`
-      // const targetName = extension === '.tsx' || extension === '.ts' ? `${filename}.js` : `${filename}${extension}`
       const targetName = this.getHtmlContentTargetName(filename, extension)
       const targetTag = tag.sourceContent.replace(sourceName, targetName)
       return html.replace(tag.sourceContent, targetTag)

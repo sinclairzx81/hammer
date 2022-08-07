@@ -252,7 +252,7 @@ function parseSourcePathAndArguments(params: string[]): [sourcePath: string, arg
   const partialPath = split.shift()!
   const entryPath = path.join(process.cwd(), partialPath)
   const extname = path.extname(entryPath)
-  const allowed = ['.ts', '.mts', '.tsx', 'mtsx', '.js', '.mjs', '.jsx', '.mjsx']
+  const allowed = ['.ts', '.mts', '.cts', '.tsx', '.js', '.mjs', '.cjs', '.jsx']
   if (!allowed.includes(extname)) throw new OptionsError('run', `Entry path not a TypeScript or JavaScript file. Got '${entryPath}'`)
   if (!fs.existsSync(entryPath)) throw new OptionsError('run', `Entry path '${entryPath}' does not exist.`)
   return [entryPath, split]
