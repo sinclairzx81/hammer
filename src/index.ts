@@ -45,9 +45,7 @@ import * as options from './options/index'
 
 class Hammer implements Dispose {
   private readonly disposables: Dispose[] = []
-
   constructor(private readonly options: options.Options) {}
-
   // -------------------------------------------------------------
   // Build
   // -------------------------------------------------------------
@@ -72,54 +70,14 @@ class Hammer implements Dispose {
     await builder.update(actions)
     this.disposables.push(builder)
   }
-
-  // -------------------------------------------------------------
-  // Watch
-  // -------------------------------------------------------------
-
-  private async watch(options: options.WatchOptions): Promise<void> {
-    const cache = new Cache<Asset>({
-      key: 'sourcePath',
-      timestamp: 'timestamp',
-    })
-
-    const builder = new Build({
-      platform: 'browser',
-      minify: options.minify,
-      sourcemap: options.sourcemap,
-      target: options.target,
-      external: options.external,
-      esm: options.esm,
-      node: options.platform === 'node',
-      bundle: true,
-      watch: true,
-    })
-
-    const assets = [...resolve(options.sourcePaths, options.dist)]
-    const actions = cache.update(assets)
-    await builder.update(actions)
-    const watcher = watch([...options.sourcePaths, ...assets.map((asset) => asset.sourcePath)])
-    this.disposables.push(watcher)
-    this.disposables.push(builder)
-
-    for await (const _ of watcher) {
-      const assets = [...resolve(options.sourcePaths, options.dist)]
-      watcher.add(assets.map((asset) => asset.sourcePath))
-      const actions = cache.update(assets)
-      await builder.update(actions)
-    }
-  }
-
   // -------------------------------------------------------------
   // Serve
   // -------------------------------------------------------------
-
   private async serve(options: options.ServeOptions): Promise<void> {
     const cache = new Cache<Asset>({
       key: 'sourcePath',
       timestamp: 'timestamp',
     })
-
     const builder = new Build({
       platform: 'browser',
       minify: options.minify,
@@ -131,7 +89,6 @@ class Hammer implements Dispose {
       bundle: true,
       watch: true,
     })
-
     const assets = [...resolve(options.sourcePaths, options.dist)]
     const actions = cache.update(assets)
     await builder.update(actions)
@@ -142,7 +99,6 @@ class Hammer implements Dispose {
       cors: options.cors,
       sabs: options.sabs,
     })
-
     this.disposables.push(watcher)
     this.disposables.push(builder)
     this.disposables.push(server)
@@ -153,11 +109,9 @@ class Hammer implements Dispose {
       await builder.update(actions)
     }
   }
-
   // -------------------------------------------------------------
   // Run
   // -------------------------------------------------------------
-
   private async run(options: options.RunOptions): Promise<void> {
     const cache = new Cache<Asset>({
       key: 'sourcePath',
@@ -174,18 +128,14 @@ class Hammer implements Dispose {
       bundle: true,
       watch: true,
     })
-
     const assets = [...resolve([options.sourcePath], options.dist)]
     const actions = cache.update(assets)
     await builder.update(actions)
-
     const watcher = watch([options.sourcePath, ...assets.map((asset) => asset.sourcePath)])
     const process = run(options.entryPath, options.args)
-
     this.disposables.push(watcher)
     this.disposables.push(builder)
     this.disposables.push(process)
-
     for await (const _ of watcher) {
       const assets = [...resolve([options.sourcePath], options.dist)]
       watcher.add(assets.map((asset) => asset.sourcePath))
@@ -193,23 +143,50 @@ class Hammer implements Dispose {
       await builder.update(actions)
     }
   }
-
+  // -------------------------------------------------------------
+  // Watch
+  // -------------------------------------------------------------
+  private async watch(options: options.WatchOptions): Promise<void> {
+    const cache = new Cache<Asset>({
+      key: 'sourcePath',
+      timestamp: 'timestamp',
+    })
+    const builder = new Build({
+      platform: options.platform,
+      minify: options.minify,
+      sourcemap: options.sourcemap,
+      target: options.target,
+      external: options.external,
+      esm: options.esm,
+      node: options.platform === 'node',
+      bundle: true,
+      watch: true,
+    })
+    const assets = [...resolve(options.sourcePaths, options.dist)]
+    const actions = cache.update(assets)
+    await builder.update(actions)
+    const watcher = watch([...options.sourcePaths, ...assets.map((asset) => asset.sourcePath)])
+    this.disposables.push(watcher)
+    this.disposables.push(builder)
+    for await (const _ of watcher) {
+      const assets = [...resolve(options.sourcePaths, options.dist)]
+      watcher.add(assets.map((asset) => asset.sourcePath))
+      const actions = cache.update(assets)
+      await builder.update(actions)
+    }
+  }
   // -------------------------------------------------------------
   // Monitor
   // -------------------------------------------------------------
-
   private async monitor(options: options.MonitorOptions): Promise<void> {
     await monitor(options.sourcePaths, options.arguments)
   }
-
   // -------------------------------------------------------------
   // Task
   // -------------------------------------------------------------
-
   private async task(options: options.TaskOptions): Promise<void> {
     await task(options.sourcePath, options.name, options.arguments)
   }
-
   private getVersion(): string {
     try {
       const packagePath = path.join(__dirname, 'package.json')
@@ -226,16 +203,13 @@ class Hammer implements Dispose {
       return 'Unknown'
     }
   }
-
   private async version(options: options.VersionOptions): Promise<void> {
     console.log(`Hammer: ${this.getVersion()}`)
   }
-
   private async help(options: options.HelpOptions): Promise<void> {
     const green = '\x1b[90m'
     const blue = '\x1b[36m'
     const esc = `\x1b[0m`
-
     console.log(
       [
         `${blue}Version${esc}: ${this.getVersion()}`,
@@ -271,7 +245,6 @@ class Hammer implements Dispose {
       console.log([options.message, ''].join('\n'))
     }
   }
-
   public async execute() {
     const start = Date.now()
     const blue = '\x1b[36m'
@@ -325,14 +298,12 @@ class Hammer implements Dispose {
     }
     console.log(`${blue}Done${esc}: ${Date.now() - start}ms`)
   }
-
   public dispose() {
     for (const disposable of this.disposables) {
       disposable.dispose()
     }
   }
 }
-
 export function hammer(options: options.Options) {
   return new Hammer(options)
 }
