@@ -25,7 +25,7 @@ SOFTWARE.
 ---------------------------------------------------------------------------*/
 
 import { Asset, TypeScript, JavaScript, Css } from '../resolve/index'
-import { build, BuildResult, Loader, Platform, Format } from 'esbuild'
+import { context, BuildContext, Loader, Platform, Format } from 'esbuild'
 import { Action } from '../cache/index'
 import { Dispose } from '../dispose'
 import * as path from 'path'
@@ -44,10 +44,10 @@ export interface BuilderOptions {
 }
 
 export class Build implements Dispose {
-  private readonly handles: Map<string, BuildResult>
+  private readonly handles: Map<string, BuildContext>
 
   constructor(private readonly options: BuilderOptions) {
-    this.handles = new Map<string, BuildResult>()
+    this.handles = new Map<string, BuildContext>()
   }
 
   public async update(actions: Action<Asset>[]) {
@@ -66,10 +66,10 @@ export class Build implements Dispose {
     }
   }
 
-  public dispose(): void {
-    for (const [key, handle] of this.handles) {
+  public async dispose(): Promise<void> {
+    for (const [key, ctx] of this.handles) {
       this.handles.delete(key)
-      if (handle.stop) handle.stop()
+      await ctx.dispose()
     }
   }
 
@@ -141,7 +141,7 @@ export class Build implements Dispose {
         } as { [ext: string]: Loader },
       }
 
-      const handle = await build({
+      const ctx = await context({
         ...entry,
         ...loaders,
         entryPoints: [asset.sourcePath],
@@ -149,18 +149,27 @@ export class Build implements Dispose {
         minify: this.options.minify,
         target: this.options.target,
         sourcemap: this.options.sourcemap,
-        watch: this.options.watch,
         external: this.options.external,
         bundle: true,
       })
-      this.handles.set(asset.sourcePath, handle)
+
+      if (this.options.watch) {
+        await ctx.watch()
+      } else {
+        await ctx.rebuild()
+        // Dispose immediately if not watching — no longer needed
+        await ctx.dispose()
+        return
+      }
+
+      this.handles.set(asset.sourcePath, ctx)
     } catch {}
   }
 
   private async stopEsBuild(asset: Asset) {
     if (!this.handles.has(asset.sourcePath)) return
-    const handle = this.handles.get(asset.sourcePath)!
+    const ctx = this.handles.get(asset.sourcePath)!
     this.handles.delete(asset.sourcePath)
-    if (handle.stop) handle.stop()
+    await ctx.dispose()
   }
 }
