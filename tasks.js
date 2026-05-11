@@ -43,3 +43,12 @@ export async function install_cli(target = 'target/build') {
   const packageJson = JSON.parse(await file('./package.json').read('utf-8'))
   await shell(`cd ${target} && npm install sinclair-hammer-${packageJson['version']}.tgz -g`).exec()
 }
+// -------------------------------------------------------------------------------
+// Publish
+// -------------------------------------------------------------------------------
+export async function publish(target = 'target/build') {
+  const { version } = JSON.parse(await file(`${target}/package.json`).read())
+  console.log('publishing', { version })
+  await shell(`git tag ${version}`).exec()
+  await shell(`git push origin ${version}`).exec()
+}
