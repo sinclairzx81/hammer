@@ -148,7 +148,9 @@ export class Resolver {
   // -------------------------------------------------------------------------------------
 
   private *getHtmlTags(content: string, basePath: string, targetDirectory: string): Generator<{ sourceContent: string; sourcePath: string; targetPath: string }> {
-    // const regex = /<.*(src|href)\s*=\s*['"]([a-zA-Z0-9\._-]*)['"].*>/gi
+    // original: const regex = /<.*(src|href)\s*=\s*['"]([a-zA-Z0-9\._-]*)['"].*>/gi
+
+    // Updated on (0.19.0) to support matching on path seperators (e.g. images/hammer.png)
     const regex = /<[^>]*(src|href)\s*=\s*['"]([a-zA-Z0-9\._\/-]*)['"][^>]*>/gi
     while (true) {
       const match = regex.exec(content)
