@@ -43,13 +43,14 @@ export interface BuilderOptions {
   esm: boolean
 }
 
+type SourcePath = string
+
 export class Build implements Dispose {
-  private readonly handles: Map<string, BuildContext>
+  private readonly buildContexts: Map<SourcePath, BuildContext>
 
   constructor(private readonly options: BuilderOptions) {
-    this.handles = new Map<string, BuildContext>()
+    this.buildContexts = new Map<SourcePath, BuildContext>()
   }
-
   public async update(actions: Action<Asset>[]) {
     for (const action of actions) {
       switch (action.type) {
@@ -67,9 +68,9 @@ export class Build implements Dispose {
   }
 
   public async dispose(): Promise<void> {
-    for (const [key, ctx] of this.handles) {
-      this.handles.delete(key)
-      await ctx.dispose()
+    for (const [sourcePath, buildContext] of this.buildContexts) {
+      this.buildContexts.delete(sourcePath)
+      await buildContext.dispose()
     }
   }
 
@@ -106,7 +107,7 @@ export class Build implements Dispose {
 
   private async startEsbuild(asset: TypeScript | JavaScript | Css) {
     try {
-      if (this.handles.has(asset.sourcePath)) return
+      if (this.buildContexts.has(asset.sourcePath)) return
 
       // --------------------------------------------------------------------------
       // Note: For ESM modules, we need to use a seperate esbuild configuration
@@ -141,7 +142,7 @@ export class Build implements Dispose {
         } as { [ext: string]: Loader },
       }
 
-      const ctx = await context({
+      const buildContext = await context({
         ...entry,
         ...loaders,
         entryPoints: [asset.sourcePath],
@@ -154,22 +155,22 @@ export class Build implements Dispose {
       })
 
       if (this.options.watch) {
-        await ctx.watch()
+        await buildContext.watch()
       } else {
-        await ctx.rebuild()
-        // Dispose immediately if not watching — no longer needed
-        await ctx.dispose()
+        await buildContext.rebuild()
+        // Dispose immediately if not watching (no longer needed)
+        await buildContext.dispose()
         return
       }
 
-      this.handles.set(asset.sourcePath, ctx)
+      this.buildContexts.set(asset.sourcePath, buildContext)
     } catch {}
   }
 
   private async stopEsBuild(asset: Asset) {
-    if (!this.handles.has(asset.sourcePath)) return
-    const ctx = this.handles.get(asset.sourcePath)!
-    this.handles.delete(asset.sourcePath)
-    await ctx.dispose()
+    if (!this.buildContexts.has(asset.sourcePath)) return
+    const buildContext = this.buildContexts.get(asset.sourcePath)!
+    this.buildContexts.delete(asset.sourcePath)
+    await buildContext.dispose()
   }
 }
