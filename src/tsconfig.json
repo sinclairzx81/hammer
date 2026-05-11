@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "types":["node"],
+    "moduleResolution": "nodenext",
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "nodenext",
     "strict": true,
     "newLine": "lf"
   },

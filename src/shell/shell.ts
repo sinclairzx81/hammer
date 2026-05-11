@@ -46,7 +46,10 @@ export class WindowsShell implements IShell {
   private disposed: boolean
   private exited: boolean
 
-  constructor(private readonly command: string, stdio: 'inherit' | 'ignore') {
+  constructor(
+    private readonly command: string,
+    stdio: 'inherit' | 'ignore',
+  ) {
     this.promise = new Promise((resolve) => {
       this.resolve = resolve
     })
@@ -168,7 +171,10 @@ export class LinuxShell implements IShell {
   private disposed: boolean
   private exited: boolean
 
-  constructor(private readonly command: string, stdio: 'inherit' | 'ignore') {
+  constructor(
+    private readonly command: string,
+    stdio: 'inherit' | 'ignore',
+  ) {
     this.promise = new Promise((resolve) => {
       this.resolve = resolve
     })

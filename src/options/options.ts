@@ -32,7 +32,10 @@ import * as path from 'path'
 // ------------------------------------------------------------------------
 
 export class OptionsError extends Error {
-  constructor(public readonly option: string, public readonly reason: string) {
+  constructor(
+    public readonly option: string,
+    public readonly reason: string,
+  ) {
     super(`${option}: ${reason}`)
   }
 }

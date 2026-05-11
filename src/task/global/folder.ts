@@ -30,7 +30,10 @@ import * as fs from './fs'
 import * as path from 'path'
 
 export class FolderError extends SystemError {
-  constructor(public readonly operation: string, public readonly reason: string) {
+  constructor(
+    public readonly operation: string,
+    public readonly reason: string,
+  ) {
     super(`Folder.${operation}(...): ${reason}`)
   }
 }
@@ -157,7 +160,10 @@ export class Folder {
 }
 
 export class ContentsError extends SystemError {
-  constructor(public readonly operation: string, public readonly reason: string) {
+  constructor(
+    public readonly operation: string,
+    public readonly reason: string,
+  ) {
     super(`Contents.${operation}(...): ${reason}`)
   }
 }

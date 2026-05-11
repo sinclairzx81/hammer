@@ -69,9 +69,7 @@ export async function folder_exists(folder: string): Promise<boolean> {
  */
 export async function common_readdir(folder: string): Promise<Item[]> {
   const items = await Promise.all(
-    (
-      await readdirAsync(folder)
-    ).map(async (path) => ({
+    (await readdirAsync(folder)).map(async (path) => ({
       path: basename(path),
       folder: resolve(folder),
       stat: await statAsync(join(folder, basename(path))),
